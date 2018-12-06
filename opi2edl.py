@@ -116,12 +116,14 @@ edlTextCtrlFmt = ['# (Text Control)','object activeXTextDspClass',\
 #colorsList[0] is RGB values for CSS v4.5.0's color dialog pallete.
 #colorsList[1] is best approximation of EDM color palate indexes for CSS colors
 #indexes for corresponding colors match between colorsList[0] and colorsList[1]
-colorsList = [[0,0,0],[255,255,255],[127,127,127],[255,0,0],[128,0,128],\
-	[0,0,255],[173,216,230],[0,128,0],[255,255,0],[255,165,0],[255,0,255],\
-	[230,230,250],[165,42,42],[139,105,20],[30,144,255],[255,192,203],\
-	[144,238,144],[26,26,26],[77,77,77],[191,191,191],[229,229,229]],\
-	[[14],[0],[9],[20],[39],[54],[50],[19],[30],[34],[70],[87],[24],[49],\
-	[52],[97],[60],[11],[9],[5],[3]]
+colorsList = [['0','0','0'],['255','255','255'],['127','127','127'],\
+	['255','0','0'],['128','0','128'],['0','0','255'],['173','216','230'],\
+	['0','128','0'],['255','255','0'],['255','165','0'],['255','0','255'],\
+	['230','230','250'],['165','42','42'],['139','105','20'],\
+	['30','144','255'],['255','192','203'],['144','238','144'],\
+	['26','26','26'],['77','77','77'],['191','191','191'],['229','229','229']],\
+	['14','0','9','20','39','54','50','19','30','34','70','87','24','49','52',\
+	'97','60','11','9','5','3']
 
 
 # Function parses line form OPI file for parameter set by "prop".
@@ -190,13 +192,21 @@ def ptsGet(widget,lineFmt):
 	return ptFmt,str(count)
 
 
-#WORKING ON FUNCTION TO CONVERT OPI COLORS INTO EDL COLORS.
-def convertColor(colorConst,inColor):
-	opiColors = colorConst[0]
-	for h,color in enumerate(opiColor):
-		if color == inColor:
-			outColor = h
-	return outColor
+def convertColor(colorConst,widget):
+	transparent = returnProp(widget,'transparent')
+	opiColors,edlColors = colorConst
+	for e,line in enumerate(widget):
+		if '<background_color>' in line and '</background_color>' \
+		in widget[e+2]:
+			origColor = widget[e+1].split('"')[1::2]
+			try:			
+				outColor = edlColors[opiColors.index(origColor)]
+			except:
+				#returns a dark yellowish-green color for item if it does
+				#not match anything in the color list.
+				outColor = '59'
+	return outColor,transparent
+
 
 
 
@@ -285,25 +295,36 @@ for i,line in enumerate(opiLines):
 		elif wType == 'Polyline':
 			pts,nPts = ptsGet(widget,edlLineFmt)
 			fmt = edlPlaceWidget(props,pts)
+			outColor,transparent = convertColor(colorsList,widget)
 			for row in fmt:
+				row = row.replace('COLOR',outColor)
 				row = row.replace('NUM_PTS',nPts)
 				row = row.replace('LINE_WEIGHT',returnProp(widget,'line_width'))
 				final.append(row)
 		#Rectangle
 		elif wType == 'Rectangle':
 			fmt = edlPlaceWidget(props,edlRectangleFmt)
-			for row in fmt:
+			outColor,transparent = convertColor(colorsList,widget)
+			for r,row in enumerate(fmt):
+				if 'fillColor' in row and transparent == 'false':
+					final.append('fill')
+				row = row.replace('COLOR',outColor)
 				final.append(row)
 		#Circle / Ellipse
 		elif wType == 'Ellipse':
 			fmt = edlPlaceWidget(props,edlCircleFmt)
+			outColor,transparent = convertColor(colorsList,widget)
 			for row in fmt:
+				if 'fillColor' in row and transparent == 'false':
+					final.append('fill')
+				row = row.replace('COLOR',outColor)
 				final.append(row)
 		#Arc - NOTE: this widget conversion seems to be a little buggy,
 		elif wType == 'Arc':
 			fmt = edlPlaceWidget(props,edlArcFmt)
 			for row in fmt:
 				final.append(row)
+
 
 
 # Writes resulting "final" list to text to .edl file for EDM.
