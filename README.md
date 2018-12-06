@@ -3,12 +3,10 @@
 
 *Development of this script is ongoing as of December 6, 2018.*
 
-Program is designed to run from Linux command line.
-
-Format of command line input is: `python opi2edl.py <opi file>`
+Program is designed to run from Linux command line. Format of command is `python opi2edl.py <opi file>`
 
 
-Widgets that this coversion currently supports:
+### Widgets able to be converted: ###
 
 - Text Update
 
