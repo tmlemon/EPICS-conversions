@@ -101,7 +101,7 @@ edlTextUpdateFmt = ['# (Textupdate)','object TextupdateClass',\
 	'beginObjectProperties','major 10','minor 0','release 0','x X_POS',\
 	'y Y_POS','w WIDTH','h HEIGHT','controlPv "PV_NAME"',\
 	'fgColor index 14','fgAlarm','bgColor index 51','fill',\
-	'font "helvetica-medium-r-18.0"','endObjectProperties\n']
+	'font "helvetica-medium-r-14.0"','endObjectProperties\n']
 
 #Text controls - NOTE: this is the one widget that has yet to be tested.
 edlTextCtrlFmt = ['# (Text Control)','object activeXTextDspClass',\
