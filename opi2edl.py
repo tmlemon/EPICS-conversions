@@ -220,139 +220,169 @@ def convertColor(colorConst,widget):
 
 #Checks user arguements for .opi file. Returns error message and usage if error.
 if len(sys.argv) != 2:
-	print('\nERROR\nEnter only one arguement for OPI file to convert \
-to EDL.\npython opi2edl.py <opi file>\n')
-	sys.exit(0)
-if sys.argv[1][-4:] != '.opi':
-	print('\nERROR\nInput file must be an OPI file\npython opi2edl.py \
-<opi file>\n')
+	print('\nERROR\nEnter only one arguement for OPI file or directory of \
+OPI files to convert to EDL.\npython opi2edl.py <opi file / directory>\n')
 	sys.exit(0)
 
-# Reads in file names for .opi file from arguement.
-# Creates .edl file name by removing opi file extension and appending .edl.
-opi = sys.argv[1]
-edl = opi[:opi.find('.opi')]+'.edl'
-
-# Opens .opi file as text and stores all lines as list elements.
-with open(opi,'r') as f:
-	opiLines = f.readlines()
-
-# Processes lines from OPI file to determine widget type and other properties.
-hold = 0
-# Separates OPI file lines into different widgets and pulls out relevant 
-# properties.
-
-final = []
-# dimensions of screen -- WORKING ON THIS PART.
-width = returnProp(opiLines,'width')
-height = returnProp(opiLines,'height')
-for line in edlScreenProps:
-	line = line.replace('WIDTH',width)
-	line = line.replace('HEIGHT',height)
-	final.append(line)
-
-#widget properties
-for i,line in enumerate(opiLines):
-	#separates opi file into widgets.
-	if '<widget typeId=' in line and hold == 0:
-		hold = i
-	elif '</widget>' in line and hold != 0:
-		widget = opiLines[hold:i+1]
-		hold = 0
-		wType = returnProp(widget,'widget_type')
-		xPos = returnProp(widget,'x')
-		yPos = returnProp(widget,'y')
-		width = returnProp(widget,'width')
-		height = returnProp(widget,'height')
-		props = [wType,xPos,yPos,width,height]
-		#Text update
-		if wType == 'Text Update':
-			fmt = edlPlaceWidget(props,edlTextUpdateFmt)
-			for row in fmt:
-				row = row.replace('PV_NAME',returnProp(widget,'pv_name'))
-				final.append(row)
-		#Static Text / Label
-		elif wType == 'Label':
-			fmt = edlPlaceWidget(props,edlStaticTextFmt)
-			for row in fmt:
-				row = row.replace('LABEL_TEXT',returnProp(widget,'text'))
-				final.append(row)
-		#Images - checks whether image is PNG or GIF.
-		elif wType == 'Image':
-			imageFile = lookForImage(returnProp(widget,'image_file'))
-			if 'png' in imageFile:
-				fmt = edlPlaceWidget(props,edlPngFmt)
-				conv = True
-			elif 'gif' in imageFile:
-				fmt = edlPlaceWidget(props,edlGifFmt)
-				conv = True
+#Allows user to input a directory instead of a file to convert the directory
+#all at once instead of having to run command for every file in path.
+files,skipped = [],[]
+if os.path.isdir(sys.argv[1]):
+	for f in os.listdir(sys.argv[1]):
+		if 'opi' not in f:
+			skipped.append(sys.argv[1]+'/'+f)
+		elif 'opi' in f:
+			if sys.argv[1].strip()[-1:] == '/':
+				files.append(sys.argv[1]+f)
 			else:
-				print('NOTICE: File type of image in OPI not supported in EDM.')
-				print('Image will not be converted to EDL.')
-				conv = False
-			if conv == True:
+				files.append(sys.argv[1]+'/'+f)
+		else:
+			print('Error in reading in files. Check files and re-run script.')
+else:
+	if 'opi' not in sys.argv[1]:
+		skipped.append(sys.argv[1])
+	elif 'opi' in sys.argv[1]:
+		files.append(sys.argv[1])
+	else:
+		print('Error in reading in files. Check files and re-run script.')
+
+if len(skipped) != 0:
+	print('\nNon-OPI files entered into script. Files will be skipped:')
+	for f in skipped:
+		print(f)
+	print('')
+
+for opi in files:
+	edl = opi[opi.rfind('/')+1:][:opi[opi.rfind('/')+1:].find('.opi')]+'.edl'
+	
+	# Reads in file names for .opi file from arguement.
+	# Creates .edl file name by removing opi file extension and appending .edl.
+	
+
+	# Opens .opi file as text and stores all lines as list elements.
+	with open(opi,'r') as f:
+		opiLines = f.readlines()
+
+	# Processes OPI file lines to determine widget type and other properties.
+	hold = 0
+	# Separates OPI file lines into different widgets and pulls out relevant 
+	# properties.
+	final = []
+	# dimensions of screen.
+	width = returnProp(opiLines,'width')
+	height = returnProp(opiLines,'height')
+	for line in edlScreenProps:
+		line = line.replace('WIDTH',width)
+		line = line.replace('HEIGHT',height)
+		final.append(line)
+
+	#widget properties
+	for i,line in enumerate(opiLines):
+		#separates opi file into widgets.
+		if '<widget typeId=' in line and hold == 0:
+			hold = i
+		elif '</widget>' in line and hold != 0:
+			widget = opiLines[hold:i+1]
+			hold = 0
+			wType = returnProp(widget,'widget_type')
+			xPos = returnProp(widget,'x')
+			yPos = returnProp(widget,'y')
+			width = returnProp(widget,'width')
+			height = returnProp(widget,'height')
+			props = [wType,xPos,yPos,width,height]
+			#Text update
+			if wType == 'Text Update':
+				fmt = edlPlaceWidget(props,edlTextUpdateFmt)
 				for row in fmt:
-					row = row.replace('PATH_TO_PIC',wedmPath+imageFile)
+					row = row.replace('PV_NAME',returnProp(widget,'pv_name'))
 					final.append(row)
-				#print('Be sure to copy "'+imageFile+'" to WEDM.')
-		#Line
-		elif wType == 'Polyline':
-			pts,nPts = ptsGet(widget,edlLineFmt)
-			fmt = edlPlaceWidget(props,pts)
-			outColor,transparent = convertColor(colorsList,widget)
-			if outColor == '54':
-				print('NOTICE: Color of '+wType+' not found in EDM pallete.')
-			for row in fmt:
-				row = row.replace('COLOR',outColor)
-				row = row.replace('NUM_PTS',nPts)
-				row = row.replace('LINE_WEIGHT',returnProp(widget,'line_width'))
-				final.append(row)
-		#Rectangle
-		elif wType == 'Rectangle':
-			fmt = edlPlaceWidget(props,edlRectangleFmt)
-			outColor,transparent = convertColor(colorsList,widget)
-			if outColor == '54':
-				print('NOTICE: Color of '+wType+' not found in EDM pallete.')
-			for r,row in enumerate(fmt):
-				if 'fillColor' in row and transparent == 'false':
-					final.append('fill')
-				row = row.replace('COLOR',outColor)
-				final.append(row)
-		#Circle / Ellipse
-		elif wType == 'Ellipse':
-			fmt = edlPlaceWidget(props,edlCircleFmt)
-			outColor,transparent = convertColor(colorsList,widget)
-			if outColor == '54':
-				print('NOTICE: Color of '+wType+' not found in EDM pallete.')
-			for row in fmt:
-				if 'fillColor' in row and transparent == 'false':
-					final.append('fill')
-				row = row.replace('COLOR',outColor)
-				final.append(row)
-		#Arc - NOTE: this widget conversion seems to be a little buggy,
-		elif wType == 'Arc':
-			fmt = edlPlaceWidget(props,edlArcFmt)
-			for row in fmt:
-				final.append(row)
-		#Bar Monitor
-		elif wType == 'Progress Bar':
-			fmt = edlPlaceWidget(props,edlBarMonFmt)
-			outColor,transparent = convertColor(colorsList,widget)
-			orientation = returnProp(widget,'horizontal')
-			if outColor == '54':
-				print('NOTICE: Color of '+wType+' not found in EDM pallete.')
-			for row in fmt:
-				row = row.replace('PV_NAME',returnProp(widget,'pv_name'))
-				row = row.replace('MAX',returnProp(widget,'maximum'))
-				row = row.replace('MIN',returnProp(widget,'minimum'))
-				if 'endObjectProperties' in row and orientation == 'false':
-					final.append('orientation "vertical"')
-				final.append(row)
+			#Static Text / Label
+			elif wType == 'Label':
+				fmt = edlPlaceWidget(props,edlStaticTextFmt)
+				for row in fmt:
+					row = row.replace('LABEL_TEXT',returnProp(widget,'text'))
+					final.append(row)
+			#Images - checks whether image is PNG or GIF.
+			elif wType == 'Image':
+				imageFile = lookForImage(returnProp(widget,'image_file'))
+				if 'png' in imageFile:
+					fmt = edlPlaceWidget(props,edlPngFmt)
+					conv = True
+				elif 'gif' in imageFile:
+					fmt = edlPlaceWidget(props,edlGifFmt)
+					conv = True
+				else:
+					print('NOTICE: File type of image in OPI not supported \
+in EDM.')
+					print('Image will not be converted to EDL.')
+					conv = False
+				if conv == True:
+					for row in fmt:
+						row = row.replace('PATH_TO_PIC',wedmPath+imageFile)
+						final.append(row)
+					#print('Be sure to copy "'+imageFile+'" to WEDM.')
+			#Line
+			elif wType == 'Polyline':
+				pts,nPts = ptsGet(widget,edlLineFmt)
+				fmt = edlPlaceWidget(props,pts)
+				outColor,transparent = convertColor(colorsList,widget)
+				if outColor == '54':
+					print('NOTICE: Color of '+wType+' not found in EDM \
+pallete.')
+				for row in fmt:
+					row = row.replace('COLOR',outColor)
+					row = row.replace('NUM_PTS',nPts)
+					row = row.replace('LINE_WEIGHT',returnProp(widget,\
+						'line_width'))
+					final.append(row)
+			#Rectangle
+			elif wType == 'Rectangle':
+				fmt = edlPlaceWidget(props,edlRectangleFmt)
+				outColor,transparent = convertColor(colorsList,widget)
+				if outColor == '54':
+					print('NOTICE: Color of '+wType+' not found in EDM \
+pallete.')
+				for r,row in enumerate(fmt):
+					if 'fillColor' in row and transparent == 'false':
+						final.append('fill')
+					row = row.replace('COLOR',outColor)
+					final.append(row)
+			#Circle / Ellipse
+			elif wType == 'Ellipse':
+				fmt = edlPlaceWidget(props,edlCircleFmt)
+				outColor,transparent = convertColor(colorsList,widget)
+				if outColor == '54':
+					print('NOTICE: Color of '+wType+' not found in EDM \
+pallete.')
+				for row in fmt:
+					if 'fillColor' in row and transparent == 'false':
+						final.append('fill')
+					row = row.replace('COLOR',outColor)
+					final.append(row)
+			#Arc - NOTE: this widget conversion seems to be a little buggy,
+			elif wType == 'Arc':
+				fmt = edlPlaceWidget(props,edlArcFmt)
+				for row in fmt:
+					final.append(row)
+			#Bar Monitor
+			elif wType == 'Progress Bar':
+				fmt = edlPlaceWidget(props,edlBarMonFmt)
+				outColor,transparent = convertColor(colorsList,widget)
+				orientation = returnProp(widget,'horizontal')
+				if outColor == '54':
+					print('NOTICE: Color of '+wType+' not found in EDM pallete.')
+				for row in fmt:
+					row = row.replace('PV_NAME',returnProp(widget,'pv_name'))
+					row = row.replace('MAX',returnProp(widget,'maximum'))
+					row = row.replace('MIN',returnProp(widget,'minimum'))
+					if 'endObjectProperties' in row and orientation == 'false':
+						final.append('orientation "vertical"')
+					final.append(row)
 
 
-# Writes resulting "final" list to text to .edl file for EDM.
-with open(edl,'w') as f:
-	for line in final:
-		f.write(line)
-		f.write('\n')
-
+	# Writes resulting "final" list to text to .edl file for EDM.
+	with open(edl,'w') as f:
+		for line in final:
+			f.write(line)
+			f.write('\n')
+	print(opi+' converted to '+edl)
