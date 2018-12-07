@@ -80,11 +80,11 @@ edlPngFmt = ['# (PNG Image)','object activePngClass','beginObjectProperties',\
 
 #Bar monitors - if rotated 90 deg, can act as liquid level indicators
 edlBarMonFmt = ['# (Bar)','object activeBarClass','beginObjectProperties',\
-	'major 4','minor 1','release 1','x X_POS','y Y_POS','w WIDTH',\
-	'h HEIGHT','indicatorColor index 14','fgColor index 14',\
-	'bgColor index 51','showScale',\
-	'font "helvetica-medium-r-18.0"','border','limitsFromDb',\
-	'scaleFormat "FFloat"','endObjectProperties\n']
+	'major 4','minor 1','release 1','x X_POS','y Y_POS','w WIDTH','h HEIGHT',\
+	'indicatorColor indexCOLOR','fgColor index 14','bgColor index 9',\
+	'indicatorPv "PV_NAME"','showScale','origin "0"',\
+	'font "helvetica-medium-r-8.0"','border','precision "10"','min "MIN"',\
+	'max "MAX"','scaleFormat "FFloat"','endObjectProperties\n']
 
 #Text monitor
 edlTextMonFmt = ['# (Text Monitor)','object activeXTextDspClass:noedit',\
@@ -193,7 +193,11 @@ def ptsGet(widget,lineFmt):
 
 
 def convertColor(colorConst,widget):
-	transparent = returnProp(widget,'transparent')
+	#try-except for widgets that do not have transparent property.
+	try:	
+		transparent = returnProp(widget,'transparent')
+	except:
+		transparent = 'false'
 	opiColors,edlColors = colorConst
 	for e,line in enumerate(widget):
 		if '<background_color>' in line and '</background_color>' \
@@ -330,7 +334,20 @@ for i,line in enumerate(opiLines):
 			fmt = edlPlaceWidget(props,edlArcFmt)
 			for row in fmt:
 				final.append(row)
-
+		#Bar Monitor
+		elif wType == 'Progress Bar':
+			fmt = edlPlaceWidget(props,edlBarMonFmt)
+			outColor,transparent = convertColor(colorsList,widget)
+			orientation = returnProp(widget,'horizontal')
+			if outColor == '54':
+				print('NOTICE: Color of '+wType+' not found in EDM pallete.')
+			for row in fmt:
+				row = row.replace('PV_NAME',returnProp(widget,'pv_name'))
+				row = row.replace('MAX',returnProp(widget,'maximum'))
+				row = row.replace('MIN',returnProp(widget,'minimum'))
+				if 'endObjectProperties' in row and orientation == 'false':
+					final.append('orientation "vertical"')
+				final.append(row)
 
 
 # Writes resulting "final" list to text to .edl file for EDM.
