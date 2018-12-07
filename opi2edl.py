@@ -296,6 +296,8 @@ for i,line in enumerate(opiLines):
 			pts,nPts = ptsGet(widget,edlLineFmt)
 			fmt = edlPlaceWidget(props,pts)
 			outColor,transparent = convertColor(colorsList,widget)
+			if outColor == '54':
+				print('NOTICE: Color of '+wType+' not found in EDM pallete.')
 			for row in fmt:
 				row = row.replace('COLOR',outColor)
 				row = row.replace('NUM_PTS',nPts)
@@ -305,6 +307,8 @@ for i,line in enumerate(opiLines):
 		elif wType == 'Rectangle':
 			fmt = edlPlaceWidget(props,edlRectangleFmt)
 			outColor,transparent = convertColor(colorsList,widget)
+			if outColor == '54':
+				print('NOTICE: Color of '+wType+' not found in EDM pallete.')
 			for r,row in enumerate(fmt):
 				if 'fillColor' in row and transparent == 'false':
 					final.append('fill')
@@ -314,6 +318,8 @@ for i,line in enumerate(opiLines):
 		elif wType == 'Ellipse':
 			fmt = edlPlaceWidget(props,edlCircleFmt)
 			outColor,transparent = convertColor(colorsList,widget)
+			if outColor == '54':
+				print('NOTICE: Color of '+wType+' not found in EDM pallete.')
 			for row in fmt:
 				if 'fillColor' in row and transparent == 'false':
 					final.append('fill')
