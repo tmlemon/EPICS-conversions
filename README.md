@@ -25,3 +25,6 @@ Program is designed to run from Linux command line. Format of command is `python
 - Arc
   - Arc conversion is a little buggy.
   - It does not always convert the angles spanned by the arc correctly.
+
+- Bar Monitor
+  - Wiget conversion added, but yet to be fully tested.
