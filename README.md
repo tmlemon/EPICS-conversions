@@ -1,30 +1,22 @@
-# opi2edl
-**Python script to convert OPI files to EDL files.**
+# EPICS Conversion Scripts
+**Python script to convert EPICS formats.**
 
-*Development of this script is ongoing as of December 6, 2018.*
+*Development of these scripts are ongoing as of December 6, 2018.*
 
-Program is designed to run from Linux command line. Format of command is `python opi2edl.py <opi file>`
+Programs are designed to run from Linux command line. 
 
 
-### Widgets able to be converted: ###
 
-- Text Update
 
-- Static Text / Label
 
-- Image
-  - PNG or GIF only
+- csv2edl.py
+ - Converts comma-separated-variable table of PVs and labels to EDM .edl files.
 
-- Line
-  - Can be polyline
+- csv2opi.py
+ - Converts comma-separated-variable table of PVs and labels to CSS .opi files.
 
-- Rectangle
+- opi2edl.py
+ - Converts CSS .opi files to EDM .edl files.
 
-- Circle / Ellipse
-
-- Arc
-  - Arc conversion is a little buggy.
-  - It does not always convert the angles spanned by the arc correctly.
-
-- Bar Monitor
-  - Wiget conversion added, but yet to be fully tested.
+- tcl2css.py
+ - Converts .tcl files to CSS .opi files.
