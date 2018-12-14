@@ -62,7 +62,8 @@ template = ['  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1
 '    <width>INDICATOR_WIDTH</width>',\
 '    <wrap_words>false</wrap_words>',\
 '    <wuid>54b97197:16750d3dd5b:-7711</wuid>','    <x>INDICATOR_X_POS</x>',\
-'    <y>INDICATOR_Y_POS</y>', '  </widget>','  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">',\
+'    <y>INDICATOR_Y_POS</y>', '  </widget>',
+'  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">',\
 '    <actions hook="false" hook_all="false" />',\
 '    <auto_size>false</auto_size>','    <background_color>',\
 '      <color red="255" green="255" blue="255" />','    </background_color>',\
