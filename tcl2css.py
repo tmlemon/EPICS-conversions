@@ -419,17 +419,17 @@ xyPlotStart = [\
 '      <color red="200" green="200" blue="200" />',\
 '    </axis_0_grid_color>',\
 '    <axis_0_log_scale>false</axis_0_log_scale>',\
-'    <axis_0_maximum>100.0</axis_0_maximum>',\
+'    <axis_0_maximum>10.0</axis_0_maximum>',\
 '    <axis_0_minimum>0.0</axis_0_minimum>',\
 '    <axis_0_scale_font>',\
-'      <opifont.name fontName="Cantarell" height="11" style="1" pixels="false">Default Bold</opifont.name>',\
+'      <opifont.name fontName="Cantarell" height="11" style="0"\
+ pixels="false">Default</opifont.name>',\
 '    </axis_0_scale_font>',\
 '    <axis_0_scale_format></axis_0_scale_format>',\
 '    <axis_0_show_grid>true</axis_0_show_grid>',\
 '    <axis_0_time_format>0</axis_0_time_format>',\
 '    <axis_0_title_font>',\
-'      <opifont.name fontName="Cantarell" height="11" style="1"\
- pixels="false">Default Bold</opifont.name>',\
+'      <opifont.name fontName="Cantarell" height="11" style="1" pixels="false">Default Bold</opifont.name>',\
 '    </axis_0_title_font>',\
 '    <axis_0_visible>true</axis_0_visible>',\
 '    <axis_1_auto_scale>false</axis_1_auto_scale>',\
@@ -442,19 +442,17 @@ xyPlotStart = [\
 '    <axis_1_grid_color>',\
 '      <color red="200" green="200" blue="200" />',\
 '    </axis_1_grid_color>',\
-'    <axis_1_log_scale>true</axis_1_log_scale>',\
-'    <axis_1_maximum>1000.0</axis_1_maximum>',\
+'    <axis_1_log_scale>false</axis_1_log_scale>',\
+'    <axis_1_maximum>200.0</axis_1_maximum>',\
 '    <axis_1_minimum>0.0</axis_1_minimum>',\
 '    <axis_1_scale_font>',\
-'      <opifont.name fontName="Cantarell" height="11" style="0"\
- pixels="false">Default</opifont.name>',\
+'      <opifont.name fontName="Cantarell" height="11" style="0" pixels="false">Default</opifont.name>',\
 '    </axis_1_scale_font>',\
 '    <axis_1_scale_format></axis_1_scale_format>',\
 '    <axis_1_show_grid>true</axis_1_show_grid>',\
 '    <axis_1_time_format>0</axis_1_time_format>',\
 '    <axis_1_title_font>',\
-'      <opifont.name fontName="Cantarell" height="11" style="1"\
- pixels="false">Default Bold</opifont.name>',\
+'      <opifont.name fontName="Cantarell" height="11" style="1" pixels="false">Default Bold</opifont.name>',\
 '    </axis_1_title_font>',\
 '    <axis_1_visible>true</axis_1_visible>',\
 '    <axis_count>2</axis_count>',\
@@ -474,11 +472,11 @@ xyPlotStart = [\
 '      <color red="0" green="0" blue="255" />',\
 '    </foreground_color>',\
 '    <height>HEIGHT</height>',\
-'    <name>XY Graph_1</name>',\
+'    <name>XY Graph</name>',\
 '    <plot_area_background_color>',\
 '      <color red="255" green="255" blue="255" />',\
 '    </plot_area_background_color>',\
-'    <pv_name>loc://PLOT_NAME(0)</pv_name>',\
+'    <pv_name>loc://Plot</pv_name>',\
 '    <pv_value />',\
 '    <rules />',\
 '    <scale_options>',\
@@ -486,7 +484,25 @@ xyPlotStart = [\
 '      <height_scalable>true</height_scalable>',\
 '      <keep_wh_ratio>false</keep_wh_ratio>',\
 '    </scale_options>',\
-'    <scripts />',\
+'    <scripts>',\
+'      <path pathString="EmbeddedPy" checkConnect="true" sfe="false" \
+seoe="false">',\
+'        <scriptName>build-array</scriptName>',\
+'        <scriptText><![CDATA[from org.csstudio.opibuilder.scriptUtil \
+import PVUtil',\
+'from array import array',\
+"arr = array('f')",\
+'for pv in pvs[1:]:',\
+'	arr.append(PVUtil.getDouble(pv))',\
+'pvs[0].setValue(arr)]]></scriptText>',\
+'        <pv trig="false">$(pv_name)</pv>']
+
+
+xyPlotChannelFmt = '        <pv trig="true">INSERT_PV_HERE</pv>'
+
+xyPlotEnd = [\
+'      </path>',\
+'    </scripts>',\
 '    <show_legend>false</show_legend>',\
 '    <show_plot_area_border>false</show_plot_area_border>',\
 '    <show_toolbar>false</show_toolbar>',\
@@ -496,68 +512,59 @@ xyPlotStart = [\
  pixels="false">Default Bold</opifont.name>',\
 '    </title_font>',\
 '    <tooltip>$(trace_0_y_pv)',\
-'$(trace_0_y_pv_value)</tooltip>']
-
-# OPI format for channel of XY Plot.
-# Each PV to add needs its own channel in plot.
-xyPlotChannelFmt = [\
-'    <trace_PV-NUM_anti_alias>true</trace_PV-NUM_anti_alias>',\
-'    <trace_PV-NUM_buffer_size>3</trace_PV-NUM_buffer_size>',\
-'    <trace_PV-NUM_concatenate_data>false</trace_PV-NUM_concatenate_data>',\
-'    <trace_PV-NUM_line_width>10</trace_PV-NUM_line_width>',\
-'    <trace_PV-NUM_name>$(trace_PV-NUM_y_pv)</trace_PV-NUM_name>',\
-'    <trace_PV-NUM_plot_mode>0</trace_PV-NUM_plot_mode>',\
-'    <trace_PV-NUM_point_size>4</trace_PV-NUM_point_size>',\
-'    <trace_PV-NUM_point_style>0</trace_PV-NUM_point_style>',\
-'    <trace_PV-NUM_trace_color>',\
+'$(trace_0_y_pv_value)</tooltip>',\
+'    <trace_0_anti_alias>true</trace_0_anti_alias>',\
+'    <trace_0_buffer_size>100</trace_0_buffer_size>',\
+'    <trace_0_concatenate_data>false</trace_0_concatenate_data>',\
+'    <trace_0_line_width>4</trace_0_line_width>',\
+'    <trace_0_name>$(trace_0_y_pv)</trace_0_name>',\
+'    <trace_0_plot_mode>0</trace_0_plot_mode>',\
+'    <trace_0_point_size>4</trace_0_point_size>',\
+'    <trace_0_point_style>0</trace_0_point_style>',\
+'    <trace_0_trace_color>',\
 '      <color red="21" green="21" blue="196" />',\
-'    </trace_PV-NUM_trace_color>',\
-'    <trace_PV-NUM_trace_type>3</trace_PV-NUM_trace_type>',\
-'    <trace_PV-NUM_update_delay>100</trace_PV-NUM_update_delay>',\
-'    <trace_PV-NUM_update_mode>0</trace_PV-NUM_update_mode>',\
-'    <trace_PV-NUM_visible>true</trace_PV-NUM_visible>',\
-'    <trace_PV-NUM_x_axis_index>0</trace_PV-NUM_x_axis_index>',\
-'    <trace_PV-NUM_x_pv>loc://chPV-NUM(PV-NUM)</trace_PV-NUM_x_pv>',\
-'    <trace_PV-NUM_x_pv_value />',\
-'    <trace_PV-NUM_y_axis_index>1</trace_PV-NUM_y_axis_index>',\
-'    <trace_PV-NUM_y_pv>PV_NAME</trace_PV-NUM_y_pv>',\
-'    <trace_PV-NUM_y_pv_value />']
-
-# OPI format for end of XY Plot widget.
-xyPlotEnd = [\
-'    <trace_count>NUMBER_OF_PVS</trace_count>',\
+'    </trace_0_trace_color>',\
+'    <trace_0_trace_type>3</trace_0_trace_type>',\
+'    <trace_0_update_delay>100</trace_0_update_delay>',\
+'    <trace_0_update_mode>0</trace_0_update_mode>',\
+'    <trace_0_visible>true</trace_0_visible>',\
+'    <trace_0_x_axis_index>0</trace_0_x_axis_index>,'\
+'    <trace_0_x_pv></trace_0_x_pv>',\
+'    <trace_0_x_pv_value />',\
+'    <trace_0_y_axis_index>1</trace_0_y_axis_index>',\
+'    <trace_0_y_pv>$(pv_name)</trace_0_y_pv>',\
+'    <trace_0_y_pv_value />',\
+'    <trace_count>1</trace_count>',\
 '    <transparent>false</transparent>',\
 '    <trigger_pv></trigger_pv>',\
 '    <trigger_pv_value />',\
 '    <visible>true</visible>',\
 '    <widget_type>XY Graph</widget_type>',\
 '    <width>WIDTH</width>',\
-'    <wuid>5c548784:167ade5fc14:-7ea6</wuid>',\
+'    <wuid>1836fa4c:167bd64aba4:-7fdb</wuid>',\
 '    <x>X_POS</x>',\
 '    <y>Y_POS</y>',\
 '  </widget>']
+
 
 # function to generate bar plot for list of PVs.
 # pvs = list of PVs where PVs are in string format.
 # yAxisLabel = string for y-axis label
 # height = integer height of plot
 # width = integer width of plot
-def xyPlot(pvs,yAxisLabel,height,width):
+def xyPlot(pvs,yAxisLabel,x,y):
 	plot = []
 	for line in xyPlotStart:
 		line = line.replace('Y_AXIS_LABEL',yAxisLabel)
-		line = line.replace('HEIGHT',str(height))
+		line = line.replace('HEIGHT',str(300))
 		plot.append(line)
-	for chNum,pv in enumerate(pvs):
-		for line in xyPlotChannelFmt:
-			line = line.replace('PV-NUM',str(chNum))
-			line = line.replace('PV_NAME',pv)
-			plot.append(line)
+	for pv in pvs:
+		plot.append(xyPlotChannelFmt.replace('INSERT_PV_HERE',pv))
 	for line in xyPlotEnd:
 		line = line.replace('NUMBER_OF_PVS',str(len(pvs)))
-		line = line.replace('WIDTH',str(width))
-		line = line.replace('X_POS',str(50))
-		line = line.replace('Y_POS',str(50))
+		line = line.replace('WIDTH',str(700))
+		line = line.replace('X_POS',str(x))
+		line = line.replace('Y_POS',str(y))
 		plot.append(line)
 	return plot
 
@@ -794,23 +801,21 @@ for grp in groups:
 	# Finally, a message is printed stating what OPI file has been created.
 	print(fileName+'-list.opi created.')
 
-
-'''
 # Creates XY Plot for voltage and current monitoring
-# NOTE: ONLY 20 TRACES CAN BE SHOWN IN XYPLOT
-# TRYING TO FIND DIFFERENT WAY TO PROGRAMMATICALLY CREATE PLOT.
 screen = []
 for line in screenTemplate:
 	line = line.replace('OPI_NAME',fileName)
-	line = line.replace('SCREEN_WIDTH',str(screenWidth))
+	line = line.replace('SCREEN_WIDTH',str(800))
 	line = line.replace('SCREEN_HEIGHT',str(800))
 	screen.append(line)
-for line in xyPlot(vMon,'Vmon',200,500):
+for line in xyPlot(vMon,'Vmon',50,75):
+	screen.append(line)
+for line in xyPlot(iMon,'Imon',50,400):
 	screen.append(line)
 screen.append(lastLine)
 
-with open('HMS-vMon-plot.opi','w') as f:
+with open('HMS-plot.opi','w') as f:
 	for line in screen:
 		f.write(line)
 		f.write('\n')
-'''
+print('HMS-plot.opi created.')
