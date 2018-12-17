@@ -343,6 +343,7 @@ textInput = [\
 '    <y>INPUT_Y_POS</y>',\
 '  </widget>']
 
+#OPI format for line graphic used as divider between rows
 lineFmt = [\
 '  <widget typeId="org.csstudio.opibuilder.widgets.polyline" version="1.0.0">',\
 '    <actions hook="false" hook_all="false" />',\
@@ -402,10 +403,191 @@ lineFmt = [\
 '    <y>LINE_Y_POS</y>',\
 '  </widget>']
 
+#start of OPI format for xy plot.
+xyPlotStart = [\
+'  <widget typeId="org.csstudio.opibuilder.widgets.xyGraph" version="1.0.0">',\
+'    <actions hook="false" hook_all="false" />',\
+'    <alarm_pulsing>false</alarm_pulsing>',\
+'    <axis_0_auto_scale>true</axis_0_auto_scale>',\
+'    <axis_0_auto_scale_threshold>0.0</axis_0_auto_scale_threshold>',\
+'    <axis_0_axis_color>',\
+'      <color red="0" green="0" blue="0" />',\
+'    </axis_0_axis_color>',\
+'    <axis_0_axis_title>Channel</axis_0_axis_title>',\
+'    <axis_0_dash_grid_line>true</axis_0_dash_grid_line>',\
+'    <axis_0_grid_color>',\
+'      <color red="200" green="200" blue="200" />',\
+'    </axis_0_grid_color>',\
+'    <axis_0_log_scale>false</axis_0_log_scale>',\
+'    <axis_0_maximum>100.0</axis_0_maximum>',\
+'    <axis_0_minimum>0.0</axis_0_minimum>',\
+'    <axis_0_scale_font>',\
+'      <opifont.name fontName="Cantarell" height="11" style="0"\',\
+ pixels="false">Default</opifont.name>',\
+'    </axis_0_scale_font>',\
+'    <axis_0_scale_format></axis_0_scale_format>',\
+'    <axis_0_show_grid>true</axis_0_show_grid>',\
+'    <axis_0_time_format>0</axis_0_time_format>',\
+'    <axis_0_title_font>',\
+'      <opifont.name fontName="Cantarell" height="11" style="1"\
+ pixels="false">Default Bold</opifont.name>',\
+'    </axis_0_title_font>',\
+'    <axis_0_visible>true</axis_0_visible>',\
+'    <axis_1_auto_scale>false</axis_1_auto_scale>',\
+'    <axis_1_auto_scale_threshold>0.0</axis_1_auto_scale_threshold>',\
+'    <axis_1_axis_color>',\
+'      <color red="0" green="0" blue="0" />',\
+'    </axis_1_axis_color>',\
+'    <axis_1_axis_title>Y_AXIS_LABEL</axis_1_axis_title>',\
+'    <axis_1_dash_grid_line>true</axis_1_dash_grid_line>',\
+'    <axis_1_grid_color>',\
+'      <color red="200" green="200" blue="200" />',\
+'    </axis_1_grid_color>',\
+'    <axis_1_log_scale>true</axis_1_log_scale>',\
+'    <axis_1_maximum>1000.0</axis_1_maximum>',\
+'    <axis_1_minimum>0.0</axis_1_minimum>',\
+'    <axis_1_scale_font>',\
+'      <opifont.name fontName="Cantarell" height="11" style="0"\
+ pixels="false">Default</opifont.name>',\
+'    </axis_1_scale_font>',\
+'    <axis_1_scale_format></axis_1_scale_format>',\
+'    <axis_1_show_grid>true</axis_1_show_grid>',\
+'    <axis_1_time_format>0</axis_1_time_format>',\
+'    <axis_1_title_font>',\
+'      <opifont.name fontName="Cantarell" height="11" style="1"\
+ pixels="false">Default Bold</opifont.name>',\
+'    </axis_1_title_font>',\
+'    <axis_1_visible>true</axis_1_visible>',\
+'    <axis_count>2</axis_count>',\
+'    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>',\
+'    <background_color>',\
+'      <color red="240" green="240" blue="240" />',\
+'    </background_color>',\
+'    <border_alarm_sensitive>true</border_alarm_sensitive>',\
+'    <border_color>',\
+'      <color red="0" green="128" blue="255" />',\
+'    </border_color>',\
+'    <border_style>0</border_style>',\
+'    <border_width>1</border_width>',\
+'    <enabled>true</enabled>',\
+'    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>',\
+'    <foreground_color>',\
+'      <color red="0" green="0" blue="255" />',\
+'    </foreground_color>',\
+'    <height>HEIGHT</height>',\
+'    <name>XY Graph_1</name>',\
+'    <plot_area_background_color>',\
+'      <color red="255" green="255" blue="255" />',\
+'    </plot_area_background_color>',\
+'    <pv_name>loc://PLOT_NAME(0)</pv_name>',\
+'    <pv_value />',\
+'    <rules />',\
+'    <scale_options>',\
+'      <width_scalable>true</width_scalable>',\
+'      <height_scalable>true</height_scalable>',\
+'      <keep_wh_ratio>false</keep_wh_ratio>',\
+'    </scale_options>',\
+'    <scripts />',\
+'    <show_legend>false</show_legend>',\
+'    <show_plot_area_border>false</show_plot_area_border>',\
+'    <show_toolbar>false</show_toolbar>',\
+'    <title></title>',\
+'    <title_font>',\
+'      <opifont.name fontName="Cantarell" height="11" style="1"\
+ pixels="false">Default Bold</opifont.name>',\
+'    </title_font>',\
+'    <tooltip>$(trace_0_y_pv)',\
+'$(trace_0_y_pv_value)</tooltip>']
+
+# OPI format for channel of XY Plot.
+# Each PV to add needs its own channel in plot.
+xyPlotChannelFmt = [\
+'    <trace_PV-NUM_anti_alias>true</trace_PV-NUM_anti_alias>',\
+'    <trace_PV-NUM_buffer_size>3</trace_PV-NUM_buffer_size>',\
+'    <trace_PV-NUM_concatenate_data>false</trace_PV-NUM_concatenate_data>',\
+'    <trace_PV-NUM_line_width>10</trace_PV-NUM_line_width>',\
+'    <trace_PV-NUM_name>$(trace_PV-NUM_y_pv)</trace_PV-NUM_name>',\
+'    <trace_PV-NUM_plot_mode>0</trace_PV-NUM_plot_mode>',\
+'    <trace_PV-NUM_point_size>4</trace_PV-NUM_point_size>',\
+'    <trace_PV-NUM_point_style>0</trace_PV-NUM_point_style>',\
+'    <trace_PV-NUM_trace_color>',\
+'      <color red="21" green="21" blue="196" />',\
+'    </trace_PV-NUM_trace_color>',\
+'    <trace_PV-NUM_trace_type>3</trace_PV-NUM_trace_type>',\
+'    <trace_PV-NUM_update_delay>100</trace_PV-NUM_update_delay>',\
+'    <trace_PV-NUM_update_mode>0</trace_PV-NUM_update_mode>',\
+'    <trace_PV-NUM_visible>true</trace_PV-NUM_visible>',\
+'    <trace_PV-NUM_x_axis_index>0</trace_PV-NUM_x_axis_index>',\
+'    <trace_PV-NUM_x_pv>loc://chPV-NUM(PV-NUM)</trace_PV-NUM_x_pv>',\
+'    <trace_PV-NUM_x_pv_value />',\
+'    <trace_PV-NUM_y_axis_index>1</trace_PV-NUM_y_axis_index>',\
+'    <trace_PV-NUM_y_pv>PV_NAME</trace_PV-NUM_y_pv>',\
+'    <trace_PV-NUM_y_pv_value />']
+
+# OPI format for end of XY Plot widget.
+xyPlotEnd = [\
+'    <trace_count>NUMBER_OF_PVS</trace_count>',\
+'    <transparent>false</transparent>',\
+'    <trigger_pv></trigger_pv>',\
+'    <trigger_pv_value />',\
+'    <visible>true</visible>',\
+'    <widget_type>XY Graph</widget_type>',\
+'    <width>WIDTH</width>',\
+'    <wuid>5c548784:167ade5fc14:-7ea6</wuid>',\
+'    <x>X_POS</x>',\
+'    <y>Y_POS</y>',\
+'  </widget>']
+
+# function to generate bar plot for list of PVs.
+# pvs = list of PVs where PVs are in string format.
+# yAxisLabel = string for y-axis label
+# height = integer height of plot
+# width = integer width of plot
+def xyPlot(pvs,yAxisLabel,height,width):
+	plot = []
+	for line in xyPlotStart:
+		line = line.replace('Y_AXIS_LABEL',yAxisLabel)
+		line = line.replace('HEIGHT',str(height))
+		plot.append(line)
+	for chNum,pv in enumerate(pvs):
+		for line in xyPlotChannelFmt:
+			line = line.replace('PV-NUM',str(chNum))
+			line = line.replace('PV_NAME',pv)
+			plot.append(line)
+	for line in xyPlotEnd:
+		line = line.replace('NUMBER_OF_PVS',str(len(pvs)))
+		line = line.replace('WIDTH',str(width))
+		plot.append(line)
+	return plot
 
 
+
+
+pvFile = 'hv.tcl'
 configFile = 'HV.hvc'
 groupFile = 'HV.group'
+
+# Reads in hv.tcl file that contains all PVs.
+with open(pvFile,'r') as f:
+	lines = f.readlines()
+
+# For each channel, pulls out all PVs from hv.tcl.
+props = ['VMon','Imon','Status','V0Setr','Trip','SVMaxr','RUpr','RDWnr']
+chList,pvs,vMon,iMon = [],[],[],[]
+for line in lines:
+	if 'set {LABELS(' in line:
+		hold = []
+		chList.append(line.split(' ')[2].strip()[1: -1])
+		hold.append(line.split(' ')[2].strip()[1: -1])
+		for prop in props:
+			p1,p2,p3 = line[12:17].split('_')
+			hold.append('hchv'+p1+':'+p2.zfill(2)+':'+p3.zfill(3)+':'+prop)
+			if prop == 'VMon':
+				vMon.append('hchv'+p1+':'+p2.zfill(2)+':'+p3.zfill(3)+':'+prop)
+			if prop == 'IMon':
+				iMon.append('hchv'+p1+':'+p2.zfill(2)+':'+p3.zfill(3)+':'+prop)
+		pvs.append(hold)
+
 
 # Reads in channel configuration file.
 with open(configFile,'r') as f:
@@ -425,12 +607,11 @@ for i,grp in enumerate(groups):
 		 if line[0] != '#':
 			group = line.strip().split(' ')[4]
 			if group == grp[0]:
-				groups[int(i)].append(line.strip().split(' '))
+				groups[int(i)].append([line.strip().split(' ')[0]])
+
+
 
 #Below is development of making tables for each group.
-#Eventually, code below will be put in to a for-loop to generate tables for all
-#groups at once.
-
 xSpacing = 10
 ySpacing = 8
 screenWidth = 850
@@ -445,7 +626,7 @@ horizDivLen = 760
 
 
 for grp in groups:
-
+# Lists HV Controls for each group in table format.
 	grpNum = grp[0]
 	grpName = grp[1]
 	channels = grp[2:]
@@ -597,9 +778,8 @@ for grp in groups:
 			screen.append(line)
 		y += labelHeight+ySpacing
 
-
 	screen.append(lastLine)
-	with open(fileName+'.opi','w') as f:
+	with open(fileName+'-list.opi','w') as f:
 		for line in screen:
 			f.write(line)
 			f.write('\n')
