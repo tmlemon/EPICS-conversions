@@ -422,8 +422,7 @@ xyPlotStart = [\
 '    <axis_0_maximum>100.0</axis_0_maximum>',\
 '    <axis_0_minimum>0.0</axis_0_minimum>',\
 '    <axis_0_scale_font>',\
-'      <opifont.name fontName="Cantarell" height="11" style="0"\',\
- pixels="false">Default</opifont.name>',\
+'      <opifont.name fontName="Cantarell" height="11" style="1" pixels="false">Default Bold</opifont.name>',\
 '    </axis_0_scale_font>',\
 '    <axis_0_scale_format></axis_0_scale_format>',\
 '    <axis_0_show_grid>true</axis_0_show_grid>',\
@@ -557,9 +556,10 @@ def xyPlot(pvs,yAxisLabel,height,width):
 	for line in xyPlotEnd:
 		line = line.replace('NUMBER_OF_PVS',str(len(pvs)))
 		line = line.replace('WIDTH',str(width))
+		line = line.replace('X_POS',str(50))
+		line = line.replace('Y_POS',str(50))
 		plot.append(line)
 	return plot
-
 
 
 
@@ -572,13 +572,12 @@ with open(pvFile,'r') as f:
 	lines = f.readlines()
 
 # For each channel, pulls out all PVs from hv.tcl.
-props = ['VMon','Imon','Status','V0Setr','Trip','SVMaxr','RUpr','RDWnr']
+props = ['Status','VMon','IMon','V0Setr','Trip','SVMaxr','Rupr','RDWnr']
 chList,pvs,vMon,iMon = [],[],[],[]
 for line in lines:
 	if 'set {LABELS(' in line:
 		hold = []
 		chList.append(line.split(' ')[2].strip()[1: -1])
-		hold.append(line.split(' ')[2].strip()[1: -1])
 		for prop in props:
 			p1,p2,p3 = line[12:17].split('_')
 			hold.append('hchv'+p1+':'+p2.zfill(2)+':'+p3.zfill(3)+':'+prop)
@@ -602,12 +601,18 @@ for line in lines:
 
 # Splits up config file into groups.
 for i,grp in enumerate(groups):
-	hold = []
 	for line in configLines:
 		 if line[0] != '#':
 			group = line.strip().split(' ')[4]
 			if group == grp[0]:
 				groups[int(i)].append([line.strip().split(' ')[0]])
+
+#adds all PVs for a channel to group list
+for gNum,grp in enumerate(groups):
+	for iNum,item in enumerate(grp[2:]):
+		match = pvs[chList.index(item[0])]
+		for thing in match:
+			groups[gNum][iNum+2].append(thing)
 
 
 
@@ -624,9 +629,8 @@ indicatorWidth = 68
 horizDivLen = 760
 
 
-
+# Creates screeens showing each group in table format.
 for grp in groups:
-# Lists HV Controls for each group in table format.
 	grpNum = grp[0]
 	grpName = grp[1]
 	channels = grp[2:]
@@ -648,8 +652,8 @@ for grp in groups:
 	for line in label:
 		line = line.replace('LABEL_HEIGHT',str(40))
 		line = line.replace('LABEL_WIDTH',str(300))
-		line = line.replace('LABEL_TEXT',grpName+' HV')
-		line = line.replace('LABEL_NAME',grpName+' HV')
+		line = line.replace('LABEL_TEXT',grpName+' HV Controls')
+		line = line.replace('LABEL_NAME',grpName+' HV Controls')
 		line = line.replace('LABEL_Y_POS',str(5))
 		line = line.replace('LABEL_X_POS',str((screenWidth/2)-150))
 		line = line.replace('FONT_STYLE',str(1))
@@ -674,10 +678,10 @@ for grp in groups:
 			line = line.replace('FONT_SIZE',str(9))
 			screen.append(line)
 		columns.append(x)
-		x += labelWidth#+xSpacing
+		x += labelWidth
 	y += labelHeight+ySpacing
 
-
+	#Places all widgets on the screens.
 	for ch in channels:
 		x = x0
 		chID = ch[0]
@@ -691,7 +695,7 @@ for grp in groups:
 			line = line.replace('FONT_STYLE',str(0))
 			line = line.replace('FONT_SIZE',str(9))
 			screen.append(line)
-		x += labelWidth#+xSpacing
+		x += labelWidth
 		for	line in button:
 			line = line.replace('BUTTON_HEIGHT',str(buttonHeight))
 			line = line.replace('BUTTON_WIDTH',str(buttonWidth))
@@ -700,33 +704,33 @@ for grp in groups:
 				buttonWidth)/2))
 			line = line.replace('PV_NAME','placeholder-pv')
 			screen.append(line)
-		x += labelWidth#+xSpacing
+		x += labelWidth
 		for	line in led:
 			line = line.replace('LED_HEIGHT',str(ledHeight))
 			line = line.replace('LED_WIDTH',str(ledWidth))
 			line = line.replace('LED_Y_POS',str(y))
 			line = line.replace('LED_X_POS',str(x+(labelWidth-ledWidth)/2))
-			line = line.replace('PV_NAME','placeholder-pv')
+			line = line.replace('PV_NAME',ch[1])
 			screen.append(line)
-		x += labelWidth#+xSpacing
+		x += labelWidth
 		for	line in textUpdate:
 			line = line.replace('INDICATOR_HEIGHT',str(indicatorHeight))
 			line = line.replace('INDICATOR_WIDTH',str(indicatorWidth))
 			line = line.replace('INDICATOR_Y_POS',str(y))
 			line = line.replace('INDICATOR_X_POS',\
 					str(x+(labelWidth-indicatorWidth)/2))
-			line = line.replace('PV_NAME','placeholder-pv')
+			line = line.replace('PV_NAME',ch[2])
 			screen.append(line)
-		x += labelWidth#+xSpacing
+		x += labelWidth
 		for	line in textUpdate:
 			line = line.replace('INDICATOR_HEIGHT',str(indicatorHeight))
 			line = line.replace('INDICATOR_WIDTH',str(indicatorWidth))
 			line = line.replace('INDICATOR_Y_POS',str(y))
 			line = line.replace('INDICATOR_X_POS',\
 					str(x+(labelWidth-indicatorWidth)/2))
-			line = line.replace('PV_NAME','placeholder-pv')
+			line = line.replace('PV_NAME',ch[3])
 			screen.append(line)
-		x += labelWidth#+xSpacing
+		x += labelWidth
 		for	line in textInput:
 			line = line.replace('INPUT_HEIGHT',str(inputHeight))
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
@@ -734,7 +738,7 @@ for grp in groups:
 			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
 			line = line.replace('PV_NAME','placeholder-pv')
 			screen.append(line)
-		x += labelWidth#+xSpacing
+		x += labelWidth
 		for	line in textInput:
 			line = line.replace('INPUT_HEIGHT',str(inputHeight))
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
@@ -742,7 +746,7 @@ for grp in groups:
 			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
 			line = line.replace('PV_NAME','placeholder-pv')
 			screen.append(line)
-		x += labelWidth#+xSpacing
+		x += labelWidth
 		for	line in textInput:
 			line = line.replace('INPUT_HEIGHT',str(inputHeight))
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
@@ -750,7 +754,7 @@ for grp in groups:
 			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
 			line = line.replace('PV_NAME','placeholder-pv')
 			screen.append(line)
-		x += labelWidth#+xSpacing
+		x += labelWidth
 		for	line in textInput:
 			line = line.replace('INPUT_HEIGHT',str(inputHeight))
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
@@ -758,7 +762,7 @@ for grp in groups:
 			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
 			line = line.replace('PV_NAME','placeholder-pv')
 			screen.append(line)
-		x += labelWidth#+xSpacing
+		x += labelWidth
 		for	line in textInput:
 			line = line.replace('INPUT_HEIGHT',str(inputHeight))
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
@@ -778,10 +782,35 @@ for grp in groups:
 			screen.append(line)
 		y += labelHeight+ySpacing
 
+
+	# Appends final line of OPI format and writes all lines to an OPI file with
+	# the name of the group.
 	screen.append(lastLine)
 	with open(fileName+'-list.opi','w') as f:
 		for line in screen:
 			f.write(line)
 			f.write('\n')
 
-	print(fileName+'.opi created.')
+	# Finally, a message is printed stating what OPI file has been created.
+	print(fileName+'-list.opi created.')
+
+
+'''
+# Creates XY Plot for voltage and current monitoring
+# NOTE: ONLY 20 TRACES CAN BE SHOWN IN XYPLOT
+# TRYING TO FIND DIFFERENT WAY TO PROGRAMMATICALLY CREATE PLOT.
+screen = []
+for line in screenTemplate:
+	line = line.replace('OPI_NAME',fileName)
+	line = line.replace('SCREEN_WIDTH',str(screenWidth))
+	line = line.replace('SCREEN_HEIGHT',str(800))
+	screen.append(line)
+for line in xyPlot(vMon,'Vmon',200,500):
+	screen.append(line)
+screen.append(lastLine)
+
+with open('HMS-vMon-plot.opi','w') as f:
+	for line in screen:
+		f.write(line)
+		f.write('\n')
+'''
