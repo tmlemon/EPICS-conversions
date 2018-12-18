@@ -1,12 +1,5 @@
 #!/bin/env python
 
-# Lines up to ~553 are formatting templates for CSS widgets. Keywords that are
-# replaced later in program are in ALL_CAPS
-
-import sys
-import os
-
-
 # Base formatting of an OPI in text. Each list element is a different line
 # of the final OPI file.
 screenTemplate = [\
@@ -553,12 +546,7 @@ xyPlotEnd = [\
 '    <y>Y_POS</y>',\
 '  </widget>']
 
-#Constants for ANSI formatting of text for program's input arguement checking.
-boldStart = '\033[1m'
-fmtStop = '\033[0m'
-
-# Function to "flatten" a 2-D list of lists into a 1-D list.
-# Used to make PV list txt file.
+#function to "flatten" a 2-D list of lists into a 1-D list
 flatten = lambda lst: [item for sublist in lst for item in sublist]
 
 # function to generate bar plot for list of PVs.
@@ -583,47 +571,13 @@ def xyPlot(pvs,yAxisLabel,x,y):
 	return plot
 
 
-# Function checks user's first arguement for directory containing HV.hvc and 
-# HV.group. If directory is invalid or does not contain HV.hvc and/or HV.group,
-# an error message is printed and program stops.
-def checkForInput(arg):
-	if arg == '.':
-		dirr = os.getcwd()
-	else:
-		dirr = arg	
-	try:	
-		files = os.listdir(dirr)
-	except:
-		print(boldStart+'\n"'+dirr+'" is not a valid directory.\n'+fmtStop)
-		sys.exit(0)
-	if 'HV.hvc' not in files or 'HV.group' not in files:
-		print('\n'+boldStart+'HV.hvc and/or HV.group not found in "'+\
-			dirr+'"'+fmtStop+'\n')
-		sys.exit(0)
-		dirr = ''
-	return dirr
-
-
-if len(sys.argv)-1 == 1:
-	pvTxt = ''
-	dirr = checkForInput(sys.argv[1])
-elif len(sys.argv)-1 == 2:
-	dirr = checkForInput(sys.argv[1])
-	if '.txt' in sys.argv[2]:
-		pvTxt = sys.argv[2]
-	else:
-		pvTxt = sys.argv[2]+'.txt'
-else:
-	print(boldStart+'\ntcl2css.py requires one or two arguements.'+fmtStop)
-	print('\npython tcl2css.py dir [txt]\n')
-	print('dir\t- mandatory arguement for the directory containing HV.hvc and ')
-	print('\tHV.group used to make the CSS screens.\n')
-	print('[txt]\t- optional argument. If used, program will also output')
-	print('\ta text file listing all PVs found in HV.hvc.\n')
-
 #configuration files for .tcl files.
-configFile = dirr+'/HV.hvc'
-groupFile = dirr+'/HV.group'
+configFile = 'HV.hvc'
+groupFile = 'HV.group'
+
+
+#properties used for each channel PV, for reference only.
+props = ['Status','VMon','IMon','V0Setr','Trip','SVMaxr','Rupr','RDWnr']
 
 
 # Reads in channel configuration file.
@@ -645,19 +599,6 @@ for i,grp in enumerate(groups):
 			if group == grp[0]:
 				groups[int(i)].append(line.strip().split(' ')[:4])
 
-
-if pvTxt != '':
-	props = ['Status','VMon','IMon','V0Setr','Trip','SVMaxr','RUpr','RDWnr']
-	with open(pvTxt,'w') as f:
-		for group in groups:
-			for ch in group[2:]:
-				pvBase = 'hchv'+ch[1]+':'+ch[2].zfill(2)+':'+ch[3].zfill(3)+':'
-				for prop in props:
-					f.write(pvBase+prop)
-					f.write('\n')
-	print('\nPV list written to '+pvTxt+'\n')
-
-
 #Below is development of making tables for each group.
 xSpacing = 10
 ySpacing = 8
@@ -672,7 +613,6 @@ horizDivLen = 760
 
 
 # Creates screeens showing each group in table format.
-print('')
 vMon,iMon = [],[]
 for grp in groups:
 	vMonHold,iMonHold = [],[]
@@ -874,4 +814,4 @@ with open('HMS-plot.opi','w') as f:
 	for line in screen:
 		f.write(line)
 		f.write('\n')
-print('HMS-plot.opi created.\n')
+print('HMS-plot.opi created.')
