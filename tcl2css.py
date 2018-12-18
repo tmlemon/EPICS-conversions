@@ -1,26 +1,14 @@
 #!/bin/env python
 
-# 2018-12-18
-# @author: Tyler Lemon
-
-# Program uses HV.hvc and HV.group files to convert Hall C HV controls .tcl 
-# screens to CS-Studio screens.
-
-# Program expects either one or two user inputs as commands line arguements.
-# First arguement is directory where HV.hvc and HV.group to be used to make
-# CSS screens are stored.
-# Second arguement is optional. If entered, program outputs a .txt file list 
-# containing all PVs pulled out of HV.hvc.
-
-# Lines up to ~567 are formatting templates for CSS widgets.
-# ALL_CAPS Keywords in templates are replaced later in program.
+# Lines up to ~553 are formatting templates for CSS widgets. Keywords that are
+# replaced later in program are in ALL_CAPS
 
 import sys
 import os
 
 
-# Base formatting of an OPI screen in text.
-# Each list element is a different line of the final OPI file.
+# Base formatting of an OPI in text. Each list element is a different line
+# of the final OPI file.
 screenTemplate = [\
 '<display typeId="org.csstudio.opibuilder.Display" version="1.0.0">',\
 '  <actions hook="false" hook_all="false" />',\
@@ -422,7 +410,7 @@ lineFmt = [\
 '    <y>LINE_Y_POS</y>',\
 '  </widget>']
 
-# Start of OPI format for xy plot.
+#start of OPI format for xy plot.
 xyPlotStart = [\
 '  <widget typeId="org.csstudio.opibuilder.widgets.xyGraph" version="1.0.0">',\
 '    <actions hook="false" hook_all="false" />',\
@@ -516,10 +504,9 @@ import PVUtil',\
 'pvs[0].setValue(arr)]]></scriptText>',\
 '        <pv trig="false">$(pv_name)</pv>']
 
-# Line that is added to XY Plot Widget for every PV to be displayed.
+
 xyPlotChannelFmt = '        <pv trig="true">INSERT_PV_HERE</pv>'
 
-# End of OPI format for xy plot.
 xyPlotEnd = [\
 '      </path>',\
 '    </scripts>',\
@@ -616,7 +603,7 @@ def checkForInput(arg):
 		dirr = ''
 	return dirr
 
-# Cases to check user's command line arguements.
+
 if len(sys.argv)-1 == 1:
 	pvTxt = ''
 	dirr = checkForInput(sys.argv[1])
@@ -658,8 +645,7 @@ for i,grp in enumerate(groups):
 			if group == grp[0]:
 				groups[int(i)].append(line.strip().split(' ')[:4])
 
-# Case creates txt file list of all PVs found in HV.hvc if second arguement is
-# entered.
+
 if pvTxt != '':
 	props = ['Status','VMon','IMon','V0Setr','Trip','SVMaxr','RUpr','RDWnr']
 	with open(pvTxt,'w') as f:
