@@ -20,4 +20,3 @@ Programs are designed to run from Linux command line.
 
 - tcl2css.py
   - Converts .tcl files to CSS .opi files.
-  - Script is not universal; Parsing of files used to generate .tcl screens are based on Hall C HV screens.
