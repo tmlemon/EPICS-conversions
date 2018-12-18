@@ -546,12 +546,14 @@ xyPlotEnd = [\
 '    <y>Y_POS</y>',\
 '  </widget>']
 
+#function to "flatten" a 2-D list of lists into a 1-D list
+flatten = lambda lst: [item for sublist in lst for item in sublist]
 
 # function to generate bar plot for list of PVs.
 # pvs = list of PVs where PVs are in string format.
 # yAxisLabel = string for y-axis label
-# height = integer height of plot
-# width = integer width of plot
+# x = integer for x postion of plot
+# y = integer for y position of plot
 def xyPlot(pvs,yAxisLabel,x,y):
 	plot = []
 	for line in xyPlotStart:
@@ -569,30 +571,13 @@ def xyPlot(pvs,yAxisLabel,x,y):
 	return plot
 
 
-
-pvFile = 'hv.tcl'
+#configuration files for .tcl files.
 configFile = 'HV.hvc'
 groupFile = 'HV.group'
 
-# Reads in hv.tcl file that contains all PVs.
-with open(pvFile,'r') as f:
-	lines = f.readlines()
 
-# For each channel, pulls out all PVs from hv.tcl.
+#properties used for each channel PV, for reference only.
 props = ['Status','VMon','IMon','V0Setr','Trip','SVMaxr','Rupr','RDWnr']
-chList,pvs,vMon,iMon = [],[],[],[]
-for line in lines:
-	if 'set {LABELS(' in line:
-		hold = []
-		chList.append(line.split(' ')[2].strip()[1: -1])
-		for prop in props:
-			p1,p2,p3 = line[12:17].split('_')
-			hold.append('hchv'+p1+':'+p2.zfill(2)+':'+p3.zfill(3)+':'+prop)
-			if prop == 'VMon':
-				vMon.append('hchv'+p1+':'+p2.zfill(2)+':'+p3.zfill(3)+':'+prop)
-			if prop == 'IMon':
-				iMon.append('hchv'+p1+':'+p2.zfill(2)+':'+p3.zfill(3)+':'+prop)
-		pvs.append(hold)
 
 
 # Reads in channel configuration file.
@@ -612,16 +597,7 @@ for i,grp in enumerate(groups):
 		 if line[0] != '#':
 			group = line.strip().split(' ')[4]
 			if group == grp[0]:
-				groups[int(i)].append([line.strip().split(' ')[0]])
-
-#adds all PVs for a channel to group list
-for gNum,grp in enumerate(groups):
-	for iNum,item in enumerate(grp[2:]):
-		match = pvs[chList.index(item[0])]
-		for thing in match:
-			groups[gNum][iNum+2].append(thing)
-
-
+				groups[int(i)].append(line.strip().split(' ')[:4])
 
 #Below is development of making tables for each group.
 xSpacing = 10
@@ -637,16 +613,16 @@ horizDivLen = 760
 
 
 # Creates screeens showing each group in table format.
+vMon,iMon = [],[]
 for grp in groups:
-	grpNum = grp[0]
-	grpName = grp[1]
-	channels = grp[2:]
+	vMonHold,iMonHold = [],[]
+	grpNum,grpName,channels = grp[0],grp[1],grp[2:]
 	fileName = grpName.replace(' ','-')
 
 	x = y = 50
 	x0,y0 = x,y
 
-	#Fills out opiname property of screen.
+	#Fills out base screen properties.
 	screen = []
 	for line in screenTemplate:
 		line = line.replace('OPI_NAME',fileName)
@@ -658,11 +634,11 @@ for grp in groups:
 	#title label for table
 	for line in label:
 		line = line.replace('LABEL_HEIGHT',str(40))
-		line = line.replace('LABEL_WIDTH',str(300))
+		line = line.replace('LABEL_WIDTH',str(600))
 		line = line.replace('LABEL_TEXT',grpName+' HV Controls')
 		line = line.replace('LABEL_NAME',grpName+' HV Controls')
 		line = line.replace('LABEL_Y_POS',str(5))
-		line = line.replace('LABEL_X_POS',str((screenWidth/2)-150))
+		line = line.replace('LABEL_X_POS',str((screenWidth/2)-300))
 		line = line.replace('FONT_STYLE',str(1))
 		line = line.replace('FONT_SIZE',str(14))
 		screen.append(line)
@@ -692,6 +668,10 @@ for grp in groups:
 	for ch in channels:
 		x = x0
 		chID = ch[0]
+		pvBase = 'hchv'+ch[1]+':'+ch[2].zfill(2)+':'+ch[3].zfill(3)+':'
+		vMonHold.append(pvBase+'VMon')
+		iMonHold.append(pvBase+'iMon')
+		#Channel ID label
 		for line in label:
 			line = line.replace('LABEL_HEIGHT',str(labelHeight))
 			line = line.replace('LABEL_WIDTH',str(labelWidth))
@@ -703,6 +683,7 @@ for grp in groups:
 			line = line.replace('FONT_SIZE',str(9))
 			screen.append(line)
 		x += labelWidth
+		#channel control button
 		for	line in button:
 			line = line.replace('BUTTON_HEIGHT',str(buttonHeight))
 			line = line.replace('BUTTON_WIDTH',str(buttonWidth))
@@ -712,32 +693,36 @@ for grp in groups:
 			line = line.replace('PV_NAME','placeholder-pv')
 			screen.append(line)
 		x += labelWidth
+		#Channel on/off status indicator
 		for	line in led:
 			line = line.replace('LED_HEIGHT',str(ledHeight))
 			line = line.replace('LED_WIDTH',str(ledWidth))
 			line = line.replace('LED_Y_POS',str(y))
 			line = line.replace('LED_X_POS',str(x+(labelWidth-ledWidth)/2))
-			line = line.replace('PV_NAME',ch[1])
+			line = line.replace('PV_NAME','placeholder-pv')
 			screen.append(line)
 		x += labelWidth
+		#Voltage readback
 		for	line in textUpdate:
 			line = line.replace('INDICATOR_HEIGHT',str(indicatorHeight))
 			line = line.replace('INDICATOR_WIDTH',str(indicatorWidth))
 			line = line.replace('INDICATOR_Y_POS',str(y))
 			line = line.replace('INDICATOR_X_POS',\
 					str(x+(labelWidth-indicatorWidth)/2))
-			line = line.replace('PV_NAME',ch[2])
+			line = line.replace('PV_NAME','placeholder-pv')
 			screen.append(line)
 		x += labelWidth
+		#Current readback
 		for	line in textUpdate:
 			line = line.replace('INDICATOR_HEIGHT',str(indicatorHeight))
 			line = line.replace('INDICATOR_WIDTH',str(indicatorWidth))
 			line = line.replace('INDICATOR_Y_POS',str(y))
 			line = line.replace('INDICATOR_X_POS',\
 					str(x+(labelWidth-indicatorWidth)/2))
-			line = line.replace('PV_NAME',ch[3])
+			line = line.replace('PV_NAME','placeholder-pv')
 			screen.append(line)
 		x += labelWidth
+		#Set voltage
 		for	line in textInput:
 			line = line.replace('INPUT_HEIGHT',str(inputHeight))
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
@@ -746,6 +731,7 @@ for grp in groups:
 			line = line.replace('PV_NAME','placeholder-pv')
 			screen.append(line)
 		x += labelWidth
+		#Current trip level
 		for	line in textInput:
 			line = line.replace('INPUT_HEIGHT',str(inputHeight))
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
@@ -754,6 +740,7 @@ for grp in groups:
 			line = line.replace('PV_NAME','placeholder-pv')
 			screen.append(line)
 		x += labelWidth
+		#Max allowable set voltage
 		for	line in textInput:
 			line = line.replace('INPUT_HEIGHT',str(inputHeight))
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
@@ -762,6 +749,7 @@ for grp in groups:
 			line = line.replace('PV_NAME','placeholder-pv')
 			screen.append(line)
 		x += labelWidth
+		#Channel ramp up rate
 		for	line in textInput:
 			line = line.replace('INPUT_HEIGHT',str(inputHeight))
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
@@ -770,6 +758,7 @@ for grp in groups:
 			line = line.replace('PV_NAME','placeholder-pv')
 			screen.append(line)
 		x += labelWidth
+		#channel ramp down rate
 		for	line in textInput:
 			line = line.replace('INPUT_HEIGHT',str(inputHeight))
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
@@ -777,6 +766,7 @@ for grp in groups:
 			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
 			line = line.replace('PV_NAME','placeholder-pv')
 			screen.append(line)
+		#horizontal divider line between channels.
 		for line in lineFmt:
 			line = line.replace('LINE_HEIGHT',str(1))
 			line = line.replace('LINE_WIDTH',str(horizDivLen))
@@ -788,7 +778,9 @@ for grp in groups:
 			line = line.replace('PT2_Y',str(y-(ySpacing/2)))
 			screen.append(line)
 		y += labelHeight+ySpacing
-
+	#appends group vMon and iMon PVs to overall list.
+	vMon.append(vMonHold)	
+	iMon.append(iMonHold)
 
 	# Appends final line of OPI format and writes all lines to an OPI file with
 	# the name of the group.
@@ -801,6 +793,8 @@ for grp in groups:
 	# Finally, a message is printed stating what OPI file has been created.
 	print(fileName+'-list.opi created.')
 
+
+
 # Creates XY Plot for voltage and current monitoring
 screen = []
 for line in screenTemplate:
@@ -808,9 +802,11 @@ for line in screenTemplate:
 	line = line.replace('SCREEN_WIDTH',str(800))
 	line = line.replace('SCREEN_HEIGHT',str(800))
 	screen.append(line)
-for line in xyPlot(vMon,'Vmon',50,75):
+vMon = flatten(vMon)
+iMon = flatten(iMon)
+for line in xyPlot(vMon,'Volts',50,75):
 	screen.append(line)
-for line in xyPlot(iMon,'Imon',50,400):
+for line in xyPlot(iMon,'nAmps',50,400):
 	screen.append(line)
 screen.append(lastLine)
 
