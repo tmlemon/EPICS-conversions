@@ -481,9 +481,9 @@ xyPlotStart = [\
 '    </background_color>',\
 '    <border_alarm_sensitive>true</border_alarm_sensitive>',\
 '    <border_color>',\
-'      <color red="0" green="128" blue="255" />',\
+'      <color red="0" green="0" blue="0" />',\
 '    </border_color>',\
-'    <border_style>0</border_style>',\
+'    <border_style>1</border_style>',\
 '    <border_width>1</border_width>',\
 '    <enabled>true</enabled>',\
 '    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>',\
@@ -572,6 +572,69 @@ xyPlotEnd = [\
 '    <x>X_POS</x>',\
 '    <y>Y_POS</y>',\
 '  </widget>']
+
+menuStart = [\
+'  <widget typeId="org.csstudio.opibuilder.widgets.MenuButton" \
+version="1.0.0">',\
+'    <actions hook="false" hook_all="false">']
+
+menuOpt = [\
+'      <action type="OPEN_DISPLAY">',\
+'        <path>OPT_PATH</path>',\
+'        <macros>',\
+'          <include_parent_macros>true</include_parent_macros>',\
+'        </macros>',\
+'        <mode>OPT_MODE</mode>',\
+'        <description>OPT_TITLE</description>',\
+'      </action>']
+
+menuEnd = [\
+'    </actions>',\
+'    <actions_from_pv>false</actions_from_pv>',\
+'    <alarm_pulsing>false</alarm_pulsing>',\
+'    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>',\
+'    <background_color>',\
+'      <color red="240" green="240" blue="240" />',\
+'    </background_color>',\
+'    <border_alarm_sensitive>false</border_alarm_sensitive>',\
+'    <border_color>',\
+'      <color red="0" green="128" blue="255" />',\
+'    </border_color>',\
+'    <border_style>6</border_style>',\
+'    <border_width>1</border_width>',\
+'    <enabled>true</enabled>',\
+'    <font>',\
+'      <opifont.name fontName="Cantarell" height="11" style="0"\
+ pixels="false">Default</opifont.name>',\
+'    </font>',\
+'    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>',\
+'    <foreground_color>',\
+'      <color red="0" green="0" blue="0" />',\
+'    </foreground_color>',\
+'    <height>25</height>',\
+'    <label>SPCTRMTR Detector HV Controls</label>',\
+'    <name>Menu Button</name>',\
+'    <pv_name></pv_name>',\
+'    <pv_value />',\
+'    <rules />',\
+'    <scale_options>',\
+'      <width_scalable>true</width_scalable>',\
+'      <height_scalable>true</height_scalable>',\
+'      <keep_wh_ratio>false</keep_wh_ratio>',\
+'    </scale_options>',\
+'    <scripts />',\
+'    <show_down_arrow>true</show_down_arrow>',\
+'    <tooltip>$(pv_name)',\
+'$(pv_value)</tooltip>',\
+'    <transparent>false</transparent>',\
+'    <visible>true</visible>',\
+'    <widget_type>Menu Button</widget_type>',\
+'    <width>225</width>',\
+'    <wuid>-6af80d88:167c7f66d30:-6d81</wuid>',\
+'    <x>X_POS</x>',\
+'    <y>Y_POS</y>',\
+'  </widget>']
+
 
 #Constants for ANSI formatting of text for program's input arguement checking.
 boldStart = '\033[1m'
@@ -670,8 +733,10 @@ for line in lines:
 	spectrometer = g[1]
 	groups.append([g[0],' '.join(g[1:])])
 
+opts = []
 # Splits up config file into groups.
 for i,grp in enumerate(groups):
+	opts.append([grp[1],grp[1].replace(' ','-')+'-list.opi'])
 	for line in configLines:
 		 if line[0] != '#' and line[0] != '\n':
 			group = line.strip().split(' ')[4]
@@ -682,7 +747,7 @@ for i,grp in enumerate(groups):
 # Case disabled unless code is manually changed to set pvTxt to anything
 # but false. Case creates txt file list of all PVs found in HV.hvc if second
 # arguement is entered.
-pvTxt = ''#False
+pvTxt = False
 if pvTxt != False:
 	props = ['Status','VMon','IMon','V0Setr','Trip','SVMaxr','RUpr','RDWnr']
 	with open(outPath+spectrometer+'-pv-list.txt','w') as f:
@@ -739,6 +804,28 @@ for grp in groups:
 		line = line.replace('FONT_STYLE',str(1))
 		line = line.replace('FONT_SIZE',str(14))
 		screen.append(line)
+	
+
+	#Makes dropdown menu
+	for line in menuStart:
+		screen.append(line)
+	for opt in opts:
+		gName,fName = opt
+		if gName == grpName:
+			mode = '0'
+		else:
+			mode = '6'
+		for line in menuOpt:
+			line = line.replace('OPT_PATH',fName)
+			line = line.replace('OPT_MODE',mode)
+			line = line.replace('OPT_TITLE',gName)
+			screen.append(line)
+	for line in menuEnd:
+		line = line.replace('SPCTRMTR',spectrometer)
+		line = line.replace('X_POS',str(615))
+		line = line.replace('Y_POS',str(10))
+		screen.append(line)
+
 
 
 	#Generates labels for table header.
@@ -892,18 +979,48 @@ for grp in groups:
 
 
 
-# Creates XY Plot for voltage and current monitoring
+
+
+
+
+# Creates screen of Bar Plots for voltage and current monitoring
 screen = []
 for line in screenTemplate:
 	line = line.replace('OPI_NAME',fileName)
 	line = line.replace('SCREEN_WIDTH',str(800))
-	line = line.replace('SCREEN_HEIGHT',str(800))
+	line = line.replace('SCREEN_HEIGHT',str(725))
+	screen.append(line)
+#title label for plot screen
+for line in label:
+	line = line.replace('LABEL_HEIGHT',str(40))
+	line = line.replace('LABEL_WIDTH',str(600))
+	line = line.replace('LABEL_TEXT',spectrometer+' HV Monitor')
+	line = line.replace('LABEL_NAME',spectrometer+' HV Monitor')
+	line = line.replace('LABEL_Y_POS',str(5))
+	line = line.replace('LABEL_X_POS',str((800/2)-300))
+	line = line.replace('FONT_STYLE',str(1))
+	line = line.replace('FONT_SIZE',str(14))
 	screen.append(line)
 vMon = flatten(vMon)
 iMon = flatten(iMon)
 for line in xyPlot(vMon,'Volts',50,75):
 	screen.append(line)
 for line in xyPlot(iMon,'nAmps',50,400):
+	screen.append(line)
+#Makes dropdown menu
+for line in menuStart:
+	screen.append(line)
+for opt in opts:
+	gName,fName = opt
+	for line in menuOpt:
+		line = line.replace('OPT_PATH',fName)
+		line = line.replace('OPT_MODE','6')
+		line = line.replace('OPT_TITLE',gName)
+		screen.append(line)
+for line in menuEnd:
+	line = line.replace('SPCTRMTR',spectrometer)
+	line = line.replace('X_POS',str(550))
+	line = line.replace('Y_POS',str(10))
 	screen.append(line)
 screen.append(lastLine)
 
