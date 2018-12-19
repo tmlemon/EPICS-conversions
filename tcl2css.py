@@ -534,7 +534,7 @@ xyPlotEnd = [\
 '    <tooltip>$(trace_0_y_pv)',\
 '$(trace_0_y_pv_value)</tooltip>',\
 '    <trace_0_anti_alias>true</trace_0_anti_alias>',\
-'    <trace_0_buffer_size>100</trace_0_buffer_size>',\
+'    <trace_0_buffer_size>400</trace_0_buffer_size>',\
 '    <trace_0_concatenate_data>false</trace_0_concatenate_data>',\
 '    <trace_0_line_width>4</trace_0_line_width>',\
 '    <trace_0_name>$(trace_0_y_pv)</trace_0_name>',\
