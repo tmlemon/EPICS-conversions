@@ -620,19 +620,13 @@ def checkForInput(arg):
 if len(sys.argv)-1 == 1:
 	pvTxt = ''
 	dirr = checkForInput(sys.argv[1])
-elif len(sys.argv)-1 == 2:
-	dirr = checkForInput(sys.argv[1])
-	if '.txt' in sys.argv[2]:
-		pvTxt = sys.argv[2]
-	else:
-		pvTxt = sys.argv[2]+'.txt'
 else:
-	print(boldStart+'\ntcl2css.py requires one or two arguements.'+fmtStop)
-	print('\npython tcl2css.py dir [txt]\n')
+	print(boldStart+'\ntcl2css.py requires only one input parameter for \
+directory containing HV.hvc and HV.group.'+fmtStop)
+	print('\npython tcl2css.py dir\n')
 	print('dir\t- mandatory arguement for the directory containing HV.hvc and ')
 	print('\tHV.group used to make the CSS screens.\n')
-	print('[txt]\t- optional argument. If used, program will also output')
-	print('\ta text file listing all PVs found in HV.hvc.\n')
+	sys.exit(0)
 
 #configuration files for .tcl files.
 configFile = dirr+'/HV.hvc'
@@ -648,19 +642,24 @@ groups = []
 with open(groupFile,'r') as f:
 	lines = f.readlines()
 for line in lines:
-	groups.append([line[0],line[1:].strip()])
+	g = line.strip().split(' ')
+	spectrometer = g[1]
+	groups.append([g[0],' '.join(g[1:])])
 
 # Splits up config file into groups.
 for i,grp in enumerate(groups):
 	for line in configLines:
-		 if line[0] != '#':
+		 if line[0] != '#' and line[0] != '\n':
 			group = line.strip().split(' ')[4]
 			if group == grp[0]:
 				groups[int(i)].append(line.strip().split(' ')[:4])
 
-# Case creates txt file list of all PVs found in HV.hvc if second arguement is
-# entered.
-if pvTxt != '':
+
+# Case disabled unless code is manually changed to set pvTxt to anything
+# but false. Case creates txt file list of all PVs found in HV.hvc if second
+# arguement is entered.
+pvTxt = False
+if pvTxt != False:
 	props = ['Status','VMon','IMon','V0Setr','Trip','SVMaxr','RUpr','RDWnr']
 	with open(pvTxt,'w') as f:
 		for group in groups:
@@ -888,4 +887,5 @@ with open('HMS-plot.opi','w') as f:
 	for line in screen:
 		f.write(line)
 		f.write('\n')
-print('HMS-plot.opi created.\n')
+print(spectrometer+'-plot.opi created.\n')
+
