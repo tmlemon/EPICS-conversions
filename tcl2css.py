@@ -512,7 +512,11 @@ import PVUtil',\
 'from array import array',\
 "arr = array('f')",\
 'for pv in pvs[1:]:',\
-'	arr.append(PVUtil.getDouble(pv))',\
+'	val = PVUtil.getDouble(pv)',\
+'	if val != '':',\
+'		arr.append(PVUtil.getDouble(pv))',\
+'	else:',\
+'		arr.append(0)',\
 'pvs[0].setValue(arr)]]></scriptText>',\
 '        <pv trig="false">$(pv_name)</pv>']
 
