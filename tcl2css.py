@@ -17,7 +17,7 @@
 
 import sys
 import os
-
+import errno
 
 # Base formatting of an OPI screen in text.
 # Each list element is a different line of the final OPI file.
@@ -618,15 +618,30 @@ def checkForInput(arg):
 
 # Cases to check user's command line arguements.
 if len(sys.argv)-1 == 1:
-	pvTxt = ''
 	dirr = checkForInput(sys.argv[1])
+	outPath = ''
+elif len(sys.argv)-1 == 2:
+	dirr = checkForInput(sys.argv[1])
+	outPath = sys.argv[2]
+	if outPath[-1] != '/':
+		outPath += '/'
+	if not os.path.exists(outPath):
+		try:
+			os.makedirs(outPath)
+		except OSError as err:
+			if err.errno != errno.EEXIST:
+				raise
+	print('\n.opi files will be placed in "'+outPath+'"')	
 else:
-	print(boldStart+'\ntcl2css.py requires only one input parameter for \
-directory containing HV.hvc and HV.group.'+fmtStop)
-	print('\npython tcl2css.py dir\n')
+	print(boldStart+'\nINPUT ARGUEMENTS ERROR'+fmtStop)
+	print('\npython tcl2css.py dir [write]\n')
 	print('dir\t- mandatory arguement for the directory containing HV.hvc and ')
 	print('\tHV.group used to make the CSS screens.\n')
+	print('[write]\t- optional arguement for the directory to write resulting ')
+	print('\t.opi files to.\n')
 	sys.exit(0)
+
+
 
 #configuration files for .tcl files.
 configFile = dirr+'/HV.hvc'
@@ -858,7 +873,7 @@ for grp in groups:
 	# Appends final line of OPI format and writes all lines to an OPI file with
 	# the name of the group.
 	screen.append(lastLine)
-	with open(fileName+'-list.opi','w') as f:
+	with open(outPath+fileName+'-list.opi','w') as f:
 		for line in screen:
 			f.write(line)
 			f.write('\n')
@@ -883,7 +898,7 @@ for line in xyPlot(iMon,'nAmps',50,400):
 	screen.append(line)
 screen.append(lastLine)
 
-with open('HMS-plot.opi','w') as f:
+with open(outPath+'HMS-plot.opi','w') as f:
 	for line in screen:
 		f.write(line)
 		f.write('\n')
