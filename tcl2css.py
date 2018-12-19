@@ -623,6 +623,8 @@ if len(sys.argv)-1 == 1:
 elif len(sys.argv)-1 == 2:
 	dirr = checkForInput(sys.argv[1])
 	outPath = sys.argv[2]
+	if outPath == '.':
+		outPath = os.getcwd()
 	if outPath[-1] != '/':
 		outPath += '/'
 	if not os.path.exists(outPath):
@@ -673,17 +675,17 @@ for i,grp in enumerate(groups):
 # Case disabled unless code is manually changed to set pvTxt to anything
 # but false. Case creates txt file list of all PVs found in HV.hvc if second
 # arguement is entered.
-pvTxt = False
+pvTxt = ''#False
 if pvTxt != False:
 	props = ['Status','VMon','IMon','V0Setr','Trip','SVMaxr','RUpr','RDWnr']
-	with open(pvTxt,'w') as f:
+	with open(outPath+spectrometer+'-pv-list.txt','w') as f:
 		for group in groups:
 			for ch in group[2:]:
 				pvBase = 'hchv'+ch[1]+':'+ch[2].zfill(2)+':'+ch[3].zfill(3)+':'
 				for prop in props:
 					f.write(pvBase+prop)
 					f.write('\n')
-	print('\nPV list written to '+pvTxt+'\n')
+	print('\nPV list written to '+spectrometer+'-pv-list.txt\n')
 
 
 #Below is development of making tables for each group.
@@ -898,7 +900,7 @@ for line in xyPlot(iMon,'nAmps',50,400):
 	screen.append(line)
 screen.append(lastLine)
 
-with open(outPath+'HMS-plot.opi','w') as f:
+with open(outPath+spectrometer+'-plot.opi','w') as f:
 	for line in screen:
 		f.write(line)
 		f.write('\n')
