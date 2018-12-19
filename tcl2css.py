@@ -462,7 +462,7 @@ xyPlotStart = [\
 '      <color red="200" green="200" blue="200" />',\
 '    </axis_1_grid_color>',\
 '    <axis_1_log_scale>false</axis_1_log_scale>',\
-'    <axis_1_maximum>200.0</axis_1_maximum>',\
+'    <axis_1_maximum>2500.0</axis_1_maximum>',\
 '    <axis_1_minimum>0.0</axis_1_minimum>',\
 '    <axis_1_scale_font>',\
 '      <opifont.name fontName="Cantarell" height="11" style="0" pixels="false">Default</opifont.name>',\
@@ -510,12 +510,15 @@ seoe="false">',\
 '        <scriptText><![CDATA[from org.csstudio.opibuilder.scriptUtil \
 import PVUtil',\
 'from array import array',\
-"arr = array('f')",\
+'arr = array("f")',\
 'for pv in pvs[1:]:',\
-'	val = PVUtil.getDouble(pv)',\
-'	if val != '':',\
-'		arr.append(PVUtil.getDouble(pv))',\
-'	else:',\
+'	try:',\
+'		val = PVUtil.getDouble(pv)',\
+'		if val != "":',\
+'			arr.append(PVUtil.getDouble(pv))',\
+'		else:',\
+'			arr.append(0)',\
+'	except:',\
 '		arr.append(0)',\
 'pvs[0].setValue(arr)]]></scriptText>',\
 '        <pv trig="false">$(pv_name)</pv>']
