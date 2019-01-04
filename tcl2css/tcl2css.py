@@ -86,6 +86,7 @@ vMon,iMon = [],[]
 for grp in groups:
 	vMonHold,iMonHold = [],[]
 	grpNum,grpName,channels = grp[0],grp[1],grp[2:]
+
 	fileName = grpName.replace(' ','-')
 	x = y = 50
 	x0,y0 = x,y
@@ -250,6 +251,10 @@ for grp in groups:
 	# the name of the group.
 	screen.append(lastLine)
 	makeScreen(outPath,fileName+'-list.opi',screen)
+
+for i,item in enumerate(menuOptions):
+	screen = makeHistoPlot(item[0],vMon[i],iMon[i],menuOptions)
+	makeScreen(outPath,item[1][:-9]+'-plot.opi',screen)
 
 vMon,iMon = flatten(vMon), flatten(iMon)
 screen = makeHistoPlot(spectrometer,vMon,iMon,menuOptions)
