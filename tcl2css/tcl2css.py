@@ -16,31 +16,13 @@ import errno
 # code for tcl2css.py, program prints error message and stops.
 try:
 	from opiWidgets import *
+	from functions_tcl2css import *
 except:
 	print('\033[1m'+'\nERROR: opiWidgets.py not found in same directory as \
 source code for tcl2css.py.'+'\033[0m')
 	print('opiWidgets.py is required to run tcl2css.py.')
 	print('Aborting execution of tcl2css.py.\n')
 	sys.exit(0)
-
-# Function to "flatten" a 2-D list of lists into a 1-D list.
-flatten = lambda lst: [item for sublist in lst for item in sublist]
-
-# Function checks user's first arguement for directory containing HV.hvc and 
-# HV.group. If directory is invalid or does not contain HV.hvc and/or HV.group,
-# an error message is printed and program stops.
-def checkForInput(arg):
-	try:	
-		files = os.listdir(arg)
-	except:
-		print('\033[1m'+'\n"'+arg+'" is not a valid directory.\n'+'\033[0m')
-		sys.exit(0)
-	if 'HV.hvc' not in files or 'HV.group' not in files:
-		print('\n'+'\033[1m'+'HV.hvc and/or HV.group not found in "'+\
-			arg+'"'+'\033[0m'+'\n')
-		sys.exit(0)
-		arg = ''
-	return arg
 
 # Cases to check user's command line arguements.
 if len(sys.argv)-1 == 1:
@@ -89,7 +71,7 @@ for i,grp in enumerate(groups):
              if group == grp[0]:
                  groups[int(i)].append(line.strip().split(' ')[:4])
 
-#Below is development of making tables for each group.
+
 xSpacing = 10
 ySpacing = 8
 screenWidth = 850
@@ -126,24 +108,9 @@ for grp in groups:
 		line = line.replace('FONT_STYLE',str(1))
 		line = line.replace('FONT_SIZE',str(14))
 		screen.append(line)
-	#Makes dropdown menu
-	for line in menuStart:
-		screen.append(line)
-	for opt in menuOptions:
-		if opt[0] == grpName:
-			mode = '0'
-		else:
-			mode = '6'
-		for line in menuOpt:
-			line = line.replace('OPT_PATH',opt[1])
-			line = line.replace('OPT_MODE',mode)
-			line = line.replace('OPT_TITLE',opt[0])
-			screen.append(line)
-	for line in menuEnd:
-		line = line.replace('SPCTRMTR',spectrometer)
-		line = line.replace('X_POS',str(615))
-		line = line.replace('Y_POS',str(10))
-		screen.append(line)
+
+	# Calls function to add dropdown menu to screen.
+	screen =  makeMenu(menuOptions,grpName,spectrometer,screen)
 
 	#Generates labels for table header.
 	#For FONT_STYLE, 1 is bold, 0 regular
@@ -188,7 +155,7 @@ for grp in groups:
 			line = line.replace('BUTTON_Y_POS',str(y))
 			line = line.replace('BUTTON_X_POS',str(x+(labelWidth-\
 				buttonWidth)/2))
-			line = line.replace('PV_NAME','placeholder-pv')
+			line = line.replace('PV_NAME',pvBase)
 			screen.append(line)
 		x += labelWidth
 		#Channel on/off status indicator
@@ -197,7 +164,7 @@ for grp in groups:
 			line = line.replace('LED_WIDTH',str(ledWidth))
 			line = line.replace('LED_Y_POS',str(y))
 			line = line.replace('LED_X_POS',str(x+(labelWidth-ledWidth)/2))
-			line = line.replace('PV_NAME','placeholder-pv')
+			line = line.replace('PV_NAME',pvBase)
 			screen.append(line)
 		x += labelWidth
 		#Voltage readback
@@ -207,7 +174,7 @@ for grp in groups:
 			line = line.replace('INDICATOR_Y_POS',str(y))
 			line = line.replace('INDICATOR_X_POS',\
 					str(x+(labelWidth-indicatorWidth)/2))
-			line = line.replace('PV_NAME','placeholder-pv')
+			line = line.replace('PV_NAME',pvBase)
 			screen.append(line)
 		x += labelWidth
 		#Current readback
@@ -217,7 +184,7 @@ for grp in groups:
 			line = line.replace('INDICATOR_Y_POS',str(y))
 			line = line.replace('INDICATOR_X_POS',\
 					str(x+(labelWidth-indicatorWidth)/2))
-			line = line.replace('PV_NAME','placeholder-pv')
+			line = line.replace('PV_NAME',pvBase)
 			screen.append(line)
 		x += labelWidth
 		#Set voltage
@@ -226,7 +193,7 @@ for grp in groups:
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
 			line = line.replace('INPUT_Y_POS',str(y))
 			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
-			line = line.replace('PV_NAME','placeholder-pv')
+			line = line.replace('PV_NAME',pvBase)
 			screen.append(line)
 		x += labelWidth
 		#Current trip level
@@ -235,7 +202,7 @@ for grp in groups:
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
 			line = line.replace('INPUT_Y_POS',str(y))
 			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
-			line = line.replace('PV_NAME','placeholder-pv')
+			line = line.replace('PV_NAME',pvBase)
 			screen.append(line)
 		x += labelWidth
 		#Max allowable set voltage
@@ -244,7 +211,7 @@ for grp in groups:
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
 			line = line.replace('INPUT_Y_POS',str(y))
 			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
-			line = line.replace('PV_NAME','placeholder-pv')
+			line = line.replace('PV_NAME',pvBase)
 			screen.append(line)
 		x += labelWidth
 		#Channel ramp up rate
@@ -253,7 +220,7 @@ for grp in groups:
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
 			line = line.replace('INPUT_Y_POS',str(y))
 			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
-			line = line.replace('PV_NAME','placeholder-pv')
+			line = line.replace('PV_NAME',pvBase)
 			screen.append(line)
 		x += labelWidth
 		#channel ramp down rate
@@ -262,7 +229,7 @@ for grp in groups:
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
 			line = line.replace('INPUT_Y_POS',str(y))
 			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
-			line = line.replace('PV_NAME','placeholder-pv')
+			line = line.replace('PV_NAME',pvBase)
 			screen.append(line)
 		#horizontal divider line between channels.
 		for line in lineFmt:
@@ -282,76 +249,9 @@ for grp in groups:
 	# Appends final line of OPI format and writes all lines to an OPI file with
 	# the name of the group.
 	screen.append(lastLine)
-	with open(outPath+fileName+'-list.opi','w') as f:
-		for line in screen:
-			f.write(line)
-			f.write('\n')
-	# Finally, a message is printed stating what OPI file has been created.
-	print(fileName+'-list.opi created.')
+	makeScreen(outPath,fileName+'-list.opi',screen)
 
-# Creates screen of Bar Plots for voltage and current monitoring
-screen = []
-for line in screenTemplate:
-	line = line.replace('OPI_NAME',spectrometer+'-HV-Monitor')
-	line = line.replace('SCREEN_WIDTH',str(800))
-	line = line.replace('SCREEN_HEIGHT',str(725))
-	screen.append(line)
-#title label for plot screen
-for line in label:
-	line = line.replace('LABEL_HEIGHT',str(40))
-	line = line.replace('LABEL_WIDTH',str(600))
-	line = line.replace('LABEL_TEXT',spectrometer+' HV Monitor')
-	line = line.replace('LABEL_NAME',spectrometer+' HV Monitor')
-	line = line.replace('LABEL_Y_POS',str(5))
-	line = line.replace('LABEL_X_POS',str((800/2)-300))
-	line = line.replace('FONT_STYLE',str(1))
-	line = line.replace('FONT_SIZE',str(14))
-	screen.append(line)
 vMon,iMon = flatten(vMon), flatten(iMon)
-#Creates bar plot for voltage monitoring
-for line in xyPlotStart:
-	line = line.replace('Y_AXIS_LABEL','Volts')
-	line = line.replace('HEIGHT',str(300))
-	screen.append(line)
-for pv in vMon:
-	screen.append(xyPlotChannelFmt.replace('INSERT_PV_HERE',pv))
-for line in xyPlotEnd:
-	line = line.replace('NUMBER_OF_PVS',str(len(vMon)))
-	line = line.replace('WIDTH',str(700))
-	line = line.replace('X_POS',str(50))
-	line = line.replace('Y_POS',str(75))
-	screen.append(line)
-#Creates bar plot for current monitoring
-for line in xyPlotStart:
-	line = line.replace('Y_AXIS_LABEL','nAmps')
-	line = line.replace('HEIGHT',str(300))
-	screen.append(line)
-for pv in iMon:
-	screen.append(xyPlotChannelFmt.replace('INSERT_PV_HERE',pv))
-for line in xyPlotEnd:
-	line = line.replace('NUMBER_OF_PVS',str(len(iMon)))
-	line = line.replace('WIDTH',str(700))
-	line = line.replace('X_POS',str(50))
-	line = line.replace('Y_POS',str(400))
-	screen.append(line)
-#Makes dropdown menu
-for line in menuStart:
-	screen.append(line)
-for opt in menuOptions:
-	for line in menuOpt:
-		line = line.replace('OPT_PATH',opt[1])
-		line = line.replace('OPT_MODE','6')
-		line = line.replace('OPT_TITLE',opt[0])
-		screen.append(line)
-for line in menuEnd:
-	line = line.replace('SPCTRMTR',spectrometer)
-	line = line.replace('X_POS',str(550))
-	line = line.replace('Y_POS',str(10))
-	screen.append(line)
-screen.append(lastLine)
-with open(outPath+spectrometer+'-plot.opi','w') as f:
-	for line in screen:
-		f.write(line)
-		f.write('\n')
-print(spectrometer+'-plot.opi created.\n')
+screen = makeHistoPlot(spectrometer,vMon,iMon,menuOptions)
+makeScreen(outPath,spectrometer+'-plot.opi',screen)
 
