@@ -614,3 +614,76 @@ menuEnd = [\
 '    <y>Y_POS</y>',\
 '  </widget>']
 
+#OPI formatting for text updates= for status readback
+statusTextUpdate = [\
+'  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">',\
+'    <actions hook="false" hook_all="false" />',\
+'    <alarm_pulsing>false</alarm_pulsing>',\
+'    <auto_size>false</auto_size>',\
+'    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>',\
+'    <background_color>',\
+'      <color red="255" green="255" blue="255" />',\
+'    </background_color>',\
+'    <border_alarm_sensitive>true</border_alarm_sensitive>',\
+'    <border_color>',\
+'      <color red="0" green="0" blue="0" />',\
+'    </border_color>',\
+'    <border_style>1</border_style>',\
+'    <border_width>1</border_width>',\
+'    <enabled>true</enabled>',\
+'    <font>',\
+'      <fontdata fontName="Sans" height="10" style="0" pixels="false" />',\
+'    </font>',\
+'    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>',\
+'    <foreground_color>',\
+'      <color red="0" green="0" blue="0" />',\
+'    </foreground_color>',\
+'    <format_type>0</format_type>',\
+'    <height>INDICATOR_HEIGHT</height>',\
+'    <horizontal_alignment>0</horizontal_alignment>',\
+'    <name>INDICATOR_NAME</name>',\
+'    <precision>0</precision>',\
+'    <precision_from_pv>true</precision_from_pv>',\
+'    <pv_name>PV_NAME</pv_name>',\
+'    <pv_value />',\
+'    <rotation_angle>0.0</rotation_angle>',\
+'    <rules>',\
+'      <rule name="status-Rule" prop_id="background_color" out_exp="false">',\
+'        <exp bool_exp="PVUtil.getString(pvs[0]) == &quot;ON&quot;">',\
+'          <value>',\
+'            <color red="0" green="255" blue="0" />',\
+'          </value>',\
+'        </exp>',\
+'        <exp bool_exp="PVUtil.getString(pvs[0]) == &quot;OFF&quot;">',\
+'          <value>',\
+'            <color red="35" green="92" blue="35" />',\
+'          </value>',\
+'        </exp>',\
+'        <exp bool_exp="PVUtil.getString(pvs[0]) == &quot;TRIPPED&quot;">',\
+'          <value>',\
+'            <color red="255" green="0" blue="0" />',\
+'          </value>',\
+'        </exp>',\
+'        <pv trig="true">$(pv_name)</pv>',\
+'      </rule>',\
+'    </rules>',\
+'    <scale_options>',\
+'      <width_scalable>true</width_scalable>',\
+'      <height_scalable>true</height_scalable>',\
+'      <keep_wh_ratio>false</keep_wh_ratio>',\
+'    </scale_options>',\
+'    <scripts />',\
+'    <show_units>true</show_units>',\
+'    <text>######</text>',\
+'    <tooltip>$(pv_name)',\
+'$(pv_value)</tooltip>',\
+'    <transparent>false</transparent>',\
+'    <vertical_alignment>1</vertical_alignment>',\
+'    <visible>true</visible>',\
+'    <widget_type>Text Update</widget_type>',\
+'    <width>INDICATOR_WIDTH</width>',\
+'    <wrap_words>false</wrap_words>',\
+'    <wuid>54b97197:16750d3dd5b:-7711</wuid>',\
+'    <x>INDICATOR_X_POS</x>',\
+'    <y>INDICATOR_Y_POS</y>',\
+'  </widget>']

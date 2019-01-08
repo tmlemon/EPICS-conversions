@@ -59,17 +59,18 @@ with open(groupFile,'r') as f:
 		groups.append([line.strip().split(' ')[0],\
 			' '.join(line.strip().split(' ')[1:])])
 
+
 # Reads in channel configuration file and splits up config file into groups.
 with open(configFile,'r') as f:
 	configLines = f.readlines()
 menuOptions = []
 for i,grp in enumerate(groups):
-    menuOptions.append([grp[1],grp[1].replace(' ','-')+'-list.opi'])
-    for line in configLines:
-        if line[0] != '#' and line[0] != '\n':
-             group = line.strip().split(' ')[4]
-             if group == grp[0]:
-                 groups[int(i)].append(line.strip().split(' ')[:4])
+	menuOptions.append([grp[1],grp[1].replace(' ','-')+'-list.opi'])
+	for line in configLines:
+		if line[0] != '#' and line[0] != '\n':
+			group = line.strip().split(' ')[4]					
+			if group == grp[0]:
+				groups[int(i)].append(line.strip().split(' ')[:4])
 
 
 xSpacing = 10
@@ -81,12 +82,13 @@ buttonWidth = ledWidth = 50
 inputWidth = indicatorWidth = 68
 horizDivLen = 760
 
-# Creates screens showing each group in table format.
-vMon,iMon = [],[]
-for grp in groups:
-	vMonHold,iMonHold = [],[]
-	grpNum,grpName,channels = grp[0],grp[1],grp[2:]
 
+channelProps = ['VMon','IMon','Status','V0Setr','Trip','SVMax','RUpr','RDWnr']
+# Creates screens showing each group in table format.
+vMon,iMon,allPVs = [],[],[]
+for grp in groups:
+	vMonHold,iMonHold,allPVsHold = [],[],[]
+	grpNum,grpName,channels = grp[0],grp[1],grp[2:]
 	fileName = grpName.replace(' ','-')
 	x = y = 50
 	x0,y0 = x,y
@@ -135,6 +137,8 @@ for grp in groups:
 		x = x0
 		chID = ch[0]
 		pvBase = 'hchv'+ch[1]+':'+ch[2].zfill(2)+':'+ch[3].zfill(3)+':'
+		for prop in channelProps:
+			allPVsHold.append(pvBase+prop)
 		vMonHold.append(pvBase+'VMon')
 		iMonHold.append(pvBase+'IMon')
 		#Channel ID label
@@ -156,16 +160,17 @@ for grp in groups:
 			line = line.replace('BUTTON_Y_POS',str(y))
 			line = line.replace('BUTTON_X_POS',str(x+(labelWidth-\
 				buttonWidth)/2))
-			line = line.replace('PV_NAME',pvBase)
+			line = line.replace('PV_NAME',pvBase)#+'Status')
 			screen.append(line)
 		x += labelWidth
 		#Channel on/off status indicator
-		for	line in led:
-			line = line.replace('LED_HEIGHT',str(ledHeight))
-			line = line.replace('LED_WIDTH',str(ledWidth))
-			line = line.replace('LED_Y_POS',str(y))
-			line = line.replace('LED_X_POS',str(x+(labelWidth-ledWidth)/2))
-			line = line.replace('PV_NAME',pvBase)
+		for	line in statusTextUpdate:
+			line = line.replace('INDICATOR_HEIGHT',str(indicatorHeight))
+			line = line.replace('INDICATOR_WIDTH',str(indicatorWidth))
+			line = line.replace('INDICATOR_Y_POS',str(y))
+			line = line.replace('INDICATOR_X_POS',\
+					str(x+(labelWidth-indicatorWidth)/2))
+			line = line.replace('PV_NAME',pvBase+'Status')
 			screen.append(line)
 		x += labelWidth
 		#Voltage readback
@@ -175,7 +180,7 @@ for grp in groups:
 			line = line.replace('INDICATOR_Y_POS',str(y))
 			line = line.replace('INDICATOR_X_POS',\
 					str(x+(labelWidth-indicatorWidth)/2))
-			line = line.replace('PV_NAME',pvBase)
+			line = line.replace('PV_NAME',pvBase+'VMon')
 			screen.append(line)
 		x += labelWidth
 		#Current readback
@@ -185,7 +190,7 @@ for grp in groups:
 			line = line.replace('INDICATOR_Y_POS',str(y))
 			line = line.replace('INDICATOR_X_POS',\
 					str(x+(labelWidth-indicatorWidth)/2))
-			line = line.replace('PV_NAME',pvBase)
+			line = line.replace('PV_NAME',pvBase+'IMon')
 			screen.append(line)
 		x += labelWidth
 		#Set voltage
@@ -194,7 +199,7 @@ for grp in groups:
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
 			line = line.replace('INPUT_Y_POS',str(y))
 			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
-			line = line.replace('PV_NAME',pvBase)
+			line = line.replace('PV_NAME',pvBase)#+'V0Setr')
 			screen.append(line)
 		x += labelWidth
 		#Current trip level
@@ -203,7 +208,7 @@ for grp in groups:
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
 			line = line.replace('INPUT_Y_POS',str(y))
 			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
-			line = line.replace('PV_NAME',pvBase)
+			line = line.replace('PV_NAME',pvBase)#+'Trip')
 			screen.append(line)
 		x += labelWidth
 		#Max allowable set voltage
@@ -212,7 +217,7 @@ for grp in groups:
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
 			line = line.replace('INPUT_Y_POS',str(y))
 			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
-			line = line.replace('PV_NAME',pvBase)
+			line = line.replace('PV_NAME',pvBase)#+'SVMax')
 			screen.append(line)
 		x += labelWidth
 		#Channel ramp up rate
@@ -221,7 +226,7 @@ for grp in groups:
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
 			line = line.replace('INPUT_Y_POS',str(y))
 			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
-			line = line.replace('PV_NAME',pvBase)
+			line = line.replace('PV_NAME',pvBase)#+'RUpr')
 			screen.append(line)
 		x += labelWidth
 		#channel ramp down rate
@@ -230,7 +235,7 @@ for grp in groups:
 			line = line.replace('INPUT_WIDTH',str(inputWidth))
 			line = line.replace('INPUT_Y_POS',str(y))
 			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
-			line = line.replace('PV_NAME',pvBase)
+			line = line.replace('PV_NAME',pvBase)#+'RDWnr')
 			screen.append(line)
 		#horizontal divider line between channels.
 		for line in lineFmt:
@@ -247,16 +252,15 @@ for grp in groups:
 	#appends group vMon and iMon PVs to overall list.
 	vMon.append(vMonHold)	
 	iMon.append(iMonHold)
+	allPVs.append(allPVsHold)
 	# Appends final line of OPI format and writes all lines to an OPI file with
 	# the name of the group.
 	screen.append(lastLine)
-	makeScreen(outPath,fileName+'-list.opi',screen)
+	writeFile(outPath,fileName+'-list.opi',screen)
 
 for i,item in enumerate(menuOptions):
 	screen = makeHistoPlot(item[0],vMon[i],iMon[i],menuOptions)
-	makeScreen(outPath,item[1][:-9]+'-plot.opi',screen)
+	writeFile(outPath,item[1][:-9]+'-plot.opi',screen)
 
-vMon,iMon = flatten(vMon), flatten(iMon)
-screen = makeHistoPlot(spectrometer,vMon,iMon,menuOptions)
-makeScreen(outPath,spectrometer+'-plot.opi',screen)
-
+screen = makeHistoPlot(spectrometer,flatten(vMon),flatten(iMon),menuOptions)
+writeFile(outPath,spectrometer+'-plot.opi',screen)
