@@ -1,0 +1,3 @@
+#!/bin/bash
+
+python /home/tlemon/hv-css/tcl2css.py $@
