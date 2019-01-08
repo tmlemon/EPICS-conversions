@@ -18,6 +18,7 @@ Programs are designed to run from Linux command line.
 - opi2edl.py
   - Converts CSS .opi files to EDM .edl files.
 
-- tcl2css.py
+- tcl2css
   - Converts .tcl files to CSS .opi files.
   - Script is not universal; Parsing of files used to generate .tcl screens are based on Hall C HV screens.
+  - All files in folder needed to run script.
