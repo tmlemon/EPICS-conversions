@@ -6,7 +6,8 @@
 # Program uses HV.hvc and HV.group files to convert Hall C HV controls .tcl 
 # screens to CS-Studio screens.
 #
-# SCRIPT REQUIRES "opiWidgets.py" IN SAME DIRECTORY AS SOURCE CODE TO RUN.
+# SCRIPT REQUIRES "opiWidgets.py"  and "functions_tcl2css.py" IN SAME DIRECTORY
+# AS SOURCE CODE TO RUN.
 
 import sys
 import os
