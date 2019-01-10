@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# Put this script in /usr/bin and make sure /usr/bin is in the PATH environment variable.
-
-python /home/tlemon/hv-css/tcl2css.py $@
