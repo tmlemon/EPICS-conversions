@@ -3,15 +3,21 @@
 # 2018-12-18
 # @author: Tyler Lemon
 #
-# Program uses HV.hvc and HV.group files to convert Hall C HV controls .tcl 
+# Program uses HV.hvc and HV.group files to convert Hall C HV controls TCL/TK 
 # screens to CS-Studio screens.
+# Program also allows for user to generate group_map, channel_map and alhConfig
+# files.
 
-import sys
-import os
-import errno
+import sys #used to read in user arguements and exit program on errors.
+import os # used to check files required for program.
+import errno # used to catch potential error condition when creating parent 
+	# directories for output file locations.
+import array
+from math import ceil
+from datetime import datetime
+
 
 # Base formatting of an OPI screen in text.
-# Each list element is a different line of the final OPI file.
 screenTemplate = [\
 '<display typeId="org.csstudio.opibuilder.Display" version="1.0.0">',\
 '  <actions hook="false" hook_all="false" />',\
@@ -464,7 +470,7 @@ xyPlotStart = [\
 '    <axis_1_title_font>',\
 '      <opifont.name fontName="Cantarell" height="11" style="1" pixels="false">Default Bold</opifont.name>',\
 '    </axis_1_title_font>',\
-'    <axis_1_visible>true</axis_1_visible>',\
+'    <axis_1_viIs hv_map.perl a script that is run independently from hv.tcl? Should the Python equivalent be able to be run without sible>true</axis_1_visible>',\
 '    <axis_count>2</axis_count>',\
 '    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>',\
 '    <background_color>',\
@@ -724,7 +730,7 @@ HV.hvc and HV.group.')
 		arg = ''
 	return arg
 
-#Makes dropdown menu
+# function makes dropdown menu for screens
 def makeMenu(menuOptions,grpName,spectrometer,screen):
 	for line in menuStart:
 		screen.append(line)
@@ -816,246 +822,479 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
 	screen.append(lastLine)
 	return screen
 		
+prefix,spec = 'HV','Hall C'
+mapOut = False
+cssOut = True
 
-
-# Cases to check user's command line arguements.
-if len(sys.argv)-1 == 1 and (sys.argv[1] != '--help' and sys.argv[1] != '-h'):
-	dirr = checkForInput(sys.argv[1])
-	outPath = ''
-elif len(sys.argv)-1 == 2:
-	dirr = checkForInput(sys.argv[1])
-	outPath = sys.argv[2]
-	if outPath[-1] != '/':
-		outPath += '/'
-	if not os.path.exists(outPath):
-		try:
-			os.makedirs(outPath)
-		except OSError as err:
-			if err.errno != errno.EEXIST:
-				raise
+if '-m' in sys.argv:
+	mapOut = True
+	if len(sys.argv)-2 == 1:
+		dirr = checkForInput(sys.argv[2])
+		outPath = ''
+	elif len(sys.argv)-2 == 2:
+		dirr = checkForInput(sys.argv[2])
+		outPath = sys.argv[3]
+		if outPath[-1] != '/':
+			outPath += '/'
+		if not os.path.exists(outPath):
+			try:
+				os.makedirs(outPath)
+			except OSError as err:
+				if err.errno != errno.EEXIST:
+					raise
+	elif len(sys.argv)-1 == 1:
+		cssOut = False
+		dirr,outPath = '',''
+	else:
+		print('\033[1m'+'\nINPUT ARGUEMENTS HELP'+'\033[0m')
+		print('\npython tcl2css.py [-m] dir [write]\n')
+		print('[-m]\t-optional argument to output channel_map, group_map, and') 
+		print('\tHV.alhConfig.\n')
+		print('dir\t- mandatory arguement for directory containing HV.hvc and ')
+		print('\tHV.group used to make the CSS screens.\n')
+		print('[write]\t- optional arguement for directory to write resulting ')
+		print('\t.opi files to.\n')
+		sys.exit(0)
 else:
-    print('\033[1m'+'\nINPUT ARGUEMENTS HELP'+'\033[0m')
-    print('\npython tcl2css.py dir [write]\n')
-    print('dir\t- mandatory arguement for directory containing HV.hvc and ')
-    print('\tHV.group used to make the CSS screens.\n')
-    print('[write]\t- optional arguement for directory to write resulting ')
-    print('\t.opi files to.\n')
-    sys.exit(0)
+	if len(sys.argv)-1 == 1 and ('--help' not in sys.argv and \
+	'-h' not in sys.argv):
+		dirr = checkForInput(sys.argv[1])
+		outPath = ''
+	elif len(sys.argv)-1 == 2:
+		dirr = checkForInput(sys.argv[1])
+		outPath = sys.argv[2]
+		if outPath[-1] != '/':
+			outPath += '/'
+		if not os.path.exists(outPath):
+			try:
+				os.makedirs(outPath)
+			except OSError as err:
+				if err.errno != errno.EEXIST:
+					raise
+	else:
+		print('\033[1m'+'\nINPUT ARGUEMENTS HELP'+'\033[0m')
+		print('\npython tcl2css.py [-m] dir [write]\n')
+		print('[-m]\t-optional argument to output channel_map, group_map, and') 
+		print('\tHV.alhConfig.\n')
+		print('dir\t- mandatory arguement for directory containing HV.hvc and ')
+		print('\tHV.group used to make the CSS screens.\n')
+		print('[write]\t- optional arguement for directory to write resulting ')
+		print('\t.opi files to.\n')
+		sys.exit(0)
 
 #configuration files for .tcl files.
 configFile,groupFile = dirr+'/HV.hvc',dirr+'/HV.group'
 
-# Reads in groups file.
-groups = []
-with open(groupFile,'r') as f:
-	for line in f.readlines():
-		spectrometer = line.strip().split(' ')[1]
-		groups.append([line.strip().split(' ')[0],\
-			' '.join(line.strip().split(' ')[1:])])
+if cssOut == True:
+	# Reads in groups file.
+	groups = []
+	with open(groupFile,'r') as f:
+		for line in f.readlines():
+			spectrometer = line.strip().split(' ')[1]
+			groups.append([line.strip().split(' ')[0],\
+				' '.join(line.strip().split(' ')[1:])])
 
 
-# Reads in channel configuration file and splits up config file into groups.
-with open(configFile,'r') as f:
-	configLines = f.readlines()
-menuOptions = []
-for i,grp in enumerate(groups):
-	menuOptions.append([grp[1],grp[1].replace(' ','-')+'-list.opi'])
+	# Reads in channel configuration file and splits up config file into groups.
+	with open(configFile,'r') as f:
+		configLines = f.readlines()
+	menuOptions = []
+	for i,grp in enumerate(groups):
+		menuOptions.append([grp[1],grp[1].replace(' ','-')+'-list.opi'])
+		for line in configLines:
+			if line[0] != '#' and line[0] != '\n':
+				group = line.strip().split(' ')[4]					
+				if group == grp[0]:
+					groups[int(i)].append(line.strip().split(' ')[:4])
+	
+	
+	# Constants for widget placement on CSS screens.
+	xSpacing = 10
+	ySpacing = 8
+	screenWidth = 850
+	labelHeight = buttonHeight = indicatorHeight = ledHeight = inputHeight = 20
+	labelWidth = 75
+	buttonWidth = ledWidth = 50
+	inputWidth = indicatorWidth = 68
+	horizDivLen = 760
+
+
+	channelProps = ['VMon','IMon','Status','V0Setr','Trip','SVMax',\
+		'RUpr','RDWnr']
+	# Creates screens showing each group in table format.
+	vMon,iMon,allPVs = [],[],[]
+	for grp in groups:
+		vMonHold,iMonHold,allPVsHold = [],[],[]
+		grpNum,grpName,channels = grp[0],grp[1],grp[2:]
+		fileName = grpName.replace(' ','-')
+		x = y = 50
+		x0,y0 = x,y
+		#Fills out base screen properties.
+		screen = []
+		for line in screenTemplate:
+			line = line.replace('OPI_NAME',fileName)
+			line = line.replace('SCREEN_WIDTH',str(screenWidth))
+			line = line.replace('SCREEN_HEIGHT',\
+				str(2*y0+len(channels)*(labelHeight+ySpacing)))
+			screen.append(line)
+		#title label for table
+		for line in label:
+			line = line.replace('LABEL_HEIGHT',str(40))
+			line = line.replace('LABEL_WIDTH',str(600))
+			line = line.replace('LABEL_TEXT',grpName+' HV Controls')
+			line = line.replace('LABEL_NAME',grpName+' HV Controls')
+			line = line.replace('LABEL_Y_POS',str(5))
+			line = line.replace('LABEL_X_POS',str((screenWidth/2)-300))
+			line = line.replace('FONT_STYLE',str(1))
+			line = line.replace('FONT_SIZE',str(14))
+			screen.append(line)
+
+		# Calls function to add dropdown menu to screen.
+		screen =  makeMenu(menuOptions,grpName,spectrometer,screen)
+
+		#Generates labels for table header.
+		#For FONT_STYLE, 1 is bold, 0 regular
+		headerContents = ['Ch ID','On/Off','Status','Vmon','Imon','Vset',\
+			'Itrip','Vmax','RmpUp','RmpDwn']
+		for part in headerContents:
+			for line in label:
+				line = line.replace('LABEL_HEIGHT',str(labelHeight))
+				line = line.replace('LABEL_WIDTH',str(labelWidth))
+				line = line.replace('LABEL_TEXT',part)
+				line = line.replace('LABEL_NAME',part)
+				line = line.replace('LABEL_Y_POS',str(y))
+				line = line.replace('LABEL_X_POS',str(x))
+				line = line.replace('FONT_STYLE',str(1))
+				line = line.replace('FONT_SIZE',str(9))
+				screen.append(line)
+			x += labelWidth
+		y += labelHeight+ySpacing
+		#Places all widgets on the screens.
+		for ch in channels:
+			x = x0
+			chID = ch[0]
+			pvBase = 'hchv'+ch[1]+':'+ch[2].zfill(2)+':'+ch[3].zfill(3)+':'
+			for prop in channelProps:
+				allPVsHold.append(pvBase+prop)
+			vMonHold.append(pvBase+'VMon')
+			iMonHold.append(pvBase+'IMon')
+			#Channel ID label
+			for line in label:
+				line = line.replace('LABEL_HEIGHT',str(labelHeight))
+				line = line.replace('LABEL_WIDTH',str(labelWidth))
+				line = line.replace('LABEL_TEXT',chID)
+				line = line.replace('LABEL_NAME',chID)
+				line = line.replace('LABEL_Y_POS',str(y))
+				line = line.replace('LABEL_X_POS',str(x))
+				line = line.replace('FONT_STYLE',str(0))
+				line = line.replace('FONT_SIZE',str(9))
+				screen.append(line)
+			x += labelWidth
+			#channel control button
+			for	line in button:
+				line = line.replace('BUTTON_HEIGHT',str(buttonHeight))
+				line = line.replace('BUTTON_WIDTH',str(buttonWidth))
+				line = line.replace('BUTTON_Y_POS',str(y))
+				line = line.replace('BUTTON_X_POS',str(x+(labelWidth-\
+					buttonWidth)/2))
+				line = line.replace('PV_NAME',pvBase)#+'Status')
+				screen.append(line)
+			x += labelWidth
+			#Channel on/off status indicator
+			for	line in statusTextUpdate:
+				line = line.replace('INDICATOR_HEIGHT',str(indicatorHeight))
+				line = line.replace('INDICATOR_WIDTH',str(indicatorWidth))
+				line = line.replace('INDICATOR_Y_POS',str(y))
+				line = line.replace('INDICATOR_X_POS',\
+						str(x+(labelWidth-indicatorWidth)/2))
+				line = line.replace('PV_NAME',pvBase+'Status')
+				screen.append(line)
+			x += labelWidth
+			#Voltage readback
+			for	line in textUpdate:
+				line = line.replace('INDICATOR_HEIGHT',str(indicatorHeight))
+				line = line.replace('INDICATOR_WIDTH',str(indicatorWidth))
+				line = line.replace('INDICATOR_Y_POS',str(y))
+				line = line.replace('INDICATOR_X_POS',\
+						str(x+(labelWidth-indicatorWidth)/2))
+				line = line.replace('PV_NAME',pvBase+'VMon')
+				screen.append(line)
+			x += labelWidth
+			#Current readback
+			for	line in textUpdate:
+				line = line.replace('INDICATOR_HEIGHT',str(indicatorHeight))
+				line = line.replace('INDICATOR_WIDTH',str(indicatorWidth))
+				line = line.replace('INDICATOR_Y_POS',str(y))
+				line = line.replace('INDICATOR_X_POS',\
+						str(x+(labelWidth-indicatorWidth)/2))
+				line = line.replace('PV_NAME',pvBase+'IMon')
+				screen.append(line)
+			x += labelWidth
+			#Set voltage
+			for	line in textInput:
+				line = line.replace('INPUT_HEIGHT',str(inputHeight))
+				line = line.replace('INPUT_WIDTH',str(inputWidth))
+				line = line.replace('INPUT_Y_POS',str(y))
+				line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
+					inputWidth)/2))
+				line = line.replace('PV_NAME',pvBase)#+'V0Setr')
+				screen.append(line)
+			x += labelWidth
+			#Current trip level
+			for	line in textInput:
+				line = line.replace('INPUT_HEIGHT',str(inputHeight))
+				line = line.replace('INPUT_WIDTH',str(inputWidth))
+				line = line.replace('INPUT_Y_POS',str(y))
+				line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
+					inputWidth)/2))
+				line = line.replace('PV_NAME',pvBase)#+'Trip')
+				screen.append(line)
+			x += labelWidth
+			#Max allowable set voltage
+			for	line in textInput:
+				line = line.replace('INPUT_HEIGHT',str(inputHeight))
+				line = line.replace('INPUT_WIDTH',str(inputWidth))
+				line = line.replace('INPUT_Y_POS',str(y))
+				line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
+					inputWidth)/2))
+				line = line.replace('PV_NAME',pvBase)#+'SVMax')
+				screen.append(line)
+			x += labelWidth
+			#Channel ramp up rate
+			for	line in textInput:
+				line = line.replace('INPUT_HEIGHT',str(inputHeight))
+				line = line.replace('INPUT_WIDTH',str(inputWidth))
+				line = line.replace('INPUT_Y_POS',str(y))
+				line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
+					inputWidth)/2))
+				line = line.replace('PV_NAME',pvBase)#+'RUpr')
+				screen.append(line)
+			x += labelWidth
+			#channel ramp down rate
+			for	line in textInput:
+				line = line.replace('INPUT_HEIGHT',str(inputHeight))
+				line = line.replace('INPUT_WIDTH',str(inputWidth))
+				line = line.replace('INPUT_Y_POS',str(y))
+				line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
+					inputWidth)/2))
+				line = line.replace('PV_NAME',pvBase)#+'RDWnr')
+				screen.append(line)
+			#horizontal divider line between channels.
+			for line in lineFmt:
+				line = line.replace('LINE_HEIGHT',str(1))
+				line = line.replace('LINE_WIDTH',str(horizDivLen))
+				line = line.replace('LINE_Y_POS',str(y-(ySpacing/2)))
+				line = line.replace('LINE_X_POS',str(x0))
+				line = line.replace('PT1_X',str(x0))
+				line = line.replace('PT1_Y',str(y-(ySpacing/2)))
+				line = line.replace('PT2_X',str(x0+horizDivLen))
+				line = line.replace('PT2_Y',str(y-(ySpacing/2)))
+				screen.append(line)
+			y += labelHeight+ySpacing
+		#appends group vMon and iMon PVs to overall list.
+		vMon.append(vMonHold)	
+		iMon.append(iMonHold)
+		allPVs.append(allPVsHold)
+		# Appends final line of OPI format and writes all lines to an OPI file 	
+		# with the name of the group.
+		screen.append(lastLine)
+		writeFile(outPath,fileName+'-list.opi',screen)
+
+	#makes Histogram plots for individual detectors
+	for i,item in enumerate(menuOptions):
+		screen = makeHistoPlot(item[0],vMon[i],iMon[i],menuOptions)
+		writeFile(outPath,item[1][:-9]+'-plot.opi',screen)
+	
+	# makes histogram plots for overall spectrometer
+	screen = makeHistoPlot(spectrometer,flatten(vMon),flatten(iMon),menuOptions)
+	writeFile(outPath,spectrometer+'-plot.opi',screen)
+
+if mapOut:
+	# Declares input configuration files and output file name
+	hvConfig = prefix+'.hvc'
+	groupFile = prefix+'.group'
+	alhFile = prefix+'.alhConfig'
+
+	# Tries to open .hvc file, gives warning and exits if cannot.
+	try:
+		with open(hvConfig,'r') as f:
+			configLines = f.readlines()
+	except:
+		print('Cannot open config file: '+hvConfig+'.\n')
+		sys.exit(0)
+
+	# Reads in HV.hvc, prints crate numbers, checks channels for duplication.
+	chs,used,prevCrate,groups,labels = [],[],[],array.array('i'),[]
 	for line in configLines:
 		if line[0] != '#' and line[0] != '\n':
-			group = line.strip().split(' ')[4]					
-			if group == grp[0]:
-				groups[int(i)].append(line.strip().split(' ')[:4])
+			label,crate,slot,channel,group = line.strip().split()[:5]
+			labels.append(label)
+			chs.append([label,crate,slot,channel,group])
+			groups.append(int(group))
+			if crate not in prevCrate:
+				prevCrate.append(crate)
+				print('Found new crate... number '+crate)
+			if [crate,slot,channel.zfill(2)] not in used:
+				used.append([crate,slot,channel.zfill(2)])
+			else:
+				print('>>>'+'\033[1m'+'\tMultiply assigned HV channel!'+\
+					'\033[0m'+'\n>>>\tCrate/Slot/Channel '+crate+'/'+\
+					slot+'/'+channel+' already assigned to '+'\033[1m'+\
+					chs[used.index([crate,slot,channel])][0]+'\033[0m'+\
+					'.\n>>>\tAttempted assignment to '+'\033[1m'+label+\
+					'\033[0m'+' has been ignored.\n>>>')
+
+	# Reads in HV.group and prints each group with ID number and number of 
+	# channels
+	if (os.path.isfile(groupFile)):
+		print('Opening group file '+groupFile)
+		try:
+			with open(groupFile,'r') as f:
+				groupLines = f.readlines()
+		except:
+			print('Cannot open config file: '+groupFile+'.\n')
+			sys.exit(0)
+	print('Group Information:')
+	grNames = []
+	for line in groupLines:
+		if line[0] != '#' and line[0] != '\n':
+			grID = line.strip().split(' ')[0]
+			grName = ' '.join(line.strip().split(' ')[1:])
+			grNames.append([grID,grName])
+			print('\tGroup '+grName+' (id '+grID+')'+' has '+\
+				str(groups.count(int(grID)))+' channels')
 
 
-xSpacing = 10
-ySpacing = 8
-screenWidth = 850
-labelHeight = buttonHeight = indicatorHeight = ledHeight = inputHeight = 20
-labelWidth = 75
-buttonWidth = ledWidth = 50
-inputWidth = indicatorWidth = 68
-horizDivLen = 760
+	# Creates group_map file
+	date = datetime.now().strftime('%X %a %b %d %Y')
+	pgHeader = ('Group Contents Map Generated '+date).center(80)[:len((\
+		'Group Contents Map Generated '+date).center(80))-len('Page:N')]+'Page:'
+
+	groupLines.sort()
+
+	mapping = []
+	for group in groupLines:
+		grID = group.strip().split(' ')[0]
+		grName = ' '.join(group.strip().split(' ')[1:])
+		if len(grName) > 18:
+			hold = ['_'*19+'|',('Group '+grID).center(19)+'|',\
+				grName[:18].center(19)+'|',grName[18:].center(19)+'|',\
+				'_'*19+'|',' '*19+'|']
+		else:
+			hold = ['_'*19+'|',('Group '+grID).center(19)+'|',\
+				grName.center(19)+'|',' '*19+'|','_'*19+'|',' '*19+'|']
+		for ch in chs:
+			chID,cr,sl,chn,gr = ch
+			chn = chn.zfill(2)
+			if gr == str(grID):
+				spacing = 17-len(chID)-len(cr+'/'+sl+'/'+chn)
+				line = ' '+chID+' '*spacing+cr+'/'+sl+'/'+chn+' |'
+				if len(line) > 20:
+					line = line[: -2]+'|'
+				hold.append(line)
+		hold.append(' '*19+'|')
+		mapping.append(hold)
+
+	numPgs = int(ceil(len(groupLines)/4.0))
+	start,final = 0,[]
+	for page in range(0,numPgs):
+		pg = mapping[start*page:start*page+4]
+		maxLen = 0
+		for item in pg:
+			if len(item) > maxLen:
+				maxLen = len(item)
+		for i,item in enumerate(pg):
+			if len(item) < maxLen:
+				diff = maxLen - len(item)
+				for q in range(0,diff):
+					pg[i].append(' '*19+'|')
+		start += 4
+		if page != 0:
+			final.append('\f')
+		final.append(pgHeader+str(page+1))
+		for i in range(0,len(pg[0])):
+			line = '|'	
+			for grp in pg:
+				line += grp[i]
+			final.append(line)
+
+	with open('group_map','w') as f:
+		for line in final:
+			f.write(line)
+			f.write('\n')
 
 
-channelProps = ['VMon','IMon','Status','V0Setr','Trip','SVMax','RUpr','RDWnr']
-# Creates screens showing each group in table format.
-vMon,iMon,allPVs = [],[],[]
-for grp in groups:
-	vMonHold,iMonHold,allPVsHold = [],[],[]
-	grpNum,grpName,channels = grp[0],grp[1],grp[2:]
-	fileName = grpName.replace(' ','-')
-	x = y = 50
-	x0,y0 = x,y
-	#Fills out base screen properties.
-	screen = []
-	for line in screenTemplate:
-		line = line.replace('OPI_NAME',fileName)
-		line = line.replace('SCREEN_WIDTH',str(screenWidth))
-		line = line.replace('SCREEN_HEIGHT',\
-			str(2*y0+len(channels)*(labelHeight+ySpacing)))
-		screen.append(line)
-    #title label for table
-	for line in label:
-		line = line.replace('LABEL_HEIGHT',str(40))
-		line = line.replace('LABEL_WIDTH',str(600))
-		line = line.replace('LABEL_TEXT',grpName+' HV Controls')
-		line = line.replace('LABEL_NAME',grpName+' HV Controls')
-		line = line.replace('LABEL_Y_POS',str(5))
-		line = line.replace('LABEL_X_POS',str((screenWidth/2)-300))
-		line = line.replace('FONT_STYLE',str(1))
-		line = line.replace('FONT_SIZE',str(14))
-		screen.append(line)
+	# Creates channel_map file
+	labels = [x for _,x in sorted(zip(used,labels))]
+	used.sort()
 
-	# Calls function to add dropdown menu to screen.
-	screen =  makeMenu(menuOptions,grpName,spectrometer,screen)
+	chMap = []
+	maxSl = maxCh = 0
+	for crate in prevCrate:
+		hold = []
+		for ch in used:
+			if ch[0] == crate:
+				hold.append(ch)
+			if int(ch[2]) > maxCh:
+				maxCh = int(ch[2])
+			if int(ch[1]) > maxSl:
+				maxSl = int(ch[1])
+		chMap.append(hold)
 
-	#Generates labels for table header.
-	#For FONT_STYLE, 1 is bold, 0 regular
-	headerContents = ['Ch ID','On/Off','Status','Vmon','Imon','Vset','Itrip',\
-		'Vmax','RmpUp','RmpDwn']
-	for part in headerContents:
-		for line in label:
-			line = line.replace('LABEL_HEIGHT',str(labelHeight))
-			line = line.replace('LABEL_WIDTH',str(labelWidth))
-			line = line.replace('LABEL_TEXT',part)
-			line = line.replace('LABEL_NAME',part)
-			line = line.replace('LABEL_Y_POS',str(y))
-			line = line.replace('LABEL_X_POS',str(x))
-			line = line.replace('FONT_STYLE',str(1))
-			line = line.replace('FONT_SIZE',str(9))
-			screen.append(line)
-		x += labelWidth
-	y += labelHeight+ySpacing
-	#Places all widgets on the screens.
-	for ch in channels:
-		x = x0
-		chID = ch[0]
-		pvBase = 'hchv'+ch[1]+':'+ch[2].zfill(2)+':'+ch[3].zfill(3)+':'
-		for prop in channelProps:
-			allPVsHold.append(pvBase+prop)
-		vMonHold.append(pvBase+'VMon')
-		iMonHold.append(pvBase+'IMon')
-		#Channel ID label
-		for line in label:
-			line = line.replace('LABEL_HEIGHT',str(labelHeight))
-			line = line.replace('LABEL_WIDTH',str(labelWidth))
-			line = line.replace('LABEL_TEXT',chID)
-			line = line.replace('LABEL_NAME',chID)
-			line = line.replace('LABEL_Y_POS',str(y))
-			line = line.replace('LABEL_X_POS',str(x))
-			line = line.replace('FONT_STYLE',str(0))
-			line = line.replace('FONT_SIZE',str(9))
-			screen.append(line)
-		x += labelWidth
-		#channel control button
-		for	line in button:
-			line = line.replace('BUTTON_HEIGHT',str(buttonHeight))
-			line = line.replace('BUTTON_WIDTH',str(buttonWidth))
-			line = line.replace('BUTTON_Y_POS',str(y))
-			line = line.replace('BUTTON_X_POS',str(x+(labelWidth-\
-				buttonWidth)/2))
-			line = line.replace('PV_NAME',pvBase)#+'Status')
-			screen.append(line)
-		x += labelWidth
-		#Channel on/off status indicator
-		for	line in statusTextUpdate:
-			line = line.replace('INDICATOR_HEIGHT',str(indicatorHeight))
-			line = line.replace('INDICATOR_WIDTH',str(indicatorWidth))
-			line = line.replace('INDICATOR_Y_POS',str(y))
-			line = line.replace('INDICATOR_X_POS',\
-					str(x+(labelWidth-indicatorWidth)/2))
-			line = line.replace('PV_NAME',pvBase+'Status')
-			screen.append(line)
-		x += labelWidth
-		#Voltage readback
-		for	line in textUpdate:
-			line = line.replace('INDICATOR_HEIGHT',str(indicatorHeight))
-			line = line.replace('INDICATOR_WIDTH',str(indicatorWidth))
-			line = line.replace('INDICATOR_Y_POS',str(y))
-			line = line.replace('INDICATOR_X_POS',\
-					str(x+(labelWidth-indicatorWidth)/2))
-			line = line.replace('PV_NAME',pvBase+'VMon')
-			screen.append(line)
-		x += labelWidth
-		#Current readback
-		for	line in textUpdate:
-			line = line.replace('INDICATOR_HEIGHT',str(indicatorHeight))
-			line = line.replace('INDICATOR_WIDTH',str(indicatorWidth))
-			line = line.replace('INDICATOR_Y_POS',str(y))
-			line = line.replace('INDICATOR_X_POS',\
-					str(x+(labelWidth-indicatorWidth)/2))
-			line = line.replace('PV_NAME',pvBase+'IMon')
-			screen.append(line)
-		x += labelWidth
-		#Set voltage
-		for	line in textInput:
-			line = line.replace('INPUT_HEIGHT',str(inputHeight))
-			line = line.replace('INPUT_WIDTH',str(inputWidth))
-			line = line.replace('INPUT_Y_POS',str(y))
-			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
-			line = line.replace('PV_NAME',pvBase)#+'V0Setr')
-			screen.append(line)
-		x += labelWidth
-		#Current trip level
-		for	line in textInput:
-			line = line.replace('INPUT_HEIGHT',str(inputHeight))
-			line = line.replace('INPUT_WIDTH',str(inputWidth))
-			line = line.replace('INPUT_Y_POS',str(y))
-			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
-			line = line.replace('PV_NAME',pvBase)#+'Trip')
-			screen.append(line)
-		x += labelWidth
-		#Max allowable set voltage
-		for	line in textInput:
-			line = line.replace('INPUT_HEIGHT',str(inputHeight))
-			line = line.replace('INPUT_WIDTH',str(inputWidth))
-			line = line.replace('INPUT_Y_POS',str(y))
-			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
-			line = line.replace('PV_NAME',pvBase)#+'SVMax')
-			screen.append(line)
-		x += labelWidth
-		#Channel ramp up rate
-		for	line in textInput:
-			line = line.replace('INPUT_HEIGHT',str(inputHeight))
-			line = line.replace('INPUT_WIDTH',str(inputWidth))
-			line = line.replace('INPUT_Y_POS',str(y))
-			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
-			line = line.replace('PV_NAME',pvBase)#+'RUpr')
-			screen.append(line)
-		x += labelWidth
-		#channel ramp down rate
-		for	line in textInput:
-			line = line.replace('INPUT_HEIGHT',str(inputHeight))
-			line = line.replace('INPUT_WIDTH',str(inputWidth))
-			line = line.replace('INPUT_Y_POS',str(y))
-			line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
-			line = line.replace('PV_NAME',pvBase)#+'RDWnr')
-			screen.append(line)
-		#horizontal divider line between channels.
-		for line in lineFmt:
-			line = line.replace('LINE_HEIGHT',str(1))
-			line = line.replace('LINE_WIDTH',str(horizDivLen))
-			line = line.replace('LINE_Y_POS',str(y-(ySpacing/2)))
-			line = line.replace('LINE_X_POS',str(x0))
-			line = line.replace('PT1_X',str(x0))
-			line = line.replace('PT1_Y',str(y-(ySpacing/2)))
-			line = line.replace('PT2_X',str(x0+horizDivLen))
-			line = line.replace('PT2_Y',str(y-(ySpacing/2)))
-			screen.append(line)
-		y += labelHeight+ySpacing
-	#appends group vMon and iMon PVs to overall list.
-	vMon.append(vMonHold)	
-	iMon.append(iMonHold)
-	allPVs.append(allPVsHold)
-	# Appends final line of OPI format and writes all lines to an OPI file with
-	# the name of the group.
-	screen.append(lastLine)
-	writeFile(outPath,fileName+'-list.opi',screen)
+	pgHeader = ('Channel Map Generated '+date).center(80)[:len((\
+		'Channel Contents Map Generated '+date).center(80))-\
+		len('Page:N')]+'Page:'
+	crateMap = []
+	for crNum,crate in enumerate(chMap):
+		hold = ['_'*19+'|',('Crate '+str(crNum+1)).center(19)+'|','_'*19+'|',]
+		for slot in range(0,maxSl+1):
+			for ch in range(0,maxCh+1):
+				chInfo = str(slot)+'/'+str(ch).zfill(2)
+				try:
+					chID = labels[used.index([str(crNum+1),str(slot),\
+						str(ch).zfill(2)])]
+					hold.append(' '+chInfo.ljust(6)+chID.center(12)+'|')
+				except:
+					hold.append((' '+chInfo).ljust(19)+'|')
+		crateMap.append(hold)
 
-for i,item in enumerate(menuOptions):
-	screen = makeHistoPlot(item[0],vMon[i],iMon[i],menuOptions)
-	writeFile(outPath,item[1][:-9]+'-plot.opi',screen)
+	numPgs = int(ceil(len(crateMap)/4.0))
+	start,final = 0,[]
+	for page in range(0,numPgs):
+		pg = crateMap[start*page:start*page+4]
+		start += 4
+		if page != 0:
+			final.append('\f')
+		final.append(pgHeader+str(page+1))
+		for i in range(0,len(pg[0])):
+			line = '|'	
+			for grp in pg:
+				line += grp[i]
+			final.append(line)
 
-screen = makeHistoPlot(spectrometer,flatten(vMon),flatten(iMon),menuOptions)
-writeFile(outPath,spectrometer+'-plot.opi',screen)
+	with open('channel_map','w') as f:
+		for line in final:
+			f.write(line)
+			f.write('\n')
 
+	# Creates .alhConfig file
+	specNoSpace = spec.replace(' ','_')
+	final = 'GROUP    NULL'+' '*15+specNoSpace+'\n'+'$ALIAS '+spec+\
+		' Detector High Voltage\n\n'
+	for grp in groupLines:
+		grID = grp.strip().split(' ')[0]
+		name = ' '.join(grp.strip().split(' ')[1:])
+		nameNoSpace = name.replace(' ','_')
+		final += 'GROUP    '+specNoSpace+' '*15+nameNoSpace+'\n'+'$ALIAS '+\
+			name+'\n\n'
+		for ch in chs:
+			if ch[4] == grID:
+				pvBase = 'hchv'+ch[1]+':'+ch[2].zfill(2)+':'+ch[3].zfill(3)
+				final+= 'CHANNEL  '+nameNoSpace+' '*18+pvBase+':VDiff\n'+\
+					'$ALIAS '+ch[0]+' '+ch[1]+'/'+ch[2]+'/'+ch[3].zfill(2)+\
+					'\n'+'$COMMAND  edm -noautomsg -eolc -x -m "sig='+\
+					pvBase+',title='+ch[0]+',address='+ch[1]+'/'+ch[2]+'/'+\
+					ch[3].zfill(2)+'" HV_alarm_set.edl >> /dev/null\n\n'
+
+	with open(alhFile,'w') as f:
+		f.write(final)
