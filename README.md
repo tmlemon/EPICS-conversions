@@ -22,5 +22,5 @@ Programs are designed to run from Linux command line.
 
 - tcl2css.py
   - Converts .tcl files to CSS .opi files.
-  - Script will output hv_map.py's files if -m option is added as first input argument.
+  - Script will output hv_map.py's files if ```-m``` option is added as first input argument.
   - Script is not universal; Parsing of files used to generate .tcl screens are based on Hall C HV screens.
