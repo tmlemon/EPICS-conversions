@@ -1,5 +1,9 @@
 #!/bin/env python
 
+###
+### split out ability to generate alhConfig separately.
+###
+
 # 2018-12-18
 # @author: Tyler Lemon
 #
@@ -825,6 +829,7 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
 prefix,spec = 'HV','Hall C'
 mapOut = False
 cssOut = True
+alhOnly = False
 
 if '-m' in sys.argv:
 	mapOut = True
@@ -847,14 +852,21 @@ if '-m' in sys.argv:
 		dirr,outPath = '',''
 	else:
 		print('\033[1m'+'\nINPUT ARGUEMENTS HELP'+'\033[0m')
-		print('\npython tcl2css.py [-m] dir [write]\n')
+		print('\npython tcl2css.py [-m] [-a] dir [write]\n')
 		print('[-m]\t-optional argument to output channel_map, group_map, and') 
 		print('\tHV.alhConfig.\n')
+		print('[-a]\t-optional argument to output only HV.alhConfig.\n')
 		print('dir\t- mandatory arguement for directory containing HV.hvc and ')
 		print('\tHV.group used to make the CSS screens.\n')
 		print('[write]\t- optional arguement for directory to write resulting ')
 		print('\t.opi files to.\n')
 		sys.exit(0)
+elif '-a' in sys.argv and len(sys.argv)-1==1:
+	alhOnly = True
+	mapOut = True
+	cssOut = False
+	dirr,outPath = '',''
+	print('HV.alhConfig generated.')
 else:
 	if len(sys.argv)-1 == 1 and ('--help' not in sys.argv and \
 	'-h' not in sys.argv):
@@ -873,9 +885,10 @@ else:
 					raise
 	else:
 		print('\033[1m'+'\nINPUT ARGUEMENTS HELP'+'\033[0m')
-		print('\npython tcl2css.py [-m] dir [write]\n')
+		print('\npython tcl2css.py [-m] [-a] dir [write]\n')
 		print('[-m]\t-optional argument to output channel_map, group_map, and') 
 		print('\tHV.alhConfig.\n')
+		print('[-a]\t-optional argument to output only HV.alhConfig.\n')
 		print('dir\t- mandatory arguement for directory containing HV.hvc and ')
 		print('\tHV.group used to make the CSS screens.\n')
 		print('[write]\t- optional arguement for directory to write resulting ')
@@ -1133,7 +1146,8 @@ if mapOut:
 			groups.append(int(group))
 			if crate not in prevCrate:
 				prevCrate.append(crate)
-				print('Found new crate... number '+crate)
+				if not alhOnly:
+					print('Found new crate... number '+crate)
 			if [crate,slot,channel.zfill(2)] not in used:
 				used.append([crate,slot,channel.zfill(2)])
 			else:
@@ -1147,22 +1161,25 @@ if mapOut:
 	# Reads in HV.group and prints each group with ID number and number of 
 	# channels
 	if (os.path.isfile(groupFile)):
-		print('Opening group file '+groupFile)
+		if not alhOnly:
+			print('Opening group file '+groupFile)
 		try:
 			with open(groupFile,'r') as f:
 				groupLines = f.readlines()
 		except:
 			print('Cannot open config file: '+groupFile+'.\n')
 			sys.exit(0)
-	print('Group Information:')
+	if not alhOnly:
+		print('Group Information:')
 	grNames = []
 	for line in groupLines:
 		if line[0] != '#' and line[0] != '\n':
 			grID = line.strip().split(' ')[0]
 			grName = ' '.join(line.strip().split(' ')[1:])
 			grNames.append([grID,grName])
-			print('\tGroup '+grName+' (id '+grID+')'+' has '+\
-				str(groups.count(int(grID)))+' channels')
+			if not alhOnly:
+				print('\tGroup '+grName+' (id '+grID+')'+' has '+\
+					str(groups.count(int(grID)))+' channels')
 
 
 	# Creates group_map file
@@ -1218,10 +1235,11 @@ if mapOut:
 				line += grp[i]
 			final.append(line)
 
-	with open('group_map','w') as f:
-		for line in final:
-			f.write(line)
-			f.write('\n')
+	if not alhOnly:
+		with open(outPath+'group_map','w') as f:
+			for line in final:
+				f.write(line)
+				f.write('\n')
 
 
 	# Creates channel_map file
@@ -1272,10 +1290,11 @@ if mapOut:
 				line += grp[i]
 			final.append(line)
 
-	with open('channel_map','w') as f:
-		for line in final:
-			f.write(line)
-			f.write('\n')
+	if not alhOnly:
+		with open(outPath+'channel_map','w') as f:
+			for line in final:
+				f.write(line)
+				f.write('\n')
 
 	# Creates .alhConfig file
 	specNoSpace = spec.replace(' ','_')
@@ -1296,5 +1315,5 @@ if mapOut:
 					pvBase+',title='+ch[0]+',address='+ch[1]+'/'+ch[2]+'/'+\
 					ch[3].zfill(2)+'" HV_alarm_set.edl >> /dev/null\n\n'
 
-	with open(alhFile,'w') as f:
+	with open(outPath+alhFile,'w') as f:
 		f.write(final)
