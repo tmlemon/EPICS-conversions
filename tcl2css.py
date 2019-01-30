@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 ###
 ### split out ability to generate alhConfig separately.
