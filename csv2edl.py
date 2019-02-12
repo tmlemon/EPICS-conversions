@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/bin/env python
 
 import sys
 import os.path
@@ -21,10 +21,10 @@ staticText = ['# (Static Text)','object activeXTextClass',\
 textMonitor = ['# (Text Monitor)','object activeXTextDspClass:noedit',\
 	'beginObjectProperties','major 4','minor 7','release 0','x X_POS',\
 	'y Y_POS','w WIDTH','h HEIGHT','controlPv "PV_NAME"',\
-	'font "helvetica-medium-r-FONT_SIZE"','fgColor index 14',\
+	'font "helvetica-medium-r-14"','fgColor index 14','fgAlarm',\
 	'bgColor index 51','topShadowColor index 50',\
 	'botShadowColor index 10','useDisplayBg','autoHeight',\
-	'limitsFromDb','nullColor index 14','useHexPrefix',\
+	'limitsFromDb','nullColor index 14','useHexPrefix','useAlarmBorder',\
 	'newPos','objType "monitors"','endObjectProperties\n']
 #Text update - the standard text indicator
 textUpdate = ['# (Textupdate)','object TextupdateClass',\
@@ -47,7 +47,7 @@ def checkInput(arg):
 			print('Use --help or -h option to print help info.\n')
 			sys.exit(0)
 	else:
-		if os.path.isfile(arg) == False:
+		if not os.path.isfile(arg):
 			print('\033[1m'+'\n"'+arg+'" is not a valid input.'+'\033[0m')
 			print('First arguement must be a directory or file that exists')
 			print('Use --help or -h option to print help info.\n')
@@ -85,7 +85,7 @@ else:
 
 # Removes any non-csv files from file list.
 keep = []
-for i,item in enumerate(files):
+for item in files:
 	if item[-4:] == '.csv':
 		keep.append(item)
 if len(keep) == 0:
@@ -95,33 +95,26 @@ if len(keep) == 0:
 	sys.exit(0)
 files = keep
 
-
 #prelimary constants for making .edl file
-x = 20
-y = 50
+x,y = 20,50
 x0,y0 = x,y
-xSpacing = 10
-ySpacing = 5
-labelIndicatorSpace = 5
+xSpacing,ySpacing,labelIndicatorSpace = 10,5,5
 labelWidth,labelHeight = 200,20
-indicatorWidth, indicatorHeight = 100,20
+indicatorWidth,indicatorHeight = 100,20
 unitsWidth,unitsHeight = 40,20
 
 # Loops over all .csv files found as user's first input arguement.
+pvList = []
 for csv in files:
-	#csv = sys.argv[1]
 	edlFile = csv[:csv.find('.csv')]+'.edl'
-
 	with open(dirr+csv,'r') as f:
 		lines = f.readlines()
-
 	final = []
 	for prop in edl:
 		prop = prop.replace('HEIGHT',str(2*y+len(lines)*(ySpacing+labelHeight)))
 		prop = prop.replace('WIDTH',str(2*x+labelWidth+indicatorWidth+\
 			unitsWidth+2*labelIndicatorSpace))
 		final.append(prop)
-
 	for line in lines:
 		pv,label,units = line.strip().split(',')
 		if '' in [pv,label,units]:
@@ -147,6 +140,7 @@ for csv in files:
 				prop = prop.replace('FONT_SIZE','14.0')
 				prop = prop.replace('PV_NAME',str(pv))
 				final.append(prop)
+			pvList.append(str(pv))
 		#units label
 		if units != '':
 			for prop in staticText:
@@ -160,11 +154,15 @@ for csv in files:
 				prop = prop.replace('LABEL_TEXT',str(units))
 				final.append(prop)
 		y += (ySpacing + labelHeight)
-
-	# Saves all resulting .edl files to user's output path arguement
+	# Saves resulting .edl file to user's output path arguement
 	with open(outPath+edlFile,'w') as f:
 		for line in final:
 			f.write(line)
 			f.write('\n')
 	print(csv+' converted to '+edlFile)
 
+with open('pvs.txt','w') as f:
+	for pv in pvList:
+		f.write(pv)
+		f.write('\n')
+	
