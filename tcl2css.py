@@ -474,7 +474,7 @@ xyPlotStart = [\
 '    <axis_1_title_font>',\
 '      <opifont.name fontName="Cantarell" height="11" style="1" pixels="false">Default Bold</opifont.name>',\
 '    </axis_1_title_font>',\
-'    <axis_1_viIs hv_map.perl a script that is run independently from hv.tcl? Should the Python equivalent be able to be run without sible>true</axis_1_visible>',\
+'    <axis_1_visible>true</axis_1_visible>',\
 '    <axis_count>2</axis_count>',\
 '    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>',\
 '    <background_color>',\
@@ -496,7 +496,7 @@ xyPlotStart = [\
 '    <plot_area_background_color>',\
 '      <color red="255" green="255" blue="255" />',\
 '    </plot_area_background_color>',\
-'    <pv_name>loc://Plot</pv_name>',\
+'    <pv_name>loc://PlotDIFFERENTIATE</pv_name>',\
 '    <pv_value />',\
 '    <rules />',\
 '    <scale_options>',\
@@ -778,7 +778,7 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
 		line = line.replace('LABEL_WIDTH',str(600))
 		line = line.replace('LABEL_TEXT',spectrometer+' HV Monitor')
 		line = line.replace('LABEL_NAME',spectrometer+' HV Monitor')
-		line = line.replace('LABEL_Y_POS',str(5))
+		line = line.replace('LABEL_Y_POS',str(34))
 		line = line.replace('LABEL_X_POS',str((800/2)-300))
 		line = line.replace('FONT_STYLE',str(1))
 		line = line.replace('FONT_SIZE',str(14))
@@ -787,6 +787,7 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
 	for line in xyPlotStart:
 		line = line.replace('Y_AXIS_LABEL','Volts')
 		line = line.replace('HEIGHT',str(300))
+		line = line.replace('DIFFERENTIATE','-VMon')
 		screen.append(line)
 	for pv in vMon:
 		screen.append(xyPlotChannelFmt.replace('INSERT_PV_HERE',pv))
@@ -800,6 +801,7 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
 	for line in xyPlotStart:
 		line = line.replace('Y_AXIS_LABEL','nAmps')
 		line = line.replace('HEIGHT',str(300))
+		line = line.replace('DIFFERENTIATE','-IMon')
 		screen.append(line)
 	for pv in iMon:
 		screen.append(xyPlotChannelFmt.replace('INSERT_PV_HERE',pv))
@@ -819,7 +821,7 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
 			line = line.replace('OPT_TITLE',opt[0])
 			screen.append(line)
 	for line in menuEnd:
-		line = line.replace('SPCTRMTR',spectrometer)
+		line = line.replace('SPCTRMTR',spectrometer.split(' ')[0])
 		line = line.replace('X_POS',str(550))
 		line = line.replace('Y_POS',str(10))
 		screen.append(line)
@@ -1010,7 +1012,7 @@ if cssOut == True:
 				line = line.replace('BUTTON_Y_POS',str(y))
 				line = line.replace('BUTTON_X_POS',str(x+(labelWidth-\
 					buttonWidth)/2))
-				line = line.replace('PV_NAME',pvBase)#+'Status')
+				line = line.replace('PV_NAME',pvBase+'Pw')
 				screen.append(line)
 			x += labelWidth
 			#Channel on/off status indicator
@@ -1050,7 +1052,7 @@ if cssOut == True:
 				line = line.replace('INPUT_Y_POS',str(y))
 				line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
 					inputWidth)/2))
-				line = line.replace('PV_NAME',pvBase)#+'V0Setr')
+				line = line.replace('PV_NAME',pvBase+'V0Set')
 				screen.append(line)
 			x += labelWidth
 			#Current trip level
@@ -1060,7 +1062,7 @@ if cssOut == True:
 				line = line.replace('INPUT_Y_POS',str(y))
 				line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
 					inputWidth)/2))
-				line = line.replace('PV_NAME',pvBase)#+'Trip')
+				line = line.replace('PV_NAME',pvBase+'I0Set')
 				screen.append(line)
 			x += labelWidth
 			#Max allowable set voltage
@@ -1070,7 +1072,7 @@ if cssOut == True:
 				line = line.replace('INPUT_Y_POS',str(y))
 				line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
 					inputWidth)/2))
-				line = line.replace('PV_NAME',pvBase)#+'SVMax')
+				line = line.replace('PV_NAME',pvBase+'SVMaksx')
 				screen.append(line)
 			x += labelWidth
 			#Channel ramp up rate
@@ -1080,7 +1082,7 @@ if cssOut == True:
 				line = line.replace('INPUT_Y_POS',str(y))
 				line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
 					inputWidth)/2))
-				line = line.replace('PV_NAME',pvBase)#+'RUpr')
+				line = line.replace('PV_NAME',pvBase+'RUp')
 				screen.append(line)
 			x += labelWidth
 			#channel ramp down rate
@@ -1090,7 +1092,7 @@ if cssOut == True:
 				line = line.replace('INPUT_Y_POS',str(y))
 				line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
 					inputWidth)/2))
-				line = line.replace('PV_NAME',pvBase)#+'RDWnr')
+				line = line.replace('PV_NAME',pvBase+'RDWn')
 				screen.append(line)
 			#horizontal divider line between channels.
 			for line in lineFmt:
@@ -1213,9 +1215,9 @@ if mapOut:
 		mapping.append(hold)
 
 	numPgs = int(ceil(len(groupLines)/4.0))
-	start,final = 0,[]
+	final = []
 	for page in range(0,numPgs):
-		pg = mapping[start*page:start*page+4]
+		pg = mapping[4*page:4*page+4]
 		maxLen = 0
 		for item in pg:
 			if len(item) > maxLen:
@@ -1225,10 +1227,10 @@ if mapOut:
 				diff = maxLen - len(item)
 				for q in range(0,diff):
 					pg[i].append(' '*19+'|')
-		start += 4
 		if page != 0:
 			final.append('\f')
 		final.append(pgHeader+str(page+1))
+
 		for i in range(0,len(pg[0])):
 			line = '|'	
 			for grp in pg:
@@ -1245,6 +1247,8 @@ if mapOut:
 	# Creates channel_map file
 	labels = [x for _,x in sorted(zip(used,labels))]
 	used.sort()
+	
+
 
 	chMap = []
 	maxSl = maxCh = 0
@@ -1277,10 +1281,9 @@ if mapOut:
 		crateMap.append(hold)
 
 	numPgs = int(ceil(len(crateMap)/4.0))
-	start,final = 0,[]
+	final = []
 	for page in range(0,numPgs):
-		pg = crateMap[start*page:start*page+4]
-		start += 4
+		pg = crateMap[4*page:4*page+4]
 		if page != 0:
 			final.append('\f')
 		final.append(pgHeader+str(page+1))
@@ -1317,3 +1320,4 @@ if mapOut:
 
 	with open(outPath+alhFile,'w') as f:
 		f.write(final)
+
