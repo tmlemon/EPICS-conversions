@@ -131,16 +131,18 @@ for page in range(0,numPgs):
 			line += grp[i]
 		final.append(line)
 
+'''
 if not alhOnly:
 	with open(outPath+'group_map','w') as f:
 		for line in final:
 			f.write(line)
 			f.write('\n')
-
+'''
 
 # Creates channel_map file
 labels = [x for _,x in sorted(zip(used,labels))]
 used.sort()
+
 
 chMap = []
 maxSl = maxCh = 0
@@ -154,11 +156,14 @@ for crate in prevCrate:
 		if int(ch[1]) > maxSl:
 			maxSl = int(ch[1])
 	chMap.append(hold)
+prevCrate.sort()
 
 pgHeader = ('Channel Map Generated '+date).center(87)[:len((\
 	'Channel Contents Map Generated '+date).center(87))-\
 	len('Page:N')]+'Page:'
 crateMap = []
+
+'''
 for crNum,crate in enumerate(chMap):
 	hold = ['_'*21+'|',('Crate '+str(crNum+1)).center(21)+'|','_'*21+'|',]
 	for slot in range(0,maxSl+1):
@@ -166,6 +171,21 @@ for crNum,crate in enumerate(chMap):
 			chInfo = str(slot)+'/'+str(ch).zfill(2)
 			try:
 				chID = labels[used.index([str(crNum+1),str(slot),\
+					str(ch).zfill(2)])]
+				hold.append(' '+chInfo.ljust(6)+chID.center(14)+'|')
+			except:
+				hold.append((' '+chInfo).ljust(21)+'|')
+	crateMap.append(hold)
+'''
+
+for i,crNum in enumerate(prevCrate):
+	crate = chMap[i]
+	hold = ['_'*21+'|',('Crate '+crNum).center(21)+'|','_'*21+'|',]
+	for slot in range(0,maxSl+1):
+		for ch in range(0,maxCh+1):
+			chInfo = str(slot)+'/'+str(ch).zfill(2)
+			try:
+				chID = labels[used.index([crNum,str(slot),\
 					str(ch).zfill(2)])]
 				hold.append(' '+chInfo.ljust(6)+chID.center(14)+'|')
 			except:
@@ -191,7 +211,7 @@ if not alhOnly:
 		for line in final:
 			f.write(line)
 			f.write('\n')
-
+'''
 # Creates .alhConfig file
 specNoSpace = spec.replace(' ','_')
 final = 'GROUP    NULL'+' '*15+specNoSpace+'\n'+'$ALIAS '+spec+\
@@ -213,4 +233,4 @@ for grp in groupLines:
 
 with open(outPath+alhFile,'w') as f:
 	f.write(final)
-
+'''
