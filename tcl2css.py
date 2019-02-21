@@ -7,14 +7,14 @@
 # 2018-12-18
 # @author: Tyler Lemon
 #
-# Program uses HV.hvc and HV.group files to convert Hall C HV controls TCL/TK 
+# Program uses HV.hvc and HV.group files to convert Hall C HV controls TCL/TK
 # screens to CS-Studio screens.
 # Program also allows for user to generate group_map, channel_map and alhConfig
 # files.
 
 import sys #used to read in user arguements and exit program on errors.
 import os # used to check files required for program.
-import errno # used to catch potential error condition when creating parent 
+import errno # used to catch potential error condition when creating parent
 	# directories for output file locations.
 import array
 from math import ceil
@@ -713,7 +713,7 @@ statusTextUpdate = [\
 # Function to "flatten" a 2-D list of lists into a 1-D list.
 flatten = lambda lst: [item for sublist in lst for item in sublist]
 
-# Function checks user's first arguement for directory containing HV.hvc and 
+# Function checks user's first arguement for directory containing HV.hvc and
 # HV.group. If directory is invalid or does not contain HV.hvc and/or HV.group,
 # an error message is printed and program stops.
 def checkForInput(arg):
@@ -827,7 +827,7 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
 		screen.append(line)
 	screen.append(lastLine)
 	return screen
-		
+
 prefix,spec = 'HV','Hall C'
 mapOut = False
 cssOut = True
@@ -855,7 +855,7 @@ if '-m' in sys.argv:
 	else:
 		print('\033[1m'+'\nINPUT ARGUEMENTS HELP'+'\033[0m')
 		print('\npython tcl2css.py [-m] [-a] dir [write]\n')
-		print('[-m]\t-optional argument to output channel_map, group_map, and') 
+		print('[-m]\t-optional argument to output channel_map, group_map, and')
 		print('\tHV.alhConfig.\n')
 		print('[-a]\t-optional argument to output only HV.alhConfig.\n')
 		print('dir\t- mandatory arguement for directory containing HV.hvc and ')
@@ -888,7 +888,7 @@ else:
 	else:
 		print('\033[1m'+'\nINPUT ARGUEMENTS HELP'+'\033[0m')
 		print('\npython tcl2css.py [-m] [-a] dir [write]\n')
-		print('[-m]\t-optional argument to output channel_map, group_map, and') 
+		print('[-m]\t-optional argument to output channel_map, group_map, and')
 		print('\tHV.alhConfig.\n')
 		print('[-a]\t-optional argument to output only HV.alhConfig.\n')
 		print('dir\t- mandatory arguement for directory containing HV.hvc and ')
@@ -918,11 +918,11 @@ if cssOut == True:
 		menuOptions.append([grp[1],grp[1].replace(' ','-')+'-list.opi'])
 		for line in configLines:
 			if line[0] != '#' and line[0] != '\n':
-				group = line.strip().split(' ')[4]					
+				group = line.strip().split(' ')[4]
 				if group == grp[0]:
 					groups[int(i)].append(line.strip().split(' ')[:4])
-	
-	
+
+
 	# Constants for widget placement on CSS screens.
 	xSpacing = 10
 	ySpacing = 8
@@ -1107,10 +1107,10 @@ if cssOut == True:
 				screen.append(line)
 			y += labelHeight+ySpacing
 		#appends group vMon and iMon PVs to overall list.
-		vMon.append(vMonHold)	
+		vMon.append(vMonHold)
 		iMon.append(iMonHold)
 		allPVs.append(allPVsHold)
-		# Appends final line of OPI format and writes all lines to an OPI file 	
+		# Appends final line of OPI format and writes all lines to an OPI file
 		# with the name of the group.
 		screen.append(lastLine)
 		writeFile(outPath,fileName+'-list.opi',screen)
@@ -1119,7 +1119,7 @@ if cssOut == True:
 	for i,item in enumerate(menuOptions):
 		screen = makeHistoPlot(item[0],vMon[i],iMon[i],menuOptions)
 		writeFile(outPath,item[1][:-9]+'-plot.opi',screen)
-	
+
 	# makes histogram plots for overall spectrometer
 	screen = makeHistoPlot(spectrometer,flatten(vMon),flatten(iMon),menuOptions)
 	writeFile(outPath,spectrometer+'-plot.opi',screen)
@@ -1129,10 +1129,10 @@ if mapOut:
 	hvConfig = prefix+'.hvc'
 	groupFile = prefix+'.group'
 	alhFile = prefix+'.alhConfig'
-
+	print(dirr+hvConfig)
 	# Tries to open .hvc file, gives warning and exits if cannot.
 	try:
-		with open(hvConfig,'r') as f:
+		with open(dirr+hvConfig,'r') as f:
 			configLines = f.readlines()
 	except:
 		print('Cannot open config file: '+hvConfig+'.\n')
@@ -1160,7 +1160,7 @@ if mapOut:
 					'.\n>>>\tAttempted assignment to '+'\033[1m'+label+\
 					'\033[0m'+' has been ignored.\n>>>')
 
-	# Reads in HV.group and prints each group with ID number and number of 
+	# Reads in HV.group and prints each group with ID number and number of
 	# channels
 	if (os.path.isfile(groupFile)):
 		if not alhOnly:
@@ -1187,7 +1187,8 @@ if mapOut:
 	# Creates group_map file
 	date = datetime.now().strftime('%X %a %b %d %Y')
 	pgHeader = ('Group Contents Map Generated '+date).center(80)[:len((\
-		'Group Contents Map Generated '+date).center(80))-len('Page:N')]+'Page:'
+		'Group Contents Map Generated '+date).center(80))-len('Page:N')]+\
+        'Page:'
 
 	groupLines.sort()
 
@@ -1228,11 +1229,12 @@ if mapOut:
 				for q in range(0,diff):
 					pg[i].append(' '*19+'|')
 		if page != 0:
-			final.append('\f')
-		final.append(pgHeader+str(page+1))
+			final.append('\f'+pgHeader+str(page+1))
+		else:
+			final.append(pgHeader+str(page+1))
 
 		for i in range(0,len(pg[0])):
-			line = '|'	
+			line = '|'
 			for grp in pg:
 				line += grp[i]
 			final.append(line)
@@ -1243,12 +1245,9 @@ if mapOut:
 				f.write(line)
 				f.write('\n')
 
-
 	# Creates channel_map file
 	labels = [x for _,x in sorted(zip(used,labels))]
 	used.sort()
-	
-
 
 	chMap = []
 	maxSl = maxCh = 0
@@ -1285,10 +1284,11 @@ if mapOut:
 	for page in range(0,numPgs):
 		pg = crateMap[4*page:4*page+4]
 		if page != 0:
-			final.append('\f')
-		final.append(pgHeader+str(page+1))
+			final.append('\f'+pgHeader+str(page+1))
+		else:
+			final.append(pgHeader+str(page+1))
 		for i in range(0,len(pg[0])):
-			line = '|'	
+			line = '|'
 			for grp in pg:
 				line += grp[i]
 			final.append(line)
