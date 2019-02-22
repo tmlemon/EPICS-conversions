@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/bin/env python
 '''
 2018-12-06
 @author: Tyler Lemon
@@ -24,6 +24,7 @@ text control*
 
 import sys
 import os.path
+from math import sqrt
 
 wedmPath = '/cs/opshome/edm/hlc/spectrometers/'
 
@@ -113,17 +114,40 @@ edlTextCtrlFmt = ['# (Text Control)','object activeXTextDspClass',\
 	'nullColor index 14','useHexPrefix','newPos',\
 	'objType "controls"','endObjectProperties\n']
 
-#colorsList[0] is RGB values for CSS v4.5.0's color dialog pallete.
-#colorsList[1] is best approximation of EDM color palate indexes for CSS colors
-#indexes for corresponding colors match between colorsList[0] and colorsList[1]
-colorsList = [['0','0','0'],['255','255','255'],['127','127','127'],\
-	['255','0','0'],['128','0','128'],['0','0','255'],['173','216','230'],\
-	['0','128','0'],['255','255','0'],['255','165','0'],['255','0','255'],\
-	['230','230','250'],['165','42','42'],['139','105','20'],\
-	['30','144','255'],['255','192','203'],['144','238','144'],\
-	['26','26','26'],['77','77','77'],['191','191','191'],['229','229','229']],\
-	['14','0','9','20','39','54','50','19','30','34','70','87','24','49','52',\
-	'97','60','11','9','5','3']
+
+#colorList are acceptable colors for WEDM. Index of list element corresponds
+#to EDM color pallet index for WEDM.
+colorsList = [['255','255','255'],['235','235','235'],['218','218','218'],\
+	['200','200','200'],['187','187','187'],['174','174','174'],\
+	['158','158','158'],['145','145','145'],['133','133','133'],\
+	['120','120','120'],['105','105','105'],['90','90','90'],\
+	['70','70','70'],['45','45','45'],['0','0','0'],['0','216','0'],\
+	['30','187','0'],['51','153','0'],['45','142','0'],['33','108','0'],\
+	['253','0','0'],['222','19','9'],['190','25','11'],['160','18','7'],\
+	['130','4','0'],['88','147','255'],['89','126','225'],['75','110','199'],\
+	['58','94','171'],['39','84','141'],['251','243','74'],['249','200','60'],\
+	['238','182','43'],['225','144','21'],['205','97','0'],['255','176','255'],\
+	['214','127','226'],['174','78','188'],['139','26','150'],\
+	['97','10','117'],['164','170','255'],['135','147','226'],\
+	['106','115','193'],['77','82','164'],['52','51','134'],\
+	['199','187','109'],['183','157','92'],['164','126','60'],\
+	['125','86','39'],['88','52','15'],['153','255','255'],\
+	['115','223','255'],['78','165','249'],['42','99','228'],\
+	['10','0','184'],['235','241','181'],['212','219','157'],\
+	['187','193','135'],['166','164','98'],['139','130','57'],\
+	['115','255','107'],['82','218','59'],['60','180','32'],\
+	['40','147','21'],['26','115','9'],['0','255','255'],\
+	['0','224','224'],['0','192','192'],['0','160','160'],\
+	['0','128','128'],['255','0','255'],['192','0','192'],\
+	['206','220','205'],['185','198','184'],['166','178','165'],\
+	['225','248','177'],['202','223','159'],['244','218','168'],\
+	['183','164','126'],['122','109','84'],['181','249','215'],\
+	['162','224','193'],['194','218','217'],['174','196','195'],\
+	['156','176','175'],['176','218','249'],['158','196','224'],\
+	['205','202','221'],['184','181','198'],['165','162','178'],\
+	['222','196','251'],['199','175','225'],['198','181','198'],\
+	['178','162','178'],['251','235','236'],['225','176','212'],\
+	['255','150','168'],['192','113','126'],['184','46','0']]
 
 
 # Function parses line form OPI file for parameter set by "prop".
@@ -191,31 +215,30 @@ def ptsGet(widget,lineFmt):
 		ptFmt.append(item)
 	return ptFmt,str(count)
 
-
+#Looks to see whether widget has transparent components and then looks at
+#RGB color of widget and finds which EDM color is closest.
 def convertColor(colorConst,widget):
 	#try-except for widgets that do not have transparent property.
 	try:	
 		transparent = returnProp(widget,'transparent')
 	except:
 		transparent = 'false'
-	opiColors,edlColors = colorConst
 	for e,line in enumerate(widget):
 		if '<background_color>' in line and '</background_color>' \
 		in widget[e+2]:
 			origColor = widget[e+1].split('"')[1::2]
-			try:			
-				outColor = edlColors[opiColors.index(origColor)]
-			except:
-				#returns a dark yellowish-green color for item if it does
-				#not match anything in the color list.
-				outColor = '59'
+			dMatch = 99999
+			match = 9999
+			for index,color in enumerate(colorsList):
+				r1,g1,b1 = color
+				r2,g2,b2 = origColor
+				d = sqrt((int(r2)-int(r1))**2 + (int(g2)-int(g1))**2 + \
+					(int(b2)-int(b1))**2)
+				if d < dMatch:
+					dMatch = d
+					match = index			
+	outColor = str(match)
 	return outColor,transparent
-
-
-
-
-
-
 	
 
 #Checks user arguements for .opi file. Returns error message and usage if error.
@@ -326,9 +349,6 @@ in EDM.')
 				pts,nPts = ptsGet(widget,edlLineFmt)
 				fmt = edlPlaceWidget(props,pts)
 				outColor,transparent = convertColor(colorsList,widget)
-				if outColor == '54':
-					print('NOTICE: Color of '+wType+' not found in EDM \
-pallete.')
 				for row in fmt:
 					row = row.replace('COLOR',outColor)
 					row = row.replace('NUM_PTS',nPts)
