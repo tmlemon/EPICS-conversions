@@ -14,12 +14,15 @@ base installations.
 This program was developed to run from a terminal interface using input
 arguements. The usage and command options are below:
 
-python epics-backup.py [--dev] [-i] [<input req file>] [-o] [<output>]
+python epics-backup.py [--dev] [-c "<comment>"] [-i <input req file>] [-o <output>]
 
 All input arguements are optional. Program will use default input file
 "HV-backup.req" if -i option is not used. Default output file is
 "backup_<data>_<time>.sav" where <date> and <time> are automatically filled
 out with time of execution.
+
+If --comment option is used, next arguement must be enclosed in "double quotes"
+to ensure entire comment is added to log file.
 
 If user uses --dev option, no output file is generated and program does not
 perform verification.
@@ -83,11 +86,11 @@ name of output file.\n')
             sys.exit(0)
     else:
         outName = 'backup'
-    if '--comment' in sys.argv:
+    if '-c' in sys.argv:
         try:
-            comment = sys.argv[sys.argv.index('--comment')+1]
+            comment = sys.argv[sys.argv.index('-c')+1]
         except:
-            print('\nERROR:\tIf --comment option is used, next arguement \
+            print('\nERROR:\tIf -c option is used, next arguement \
 needs to the comment\n\tto add to log file.\n\tIf comment to add to log \
 is more than one word, comment must be\n\tenclosed in double quotes.\n')
             sys.exit(0)
@@ -101,7 +104,8 @@ If no input options used default request file searched for is "HV-backup.req".\
 \n\n-i\t\t\t\t- Option that specifies input request file.\
 \n-o\t\t\t\t- Option that specifies prefix of output file.\
 \n--dev\t\t\t- Option to run program in dev mode where no output files are\n\
-\t\t\t\t  generated and program does not perform verification.\n\
+\t\t\t\t  generated and program does not perform verification.\
+\n-c\t\t\t\t- Option to add comment to end result log file.\n\
 -h/--help\t\t- Prints this help message.\n')
     sys.exit(0)
 
