@@ -12,6 +12,14 @@ Programs are designed to run from Linux command line.
 - csv2edl.py
   - Converts comma-separated-variable table of PVs and labels to EDM .edl files.
 
+- epics-backup.py
+  - Reads from a request file and creates log to act as backup record for PVs.
+  - Not a conversion, but added to repository for completeness of programs developed for EPICS.
+
+- epics-restore.py
+  - Reads from a backup file and writes values to PVs.
+  - Not a conversion, but added to repository for completeness of programs developed for EPICS.
+
 - hv_map.py
   - Replicates Hall C's perl scripts used when generating HV TCL/TK HV screens.
   - Program reads in .hvc config file and outputs channel map, group map, and ALH config file.
