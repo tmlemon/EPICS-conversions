@@ -83,6 +83,16 @@ name of output file.\n')
             sys.exit(0)
     else:
         outName = 'backup'
+    if '--comment' in sys.argv:
+        try:
+            comment = sys.argv[sys.argv.index('--comment')+1]
+        except:
+            print('\nERROR:\tIf --comment option is used, next arguement \
+needs to the comment\n\tto add to log file.\n\tIf comment to add to log \
+is more than one word, comment must be\n\tenclosed in double quotes.\n')
+            sys.exit(0)
+    else:
+        comment = ''
 else:
     print('\npython epics-backup.py [--dev] [-i] [<input req file>] [-o]\
 [<output>]\n\n\
@@ -94,6 +104,7 @@ If no input options used default request file searched for is "HV-backup.req".\
 \t\t\t\t  generated and program does not perform verification.\n\
 -h/--help\t\t- Prints this help message.\n')
     sys.exit(0)
+
 
 # Date and name of output file to use
 date = str(datetime.now())[:str(datetime.now()).find('.')]
@@ -118,7 +129,7 @@ total = len(pvs)*len(fields)
 print('\nRunning backup...')
 
 # reads all pvs using caget and writes their value to the string variable "log"
-comment = '# Comments: '
+comment = '# Comments: '+comment
 log = ['# Backup made: '+date,comment,\
     '#PV\tHIHI\tHIGH\tLOW\tLOLO\tHHSV\tHSV\tLSV\tLLSV']
 count = okay = error = 0
@@ -199,5 +210,3 @@ if '--dev' not in sys.argv and fail == False:
 
 # prints final success message if no previous errors.
 print('\nBackup successful.\nData backed up to "'+outFile+'".\n')
-
-
