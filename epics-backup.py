@@ -14,24 +14,31 @@ base installations.
 This program was developed to run from a terminal interface using input
 arguements. The usage and command options are below:
 
-python epics-backup.py [--dev] [-c "<comment>"] [-i <input req file>] [-o <output>]
+epics-backup.py <req-file> [--dev] [-h/--help] [-o <out>] [-c "<comment>"]
 
-All input arguements are optional. Program will use default input file
-"HV-backup.req" if -i option is not used. Default output file is
-"backup_<data>_<time>.sav" where <date> and <time> are automatically filled
-out with time of execution.
+Mandatory Arguement:
+<req-file>   - Name of request file containing PVs to backup. File extension
+                must be ".req".
 
-If --comment option is used, next arguement must be enclosed in "double quotes"
-to ensure entire comment is added to log file.
+[Optional Arguemnts]:
+-o           - Option that specifies prefix of output file. <out> cannot be
+                the same as <req-file> (epics-backup.py -o example.req
+                is not a valid input).
 
-If user uses --dev option, no output file is generated and program does not
-perform verification.
+-c           - Option to add comment to end result log file. The comment to
+                add to the backup file must be the arguement immediately
+                following -c and should be enclosed in "double quotes".
+
+--dev        - Option to run program in dev mode where no output files are
+                generated and program does not perform verification.
+
+-h/--help    - Prints this help message.
 '''
 #to add
 # arg check for:
 #	comment
 #	gui?
-
+# remove req for -i and o
 
 
 
@@ -39,9 +46,6 @@ import sys
 import subprocess
 from datetime import datetime
 import os
-
-# Default request file
-backupReq = 'HV-backup.req'
 
 # flag used to indicate failure of backup
 fail = False
@@ -57,57 +61,68 @@ if '--dev' in sys.argv:
 # Checks user's input arguements for input file prefix of output file
 if '-h' not in sys.argv and '--help' not in sys.argv:
 #checking for -i arguement for input file
-    if os.path.isfile(backupReq) and '-i' not in sys.argv:
-        backupReq = backupReq
-    elif '-i' in sys.argv:
-        try:
-            backupReq = sys.argv[sys.argv.index('-i')+1]
-        except:
-            print('\nERROR:\tIf -i option is used, next arguement needs to be\
-request file.\n')
-            sys.exit(0)
-    if not os.path.isfile(backupReq) or backupReq[-4:] != '.req':
-        print('\nERROR:\tRequest file input is not a valid file.\n\t\
-To perform backup, a valid request file is needed.\n')
-        sys.exit(0)
-    elif not os.path.isfile(backupReq) and '-i' not in sys.argv:
-        print('\nERROR:\tTo perform backup, a valid request file is needed.\n\t\
-Program looks for default file name "HV-backup.req" if -i option\n\tis\
-not used.')
+    for arg in sys.argv:
+        if '.req' in arg:
+            backupReq = arg
+            break
+        else:
+            backupReq = ''
+    if not os.path.isfile(backupReq):# or backupReq[-4:] != '.req':
+        print('\nERROR: BACKUP REQUEST FILE NOT FOUND.\n\tInput was not a \
+valid request file.\n\tTo perform backup, a valid request file is needed.\n\
+\tUse -h or --help for more information.\n')
         sys.exit(0)
 #checking for -o arguement for output file name.
     if '-o' in sys.argv:
         try:
             outName = sys.argv[sys.argv.index('-o')+1]
             outName.replace(' ','_')
+            if outName == backupReq:
+                print('\nERROR: INCORRECT SEQUENCE OF INPUT OPTIONS\n\
+\tIf -o option is used, next arguement needs to be name of output file.\n\
+\tThe name of the output file cannot be the same as the full backup\n\
+\trequest file.\n\tUse -h or --help for more information.\n')
+                fail = True
+                sys.exit(0)
         except:
-            print('\nERROR:\tIf -o option is used, next arguement needs to be\
-name of output file.\n')
+            if not fail:
+                print('\nERROR: INCORRECT SEQUENCE OF INPUT OPTIONS\n\
+\tIf -o option is used, next arguement needs to be name of output file.\n\
+\tUse -h or --help for more information.\n')
             sys.exit(0)
     else:
         outName = 'backup'
+# checking for -c arguement for commenmts
     if '-c' in sys.argv:
         try:
             comment = sys.argv[sys.argv.index('-c')+1]
         except:
             print('\nERROR:\tIf -c option is used, next arguement \
 needs to the comment\n\tto add to log file.\n\tIf comment to add to log \
-is more than one word, comment must be\n\tenclosed in double quotes.\n')
+is more than one word, comment must be\n\tenclosed in "double quotes".\n\
+\tUse -h or --help for more information.\n')
             sys.exit(0)
     else:
         comment = ''
+# prints help message if -h or --help is in input arguements
 else:
-    print('\npython epics-backup.py [--dev] [-i] [<input req file>] [-o]\
-[<output>]\n\n\
-All input arguements are optional\n\
-If no input options used default request file searched for is "HV-backup.req".\
-\n\n-i\t\t\t\t- Option that specifies input request file.\
-\n-o\t\t\t\t- Option that specifies prefix of output file.\
-\n--dev\t\t\t- Option to run program in dev mode where no output files are\n\
-\t\t\t\t  generated and program does not perform verification.\
-\n-c\t\t\t\t- Option to add comment to end result log file.\n\
--h/--help\t\t- Prints this help message.\n')
+    print('\nepics-backup.py <req-file> [--dev] [-h/--help] [-o <out>] [-c\
+"<comment>"]\n\n\
+Mandatory Arguement:\n\
+<req-file>\t- Name of request file containing PVs to backup. File extension\n\
+\t\t\t  must be ".req".\n\n\
+[Optional Arguemnts]:\n\
+-o\t\t\t- Option that specifies prefix of output file. <out> cannot be\n\
+\t\t\t  the same as <req-file> (epics-backup.py -o example.req\n\
+\t\t\t  is not a valid input).\n\n\
+-c\t\t\t- Option to add comment to end result log file. The comment to\n\
+\t\t\t  add to the backup file must be the arguement immediately\n\
+\t\t\t  following -c and should be enclosed in "double quotes".\n\n\
+--dev\t\t- Option to run program in dev mode where no output files are\n\
+\t\t\t  generated and program does not perform verification.\n\n\
+-h/--help\t- Prints this help message.\n')
     sys.exit(0)
+
 
 
 # Date and name of output file to use
