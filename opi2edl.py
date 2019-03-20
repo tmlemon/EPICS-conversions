@@ -356,12 +356,9 @@ in EDM.')
 						'line_width'))
 					final.append(row)
 			#Rectangle
-			elif wType == 'Rectangle':
+			elif wType == 'Rectangle' or wType == 'Rounded Rectangle':
 				fmt = edlPlaceWidget(props,edlRectangleFmt)
 				outColor,transparent = convertColor(colorsList,widget)
-				if outColor == '54':
-					print('NOTICE: Color of '+wType+' not found in EDM \
-pallete.')
 				for r,row in enumerate(fmt):
 					if 'fillColor' in row and transparent == 'false':
 						final.append('fill')
@@ -371,9 +368,6 @@ pallete.')
 			elif wType == 'Ellipse':
 				fmt = edlPlaceWidget(props,edlCircleFmt)
 				outColor,transparent = convertColor(colorsList,widget)
-				if outColor == '54':
-					print('NOTICE: Color of '+wType+' not found in EDM \
-pallete.')
 				for row in fmt:
 					if 'fillColor' in row and transparent == 'false':
 						final.append('fill')
@@ -385,12 +379,13 @@ pallete.')
 				for row in fmt:
 					final.append(row)
 			#Bar Monitor
-			elif wType == 'Progress Bar':
+			elif wType == 'Progress Bar' or wType == 'Tank':
 				fmt = edlPlaceWidget(props,edlBarMonFmt)
 				outColor,transparent = convertColor(colorsList,widget)
-				orientation = returnProp(widget,'horizontal')
-				if outColor == '54':
-					print('NOTICE: Color of '+wType+' not found in EDM pallete.')
+				try:				
+					orientation = returnProp(widget,'horizontal')
+				except:
+					orientation = 'false'
 				for row in fmt:
 					row = row.replace('PV_NAME',returnProp(widget,'pv_name'))
 					row = row.replace('MAX',returnProp(widget,'maximum'))
@@ -398,7 +393,8 @@ pallete.')
 					if 'endObjectProperties' in row and orientation == 'false':
 						final.append('orientation "vertical"')
 					final.append(row)
-
+			else:
+				print('Unable to convert widget: '+wType)
 
 	# Writes resulting "final" list to text to .edl file for EDM.
 	with open(edl,'w') as f:

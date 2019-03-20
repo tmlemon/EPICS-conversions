@@ -163,21 +163,6 @@ pgHeader = ('Channel Map Generated '+date).center(87)[:len((\
 	len('Page:N')]+'Page:'
 crateMap = []
 
-'''
-for crNum,crate in enumerate(chMap):
-	hold = ['_'*21+'|',('Crate '+str(crNum+1)).center(21)+'|','_'*21+'|',]
-	for slot in range(0,maxSl+1):
-		for ch in range(0,maxCh+1):
-			chInfo = str(slot)+'/'+str(ch).zfill(2)
-			try:
-				chID = labels[used.index([str(crNum+1),str(slot),\
-					str(ch).zfill(2)])]
-				hold.append(' '+chInfo.ljust(6)+chID.center(14)+'|')
-			except:
-				hold.append((' '+chInfo).ljust(21)+'|')
-	crateMap.append(hold)
-'''
-
 for i,crNum in enumerate(prevCrate):
 	crate = chMap[i]
 	hold = ['_'*21+'|',('Crate '+crNum).center(21)+'|','_'*21+'|',]
@@ -211,6 +196,7 @@ if not alhOnly:
 		for line in final:
 			f.write(line)
 			f.write('\n')
+
 '''
 # Creates .alhConfig file
 specNoSpace = spec.replace(' ','_')
