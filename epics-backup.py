@@ -162,8 +162,12 @@ for pv in pvs:
         error = error + 1
         errorList.append(field)
         fail = True
+    if fail:
+        progEnd = '|-ERROR-'
+    else:
+        progEnd = '|'
     count = count + 1
-    sys.stdout.write('\r{1} |{0}|'.format(int(25*count/total)*'=',\
+    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
             str(int(100*count/total))+'%'))
     sys.stdout.flush()
     log.append(line)
@@ -205,9 +209,13 @@ if '--dev' not in sys.argv and fail == False:
             except subprocess.CalledProcessError:
                 checkErrorList.append(pv+field[i])
                 fail = True
+            if fail:
+                progEnd = '|-ERROR-'
+            else:
+                progEnd = '|'
             count = count + 1
-            sys.stdout.write('\r{1} |{0}|'.format(int(25*count/total)*'=',\
-                str(int(100*count/total))+'%'))
+            sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*\
+                count/total)*'=',str(int(100*count/total))+'%'))
             sys.stdout.flush()
     # prints message stating whether verification was successful.
     if len(checkErrorList) != 0:

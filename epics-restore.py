@@ -90,8 +90,12 @@ for pv in pvs:
         error = error + 1
         errorList.append(pv[0])
         fail = True
+    if fail:
+        progEnd = '|-ERROR-'
+    else:
+        progEnd = '|'
     count = count + 1
-    sys.stdout.write('\r{1} |{0}|'.format(int(25*count/total)*'=',\
+    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
             str(int(100*count/total))+'%'))
     sys.stdout.flush()
 
@@ -120,8 +124,12 @@ if not fail:
         except subprocess.CalledProcessError:
             errorList.append(pvName)
             fail = True
+        if fail:
+            progEnd = '|-ERROR-'
+        else:
+            progEnd = '|'
         count = count + 1
-        sys.stdout.write('\r{1} |{0}|'.format(int(25*count/total)*'=',\
+        sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
                 str(int(100*count/total))+'%'))
         sys.stdout.flush()
     if fail:
