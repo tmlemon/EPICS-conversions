@@ -23,7 +23,9 @@ import subprocess
 import sys
 import os
 from datetime import datetime
+import time
 
+startTime = time.time()
 
 # Checks input arguments for file to restore from.
 if '-h' not in sys.argv and '--help' not in sys.argv:
@@ -62,35 +64,107 @@ fail = False
 pvs = []
 with open(savFile,'r') as f:
     for line in f.readlines():
-        if line[0] != '#':
+        line = line.strip()
+        if line[0] != '#' and line != '':
             pvs.append(line.strip().split('\t'))
 
 
 # Writes data from input file to PVs.
-total = len(pvs)*len(pvs[0][1:])
+total = len(pvs)
 count = error = okay = 0
 errorList = []
 for pv in pvs:
-    pvName = pv[0]
-    fields = pv[1:]
-    fieldName = ['.HIHI','.HIGH','.LOW','.LOLO','.HHSV','.HSV','.LSV','.LLSV']
-    for i,field in enumerate(fields):
-        cmd = ['caput','-t',pvName+fieldName[i],field]
+    if len(pv) == 2:
+        pvName = pv[0]
+        pvVal = pv[1]
+        cmd = ['caput','-t',pvName,pvVal]
         try:
             put = subprocess.check_output(cmd,stderr=subprocess.STDOUT)\
                 .decode('utf-8').strip()
             okay = okay + 1
         except subprocess.CalledProcessError:
             error = error + 1
-            errorList.append(field)
+            errorList.append(pvName)
+            fail = True
+    else:
+        error = error + 1
+        errorList.append(pv[0])
+        fail = True
+    count = count + 1
+    sys.stdout.write('\r{1} |{0}|'.format(int(25*count/total)*'=',\
+            str(int(100*count/total))+'%'))
+    sys.stdout.flush()
+
+if not fail:
+    print('\nRestore successful.\n'+str(okay)+' PVs/fields restored.')
+else:
+    print('\n\nRestore failed.\nPVs unable to be restored:')
+    for item in errorList:
+        print(item)
+    print('Check input file and re-run restoration.\n')
+
+if not fail:
+    print('\nVerifying restoration...')
+    count = 0
+    errorList = []
+    for pv in pvs:
+        pvName = pv[0]
+        pvVal = pv[1]
+        cmd = ['caget','-t',pvName]
+        try:
+            res = subprocess.check_output(cmd,stderr=subprocess.STDOUT)\
+                .decode('utf-8').strip()
+            if res != pvVal:
+                errorList.append(pvName)
+                fail = True
+        except subprocess.CalledProcessError:
+            errorList.append(pvName)
             fail = True
         count = count + 1
         sys.stdout.write('\r{1} |{0}|'.format(int(25*count/total)*'=',\
                 str(int(100*count/total))+'%'))
         sys.stdout.flush()
+    if fail:
+        print('\n\nVerification of restoration failed for:')
+        for item in errorList:
+            print(item)
+        print('Restart program to attempt restoration again.\n')
+    else:
+        print('\nVerification successful.')
 
-# Prints message stating whether program was successful.
 if not fail:
-    print('\n\nRestore successful.\n')
+    print('\nRestoration complete.')
+    print('PV data restored from "'+savFile+'".\n')
+
+# calculates and prints time it took to run program
+endTime = time.time()
+runDuration = round(endTime - startTime,2)
+
+if runDuration >= 3600:
+    hours = runDuration/3600
+    minutes = runDuration%3600
+    if minutes >= 60:
+        minutes = minutes/60
+        seconds = minutes%60
+    else:
+        minutes = 0
+        seconds = minutes
+elif runDuration >= 60:
+    hours = 0
+    minutes = runDuration/60
+    seconds = runDuration%60
 else:
-    print('\n\nRestore failed.\n')
+    hours = 0
+    minutes = 0
+    seconds = runDuration
+
+if hours != 0:
+    durationStr = 'Program complete in '+str(hours)+' hours, '+str(minutes)+\
+        ' minutes, '+str(seconds)+' seconds.\n'
+elif minutes != 0:
+    durationStr = 'Program complete in '+str(minutes)+' minutes, '+\
+        str(seconds)+' seconds.\n'
+else:
+    durationStr = 'Program complete in '+str(seconds)+' seconds.\n'
+
+print(durationStr)

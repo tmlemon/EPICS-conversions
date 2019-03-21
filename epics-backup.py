@@ -36,7 +36,7 @@ Mandatory Arguement:
 '''
 #to add
 #	gui?
-
+# remove assumption youre doing alarm fields -- IN PROGRESS
 
 
 import sys
@@ -138,39 +138,34 @@ print('\nReading from request file "'+backupReq+'"')
 pvs = []
 with open(backupReq,'r') as f:
     for line in f.readlines():
-        hold = []
-        if line[0] != '#' and line.strip()[0] != '':
-            for field in ['.HIHI','.HIGH','.LOW','.LOLO','.HHSV','.HSV','.LSV',\
-                '.LLSV']:
-                hold.append(line.strip()+field)
-        pvs.append(hold)
+        line = line.strip()
+        if line[0] != '#' and line != '':
+            pvs.append(line)
 
-total = len(pvs)*len(fields)
+total = len(pvs)
 print('\nRunning backup...')
 
 # reads all pvs using caget and writes their value to the string variable "log"
 comment = '# Comments: '+comment
-log = ['# Backup made: '+date,comment,\
-    '#PV\tHIHI\tHIGH\tLOW\tLOLO\tHHSV\tHSV\tLSV\tLLSV']
+log = ['# Backup made: '+date,comment,'#','#']
 count = okay = error = 0
 errorList = []
 for pv in pvs:
-    line = pv[0].split('.')[0]+'\t'
-    for field in pv:
-        cmd = ['caget','-t',field]
-        try:
-            result = subprocess.check_output(cmd,stderr=subprocess.STDOUT)\
-                .decode('utf-8').strip()
-            line += str(result)+'\t'
-            okay = okay + 1
-        except subprocess.CalledProcessError:
-            error = error + 1
-            errorList.append(field)
-            fail = True
-        count = count + 1
-        sys.stdout.write('\r{1} |{0}|'.format(int(25*count/total)*'=',\
-                str(int(100*count/total))+'%'))
-        sys.stdout.flush()
+    line = pv+'\t'
+    cmd = ['caget','-t',pv]
+    try:
+        result = subprocess.check_output(cmd,stderr=subprocess.STDOUT)\
+            .decode('utf-8').strip()
+        line += str(result)+'\t'
+        okay = okay + 1
+    except subprocess.CalledProcessError:
+        error = error + 1
+        errorList.append(field)
+        fail = True
+    count = count + 1
+    sys.stdout.write('\r{1} |{0}|'.format(int(25*count/total)*'=',\
+            str(int(100*count/total))+'%'))
+    sys.stdout.flush()
     log.append(line)
 
 if len(errorList) != 0:
@@ -183,7 +178,6 @@ if len(errorList) != 0:
 else:
     print('\nBackup complete.')
     print(str(okay)+' PVs/fields successfully backed up.')
-
 
 
 # reads from log and performs another series of caget commands to verify
@@ -202,21 +196,19 @@ if '--dev' not in sys.argv and fail == False:
         if line[0] != '#':
             rec = line.strip().split('\t')
             pv = rec[0]
-            for i,item in enumerate(rec[1:]):
-                cmd = ['caget','-t',pv+fields[i]]
-                try:
-                    result = subprocess.check_output\
-                        (cmd,stderr=subprocess.STDOUT).\
-                        decode('utf-8').strip()
-                    if result != item:
-                        checkErrorList.append(pv+field[i])
-                except subprocess.CalledProcessError:
+            cmd = ['caget','-t',pv]
+            try:
+                result = subprocess.check_output(cmd,stderr=subprocess.STDOUT).\
+                    decode('utf-8').strip()
+                if result != rec[1]:
                     checkErrorList.append(pv+field[i])
-                    fail = True
-                count = count + 1
-                sys.stdout.write('\r{1} |{0}|'.format(int(25*count/total)*'=',\
-                    str(int(100*count/total))+'%'))
-                sys.stdout.flush()
+            except subprocess.CalledProcessError:
+                checkErrorList.append(pv+field[i])
+                fail = True
+            count = count + 1
+            sys.stdout.write('\r{1} |{0}|'.format(int(25*count/total)*'=',\
+                str(int(100*count/total))+'%'))
+            sys.stdout.flush()
     # prints message stating whether verification was successful.
     if len(checkErrorList) != 0:
         print('\n\nVerification of backup file failed.')
