@@ -35,10 +35,7 @@ Mandatory Arguement:
 -h/--help    - Prints this help message.
 '''
 #to add
-# arg check for:
-#	comment
 #	gui?
-# remove req for -i and o
 
 
 
@@ -46,6 +43,10 @@ import sys
 import subprocess
 from datetime import datetime
 import os
+import time
+
+#gets time at start of program for overall timing
+startTime = time.time()
 
 # flag used to indicate failure of backup
 fail = False
@@ -179,7 +180,6 @@ if len(errorList) != 0:
         print(item)
     print('\nBackup not completed due to error.')
     print('Check request file and re-run backup.\n')
-    sys.exit(0)
 else:
     print('\nBackup complete.')
     print(str(okay)+' PVs/fields successfully backed up.')
@@ -223,9 +223,42 @@ if '--dev' not in sys.argv and fail == False:
         print('"'+outFile+'" does not match present settings of PVs/fields.')
         print('Restart backup program to attempt backup again.\n')
         fail = True
-        sys.exit(0)
     else:
         print('\nVerification successful.')
 
 # prints final success message if no previous errors.
-print('\nBackup successful.\nData backed up to "'+outFile+'".\n')
+if not fail:
+    print('\nBackup successful.\nData backed up to "'+outFile+'".\n')
+
+# calculates and prints time it took to run program
+endTime = time.time()
+runDuration = round(endTime - startTime,2)
+
+if runDuration >= 3600:
+    hours = runDuration/3600
+    minutes = runDuration%3600
+    if minutes >= 60:
+        minutes = minutes/60
+        seconds = minutes%60
+    else:
+        minutes = 0
+        seconds = minutes
+elif runDuration >= 60:
+    hours = 0
+    minutes = runDuration/60
+    seconds = runDuration%60
+else:
+    hours = 0
+    minutes = 0
+    seconds = runDuration
+
+if hours != 0:
+    durationStr = 'Program complete in '+str(hours)+' hours, '+str(minutes)+\
+        ' minutes, '+str(seconds)+' seconds.\n'
+elif minutes != 0:
+    durationStr = 'Program complete in '+str(minutes)+' minutes, '+\
+        str(seconds)+' seconds.\n'
+else:
+    durationStr = 'Program complete in '+str(seconds)+' seconds.\n'
+
+print(durationStr)
