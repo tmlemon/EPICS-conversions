@@ -6,10 +6,11 @@ date:    2019-03-19
 This program works in conjunction with "epics-backup.py" to restore values
 to EPICS fields using a backup file.
 
-This main interface of this program to EPICS is through the command line
-using the command "caput". "caput" is called using the subprocess module
-and the output is logged into the backup file. "caput" is included in EPICS
-base installations.
+This main interface of this program to EPICS is through the pyepics module.
+The pyepics module uses EPICS channel access to write data stored in
+a ".sav" file to the appropriate PVs using the caput_many() function.
+
+For this program to run correctly, the pyepics module is needed.
 
 This program was developed to run from a terminal interface using input
 arguements. The usage and command options are below:
@@ -25,6 +26,14 @@ import os
 from datetime import datetime
 import time
 
+try:
+    import epics
+except:
+    print('\nERROR:\tEPICS PYTHON MODULE NOT FOUND.\n\tThe "pyepics" module \
+is not installed or cannot be found.\n\t"pyepics" is required to run this \
+program.\n')
+    sys.exit(0)
+
 startTime = time.time()
 
 # Checks input arguments for file to restore from.
@@ -33,7 +42,7 @@ if '-h' not in sys.argv and '--help' not in sys.argv:
         savFile = sys.argv[1]
     else:
         print('\nNo input for save file received.\nProgram will find most \
-recent in current working directory to use.')
+recent in current working directory to use.\n')
         fList = os.listdir(os.getcwd())
         poss = []
         mostRecent = ['','']
@@ -58,121 +67,50 @@ else:
     sys.exit(1)
 
 
-# Reads input file.
-print('\nRestoring PVs from "'+savFile+'".')
-fail = False
-pvs = []
 with open(savFile,'r') as f:
-    for line in f.readlines():
-        line = line.strip()
-        if line[0] != '#' and line != '':
-            pvs.append(line.strip().split('\t'))
-
-
-# Writes data from input file to PVs.
-total = len(pvs)
-count = error = okay = 0
-errorList = []
-for pv in pvs:
-    if len(pv) == 2:
-        pvName = pv[0]
-        pvVal = pv[1]
-        cmd = ['caput','-t',pvName,pvVal]
-        try:
-            put = subprocess.check_output(cmd,stderr=subprocess.STDOUT)\
-                .decode('utf-8').strip()
-            okay = okay + 1
-        except subprocess.CalledProcessError:
-            error = error + 1
-            errorList.append(pvName)
-            fail = True
-    else:
-        error = error + 1
-        errorList.append(pv[0])
-        fail = True
-    if fail:
-        progEnd = '|-ERROR-'
-    else:
-        progEnd = '|'
-    count = count + 1
-    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
-            str(int(100*count/total))+'%'))
-    sys.stdout.flush()
-
-if not fail:
-    print('\nRestore successful.\n'+str(okay)+' PVs/fields restored.')
-else:
-    print('\n\nRestore failed.\nPVs unable to be restored:')
-    for item in errorList:
-        print(item)
-    print('Check input file and re-run restoration.\n')
-
-if not fail:
-    print('\nVerifying restoration...')
-    count = 0
-    errorList = []
-    for pv in pvs:
-        pvName = pv[0]
-        pvVal = pv[1]
-        cmd = ['caget','-t',pvName]
-        try:
-            res = subprocess.check_output(cmd,stderr=subprocess.STDOUT)\
-                .decode('utf-8').strip()
-            if res != pvVal:
-                errorList.append(pvName)
-                fail = True
-        except subprocess.CalledProcessError:
-            errorList.append(pvName)
-            fail = True
-        if fail:
-            progEnd = '|-ERROR-'
+    restData = f.readlines()
+pvs = []
+vals = []
+for line in restData:
+    line = line.strip()
+    if line[0] != '#' and line != '<END>':
+        pvs.append(line.split(' ')[0])
+        out = line.split(' ')[0]+'\t'
+        if 'DESC' in line:
+            vals.append(' '.join(line.split(' ')[1:]))
         else:
-            progEnd = '|'
-        count = count + 1
-        sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
-                str(int(100*count/total))+'%'))
-        sys.stdout.flush()
-    if fail:
-        print('\n\nVerification of restoration failed for:')
-        for item in errorList:
-            print(item)
-        print('Restart program to attempt restoration again.\n')
-    else:
-        print('\nVerification successful.')
+            vals.append(line.split(' ')[1])
+epics.caput_many(pvs,vals)
 
-if not fail:
-    print('\nRestoration complete.')
-    print('PV data restored from "'+savFile+'".\n')
+check = epics.caget_many(pvs,as_string=True)
+
+okay = True
+failed = []
+for i,item in enumerate(check):
+    if 'SV' in pvs[i]:
+        if item == 'MINOR':
+            item = '1'
+        elif item == 'MAJOR':
+            item = '2'
+        elif item == 'NO_ALARM':
+            item = '0'
+    if item != vals[i]:
+        okay = False
+        failed.append(pv[i])
+if not okay:
+    print('\nERROR:\tRESTORE VERIFICATION FAILED.\n\tPVs who were unable to be\
+restored were:')
+    for item in failed:
+        print(item)
+elif okay:
+    print('Restore successful.\n')
+else:
+    print('\nERROR:\t SOMETHING UNEXPECTED HAPPENED.\n\tAn error occured that \
+was not forseen ever happeneing and was not included in any error handling.')
 
 # calculates and prints time it took to run program
-endTime = time.time()
-runDuration = round(endTime - startTime,2)
-
-if runDuration >= 3600:
-    hours = runDuration/3600
-    minutes = runDuration%3600
-    if minutes >= 60:
-        minutes = minutes/60
-        seconds = minutes%60
-    else:
-        minutes = 0
-        seconds = minutes
-elif runDuration >= 60:
-    hours = 0
-    minutes = runDuration/60
-    seconds = runDuration%60
-else:
-    hours = 0
-    minutes = 0
-    seconds = runDuration
-
-if hours != 0:
-    durationStr = 'Program complete in '+str(hours)+' hours, '+str(minutes)+\
-        ' minutes, '+str(seconds)+' seconds.\n'
-elif minutes != 0:
-    durationStr = 'Program complete in '+str(minutes)+' minutes, '+\
-        str(seconds)+' seconds.\n'
-else:
-    durationStr = 'Program complete in '+str(seconds)+' seconds.\n'
-
-print(durationStr)
+runDuration = round(time.time() - startTime,2)
+hours = str(int(runDuration/3600))
+minutes = str(int((runDuration%3600)/60)).zfill(2)
+seconds = str(int((runDuration%3600)%60)).zfill(2)
+print('Program complete in '+hours+':'+minutes+':'+seconds+'\n')

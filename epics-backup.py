@@ -6,10 +6,12 @@ Date:   2019-03-12
 This program reads EPICS PVs and fields declared using an input file and
 creates a document containing the current PV/field values.
 
-This main interface of this program to EPICS is through the command line
-using the command "caget". "caget" is called using the subprocess module
-and the output is logged into the backup file. "caget" is included in EPICS
-base installations.
+This main interface of this program to EPICS is through the pyepics module.
+The pyepics module uses EPICS channel access to write a list of values for
+PVs defined by a ".req" file to a ".sav" file using the
+epics.autosave.save_pvs() function.
+
+For this program to run correctly, the pyepics module is needed.
 
 This program was developed to run from a terminal interface using input
 arguements. The usage and command options are below:
@@ -29,9 +31,6 @@ Mandatory Arguement:
                 add to the backup file must be the arguement immediately
                 following -c and should be enclosed in "double quotes".
 
---dev        - Option to run program in dev mode where no output files are
-                generated and program does not perform verification.
-
 -h/--help    - Prints this help message.
 '''
 #to add
@@ -45,19 +44,23 @@ from datetime import datetime
 import os
 import time
 
+try:
+    import epics
+    import epics.autosave
+except:
+    print('\nERROR:\tEPICS PYTHON MODULE NOT FOUND.\n\tThe "pyepics" module \
+is not installed or cannot be found.\n\t"pyepics" is required to run this \
+program.\n')
+    sys.exit(0)
+
+
+
 #gets time at start of program for overall timing
 startTime = time.time()
 
 # flag used to indicate failure of backup
 fail = False
 
-# Message to print if --dev option is used
-if '--dev' in sys.argv:
-    print('\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-    print('!!======================= DEV MODE =======================!!')
-    print('!!============== NO FILE WILL BE GENERATED ===============!!')
-    print('!!======== AND VERIFICATION WILL NOT BE PERFORMED ========!!')
-    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
 
 # Checks user's input arguements for input file prefix of output file
 if '-h' not in sys.argv and '--help' not in sys.argv:
@@ -119,146 +122,62 @@ Mandatory Arguement:\n\
 -c\t\t\t- Option to add comment to end result log file. The comment to\n\
 \t\t\t  add to the backup file must be the arguement immediately\n\
 \t\t\t  following -c and should be enclosed in "double quotes".\n\n\
---dev\t\t- Option to run program in dev mode where no output files are\n\
-\t\t\t  generated and program does not perform verification.\n\n\
 -h/--help\t- Prints this help message.\n')
     sys.exit(0)
-
-
 
 # Date and name of output file to use
 date = str(datetime.now())[:str(datetime.now()).find('.')]
 outFile = outName+'_'+date.replace(' ','_')+'.sav'
 
-# fields that are added to backup file
-fields = ['.HIHI','.HIGH','.LOW','.LOLO','.HHSV','.HSV','.LSV','.LLSV']
+print('')
 
-# reads in request file stated by user input
-print('\nReading from request file "'+backupReq+'"')
+epics.autosave.save_pvs(backupReq,outFile)
+
+with open(outFile,'r') as f:
+    restData = f.readlines()
 pvs = []
-with open(backupReq,'r') as f:
-    for line in f.readlines():
-        line = line.strip()
-        if line[0] != '#' and line != '':
-            pvs.append(line)
+vals = []
+for line in restData:
+    line = line.strip()
+    if line[0] != '#' and line != '<END>':
+        pvs.append(line.split(' ')[0])
+        out = line.split(' ')[0]+'\t'
+        if 'DESC' in line:
+            vals.append(' '.join(line.split(' ')[1:]))
+        else:
+            vals.append(line.split(' ')[1])
 
-total = len(pvs)
-print('\nRunning backup...')
-
-# reads all pvs using caget and writes their value to the string variable "log"
-comment = '# Comments: '+comment
-log = ['# Backup made: '+date,comment,'#','#']
-count = okay = error = 0
-errorList = []
-for pv in pvs:
-    line = pv+'\t'
-    cmd = ['caget','-t',pv]
-    try:
-        result = subprocess.check_output(cmd,stderr=subprocess.STDOUT)\
-            .decode('utf-8').strip()
-        line += str(result)+'\t'
-        okay = okay + 1
-    except subprocess.CalledProcessError:
-        error = error + 1
-        errorList.append(field)
-        fail = True
-    if fail:
-        progEnd = '|-ERROR-'
-    else:
-        progEnd = '|'
-    count = count + 1
-    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
-            str(int(100*count/total))+'%'))
-    sys.stdout.flush()
-    log.append(line)
-
-if len(errorList) != 0:
-    print('\n'+str(error)+' PVs not backed up due to error.')
-    print('Recieved errors for PVs/fields:')
-    for item in errorList:
+check = epics.caget_many(pvs,as_string=True)
+okay = True
+failed = []
+for i,item in enumerate(check):
+    if 'SV' in pvs[i]:
+        if item == 'MINOR':
+            item = '1'
+        elif item == 'MAJOR':
+            item = '2'
+        elif item == 'NO_ALARM':
+            item = '0'
+    if item != vals[i]:
+        okay = False
+        failed.append(pvs[i])
+if not okay:
+    print('\nERROR:\tBACKUP VERIFICATION FAILED.\n\tPVs who were unable to be\
+backed up were:')
+    for item in failed:
         print(item)
-    print('\nBackup not completed due to error.')
-    print('Check request file and re-run backup.\n')
+elif okay:
+    print('Backup successful.\n')
 else:
-    print('\nBackup complete.')
-    print(str(okay)+' PVs/fields successfully backed up.')
+    print('\nERROR:\t SOMETHING UNEXPECTED HAPPENED.\n\tAn error occured that \
+was not forseen ever happeneing and was not included in any error handling.')
 
 
-# reads from log and performs another series of caget commands to verify
-# contents of backup file.
-if '--dev' not in sys.argv and fail == False:
-    with open(outFile,'w') as f:
-        for line in log:
-            f.write(line)
-            f.write('\n')
-    print('\nVerifying backup file...')
-    checkErrorList = []
-    with open(outFile,'r') as f:
-        lines = f.readlines()
-    count = 0
-    for line in lines:
-        if line[0] != '#':
-            rec = line.strip().split('\t')
-            pv = rec[0]
-            cmd = ['caget','-t',pv]
-            try:
-                result = subprocess.check_output(cmd,stderr=subprocess.STDOUT).\
-                    decode('utf-8').strip()
-                if result != rec[1]:
-                    checkErrorList.append(pv+field[i])
-            except subprocess.CalledProcessError:
-                checkErrorList.append(pv+field[i])
-                fail = True
-            if fail:
-                progEnd = '|-ERROR-'
-            else:
-                progEnd = '|'
-            count = count + 1
-            sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*\
-                count/total)*'=',str(int(100*count/total))+'%'))
-            sys.stdout.flush()
-    # prints message stating whether verification was successful.
-    if len(checkErrorList) != 0:
-        print('\n\nVerification of backup file failed.')
-        print('"'+outFile+'" does not match present settings of PVs/fields.')
-        print('Restart backup program to attempt backup again.\n')
-        fail = True
-    else:
-        print('\nVerification successful.')
 
-# prints final success message if no previous errors.
-if not fail:
-    print('\nBackup successful.\nData backed up to "'+outFile+'".\n')
 
 # calculates and prints time it took to run program
-endTime = time.time()
-runDuration = round(endTime - startTime,2)
-
-if runDuration >= 3600:
-    hours = runDuration/3600
-    minutes = runDuration%3600
-    if minutes >= 60:
-        minutes = minutes/60
-        seconds = minutes%60
-    else:
-        minutes = 0
-        seconds = minutes
-elif runDuration >= 60:
-    hours = 0
-    minutes = runDuration/60
-    seconds = runDuration%60
-else:
-    hours = 0
-    minutes = 0
-    seconds = runDuration
-
-if hours != 0:
-    durationStr = 'Program complete in '+str(hours)+' hours, '+str(minutes)+\
-        ' minutes, '+str(seconds)+' seconds.\n'
-elif minutes != 0:
-    durationStr = 'Program complete in '+str(minutes)+' minutes, '+\
-        str(seconds)+' seconds.\n'
-else:
-    durationStr = 'Program complete in '+str(seconds)+' seconds.\n'
-
-print(durationStr)
+runDuration = round(time.time() - startTime,2)
+hours = str(int(runDuration/3600))
+minutes = str(int((runDuration%3600)/60)).zfill(2)
+seconds = str(int((runDuration%3600)%60)).zfill(2)
+print('Program complete in '+hours+':'+minutes+':'+seconds)
