@@ -35,22 +35,19 @@ Mandatory Arguement:
 '''
 #to add
 #	gui?
-# remove assumption youre doing alarm fields -- IN PROGRESS
-
 
 import sys
-import subprocess
 from datetime import datetime
 import os
 import time
 
 try:
     import epics
-    import epics.autosave
 except:
     print('\nERROR:\tEPICS PYTHON MODULE NOT FOUND.\n\tThe "pyepics" module \
 is not installed or cannot be found.\n\t"pyepics" is required to run this \
-program.\n')
+program.\n\n\tTry command below to install pyepics:\n\nsudo pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pyepics\n\n\tIf \
+pip is not installed on PC and on RHEL, try:\n\nsudo yum install python-pip\n')
     sys.exit(0)
 
 
@@ -60,7 +57,6 @@ startTime = time.time()
 
 # flag used to indicate failure of backup
 fail = False
-
 
 # Checks user's input arguements for input file prefix of output file
 if '-h' not in sys.argv and '--help' not in sys.argv:
@@ -129,48 +125,113 @@ Mandatory Arguement:\n\
 date = str(datetime.now())[:str(datetime.now()).find('.')]
 outFile = outName+'_'+date.replace(' ','_')+'.sav'
 
-print('')
+print('\nRunning backup...')
 
-epics.autosave.save_pvs(backupReq,outFile)
+size = 500
 
+#epics.autosave.save_pvs(backupReq,outFile)
+with open(backupReq,'r') as f:
+    reqData = f.readlines()
+pvs = []
+count = 0
+total = len(reqData)*2
+progEnd = '|'
+hold = []
+
+for line in reqData:
+    line = line.strip()
+    if line[0] != '#' and line != '<END>':
+        hold.append(line.split(' ')[0])
+    if len(hold) >= size:
+        pvs.append(hold)
+        hold = []
+    count = count + 0.5
+    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
+        str(int(100*count/total))+'%'))
+    sys.stdout.flush()
+backup = []
+for grp in pvs:
+    bu = epics.caget_many(grp,as_string=True)
+    backup.append(bu)
+    count = count + size
+    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
+        str(int(100*count/total))+'%'))
+    sys.stdout.flush()
+backup = [item for sublist in backup for item in sublist]
+pvs = [item for sublist in pvs for item in sublist]
+
+
+out = '# BACKUP CREATED: '+date+'\n# COMMENTS: '+comment+'\n#\n'
+for i,pv in enumerate(pvs):
+    out += pv+'\t'+backup[i]+'\n'
+    count = count + 0.5
+    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)\
+            *'=',str(int(100*count/total))+'%'))
+    sys.stdout.flush()
+with open(outFile,'w') as f:
+    f.write(out)
+print('\nBackup complete.\n')
+
+
+print('Verifying backup...')
 with open(outFile,'r') as f:
     restData = f.readlines()
+count = 0
 pvs = []
 vals = []
+hold,hold2 = [],[]
 for line in restData:
     line = line.strip()
     if line[0] != '#' and line != '<END>':
-        pvs.append(line.split(' ')[0])
-        out = line.split(' ')[0]+'\t'
+        hold.append(line.split('\t')[0])
         if 'DESC' in line:
-            vals.append(' '.join(line.split(' ')[1:]))
+            hold2.append(' '.join(line.split('\t')[1:]))
         else:
-            vals.append(line.split(' ')[1])
+            hold2.append(line.split('\t')[1])
+    if len(hold) >= size:
+        pvs.append(hold)
+        hold = []
+    if len(hold2) >= size:
+        vals.append(hold2)
+        hold2 = []
+    count = count + 0.5
+    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
+        str(int(100*count/total))+'%'))
+    sys.stdout.flush()
 
-check = epics.caget_many(pvs,as_string=True)
 okay = True
 failed = []
-for i,item in enumerate(check):
-    if 'SV' in pvs[i]:
-        if item == 'MINOR':
-            item = '1'
-        elif item == 'MAJOR':
-            item = '2'
-        elif item == 'NO_ALARM':
-            item = '0'
-    if item != vals[i]:
-        okay = False
-        failed.append(pvs[i])
+total = 0.75*total
+for n,grp in enumerate(pvs):
+    vCheck = vals[n]
+    check = epics.caget_many(grp,as_string=True)
+    count = count + 500
+    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
+        str(int(100*count/total))+'%'))
+    sys.stdout.flush()
+    for i,item in enumerate(check):
+        if 'SV' in grp[i]:
+            if item == '1':
+                item = 'MINOR'
+            elif item == '2':
+                item = 'MAJOR'
+            elif item == '0':
+                item = 'NO_ALARM'
+        if item != vCheck[i]:
+            okay = False
+            failed.append(grp[i])
+    count = count + 1
+    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
+        str(int(100*count/total))+'%'))
+    sys.stdout.flush()
 if not okay:
-    print('\nERROR:\tBACKUP VERIFICATION FAILED.\n\tPVs who were unable to be\
-backed up were:')
-    for item in failed:
-        print(item)
+    print('\nERROR:\tBACKUP VERIFICATION FAILED.\n\t'+str(len(failed))+' PVs \
+unable to be backed up.\n')
 elif okay:
-    print('Backup successful.\n')
+    print('\nVerification complete.\n\nBackup successful.\n')
 else:
     print('\nERROR:\t SOMETHING UNEXPECTED HAPPENED.\n\tAn error occured that \
-was not forseen ever happeneing and was not included in any error handling.')
+was not forseen ever happeneing and was not included in any error handling.\n')
 
 
 
