@@ -35,6 +35,7 @@ Mandatory Arguement:
 '''
 #to add
 #	gui?
+### CATCH FOR UNEVEN NUMBERS OF PVS
 
 import sys
 from datetime import datetime
@@ -134,10 +135,12 @@ with open(backupReq,'r') as f:
     reqData = f.readlines()
 pvs = []
 count = 0
-total = len(reqData)*2
+if len(reqData)/size == 0:
+    total = 4*len(reqData)
+else:
+    total = 3*len(reqData)+size
 progEnd = '|'
 hold = []
-
 for line in reqData:
     line = line.strip()
     if line[0] != '#' and line != '<END>':
@@ -145,11 +148,15 @@ for line in reqData:
     if len(hold) >= size:
         pvs.append(hold)
         hold = []
-    count = count + 0.5
+    count = count + 1
     sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
         str(int(100*count/total))+'%'))
     sys.stdout.flush()
+if len(pvs) == 0 or len(hold) < size:
+    pvs.append(hold)
 backup = []
+
+
 for grp in pvs:
     bu = epics.caget_many(grp,as_string=True)
     backup.append(bu)
@@ -164,7 +171,7 @@ pvs = [item for sublist in pvs for item in sublist]
 out = '# BACKUP CREATED: '+date+'\n# COMMENTS: '+comment+'\n#\n'
 for i,pv in enumerate(pvs):
     out += pv+'\t'+backup[i]+'\n'
-    count = count + 0.5
+    count = count + 1
     sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)\
             *'=',str(int(100*count/total))+'%'))
     sys.stdout.flush()
@@ -188,20 +195,24 @@ for line in restData:
             hold2.append(' '.join(line.split('\t')[1:]))
         else:
             hold2.append(line.split('\t')[1])
+        count = count + 1
     if len(hold) >= size:
         pvs.append(hold)
         hold = []
     if len(hold2) >= size:
         vals.append(hold2)
         hold2 = []
-    count = count + 0.5
+
     sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
         str(int(100*count/total))+'%'))
     sys.stdout.flush()
+if len(pvs) == 0 or len(hold) < size:
+    pvs.append(hold)
+if len(vals) == 0 or len(hold2) < size:
+    vals.append(hold2)
 
 okay = True
 failed = []
-total = 0.75*total
 for n,grp in enumerate(pvs):
     vCheck = vals[n]
     check = epics.caget_many(grp,as_string=True)
@@ -220,10 +231,10 @@ for n,grp in enumerate(pvs):
         if item != vCheck[i]:
             okay = False
             failed.append(grp[i])
-    count = count + 1
-    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
-        str(int(100*count/total))+'%'))
-    sys.stdout.flush()
+        count = count + 1
+        sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
+            str(int(100*count/total))+'%'))
+        sys.stdout.flush()
 if not okay:
     print('\nERROR:\tBACKUP VERIFICATION FAILED.\n\t'+str(len(failed))+' PVs \
 unable to be backed up.\n')
@@ -234,10 +245,8 @@ else:
 was not forseen ever happeneing and was not included in any error handling.\n')
 
 
-
-
 # calculates and prints time it took to run program
-runDuration = round(time.time() - startTime,2)
+runDuration = round(time.time() - startTime)
 hours = str(int(runDuration/3600))
 minutes = str(int((runDuration%3600)/60)).zfill(2)
 seconds = str(int((runDuration%3600)%60)).zfill(2)

@@ -68,7 +68,7 @@ else:
 
 size = 500
 
-print('Running restore...')
+print('\nRunning restore...')
 
 with open(savFile,'r') as f:
     restData = f.readlines()
@@ -76,7 +76,10 @@ pvGroups = []
 valGroups = []
 count = 0
 progEnd = '|'
-total = len(restData)*1.5
+if (len(restData)-3)/size != 0:
+    total = 2*(len(restData)-3)+size
+else:
+    total = 3*(len(restData)-3)
 hold,hold2 = [],[]
 for line in restData:
     line = line.strip()
@@ -87,36 +90,41 @@ for line in restData:
             hold2.append(' '.join(line.split('\t')[1:]))
         else:
             hold2.append(line.split('\t')[1])
+        count = count + 1
     if len(hold) >= size:
         pvGroups.append(hold)
         hold = []
     if len(hold2) >= size:
         valGroups.append(hold2)
         hold2 = []
-    count = count + 0.5
     sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
         str(int(100*count/total))+'%'))
     sys.stdout.flush()
+
+if len(pvGroups) == 0 or len(hold) < size:
+    pvGroups.append(hold)
+if len(valGroups) == 0 or len(hold2) < size:
+    valGroups.append(hold2)
 for i,pvs in enumerate(pvGroups):
     vals = valGroups[i]
     epics.caput_many(pvs,vals)
-    count = count + 500
+    count = count + size
     sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
-        str(int(100*count/total)+1)+'%'))
+        str(int(100*count/total))+'%'))
     sys.stdout.flush()
 print('\nRestoration complete.')
+
 
 print('\nVerifying restore...')
 okay = True
 failed = []
 count = 0
-total = len(restData)
 for n,grp in enumerate(pvGroups):
     vals = valGroups[n]
     check = epics.caget_many(grp,as_string=True)
-    count = count + 500
+    count = count + size
     sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
-        str(int(100*count/total)+1)+'%'))
+        str(int(100*count/total))+'%'))
     sys.stdout.flush()
     for i,item in enumerate(check):
         if 'SV' in grp[i]:
@@ -129,7 +137,10 @@ for n,grp in enumerate(pvGroups):
         if item != vals[i]:
             okay = False
             failed.append(grp[i])
-
+        count = count + 1
+        sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
+            str(int(100*count/total))+'%'))
+        sys.stdout.flush()
 if not okay:
     print('\nERROR:\tRESTORE VERIFICATION FAILED.\n\t'+str(len(failed))+' PVs \
 unable to be restored.\n')
