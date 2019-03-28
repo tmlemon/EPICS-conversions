@@ -31,6 +31,8 @@ Mandatory Arguement:
                 add to the backup file must be the arguement immediately
                 following -c and should be enclosed in "double quotes".
 
+-q           - Option silences output of program.
+
 -h/--help    - Prints this help message.
 '''
 #to add
@@ -59,6 +61,11 @@ startTime = time.time()
 # flag used to indicate failure of backup
 fail = False
 
+#checks for -q option to silence output of program.
+if '-q' in sys.argv:
+    silence = True
+else:
+    silence = False
 # Checks user's input arguements for input file prefix of output file
 if '-h' not in sys.argv and '--help' not in sys.argv:
 #checking for -i arguement for input file
@@ -107,18 +114,19 @@ is more than one word, comment must be\n\tenclosed in "double quotes".\n\
         comment = ''
 # prints help message if -h or --help is in input arguements
 else:
-    print('\nepics-backup.py <req-file> [--dev] [-h/--help] [-o <out>] [-c\
+    print('\nepics-backup.py <req-file> [-q][--dev][-h/--help][-o <out>][-c\
 "<comment>"]\n\n\
 Mandatory Arguement:\n\
-<req-file>\t- Name of request file containing PVs to backup. File extension\n\
-\t\t\t  must be ".req".\n\n\
+<req-file>\t- Name of request file containing PVs to backup.\n\t\t  File \
+extension must be ".req".\n\n\
 [Optional Arguemnts]:\n\
--o\t\t\t- Option that specifies prefix of output file. <out> cannot be\n\
-\t\t\t  the same as <req-file> (epics-backup.py -o example.req\n\
-\t\t\t  is not a valid input).\n\n\
--c\t\t\t- Option to add comment to end result log file. The comment to\n\
-\t\t\t  add to the backup file must be the arguement immediately\n\
-\t\t\t  following -c and should be enclosed in "double quotes".\n\n\
+-o\t\t- Option that specifies prefix of output file. <out> cannot be\n\
+\t\t  the same as <req-file> (epics-backup.py -o example.req\n\
+\t\t  is not a valid input).\n\n\
+-c\t\t- Option to add comment to end result log file. The comment to\n\
+\t\t  add to the backup file must be the arguement immediately\n\
+\t\t  following -c and should be enclosed in "double quotes".\n\n\
+-q\t\t- Silences all printout messages from the program.\n\n\
 -h/--help\t- Prints this help message.\n')
     sys.exit(0)
 
@@ -126,7 +134,8 @@ Mandatory Arguement:\n\
 date = str(datetime.now())[:str(datetime.now()).find('.')]
 outFile = outName+'_'+date.replace(' ','_')+'.sav'
 
-print('\nRunning backup...')
+if not silence:
+    print('\nRunning backup...')
 
 size = 500
 
@@ -149,9 +158,10 @@ for line in reqData:
         pvs.append(hold)
         hold = []
     count = count + 1
-    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
-        str(int(100*count/total))+'%'))
-    sys.stdout.flush()
+    if not silence:
+        sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
+            str(int(100*count/total))+'%'))
+        sys.stdout.flush()
 if len(pvs) == 0 or len(hold) < size:
     pvs.append(hold)
 backup = []
@@ -161,9 +171,10 @@ for grp in pvs:
     bu = epics.caget_many(grp,as_string=True)
     backup.append(bu)
     count = count + size
-    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
-        str(int(100*count/total))+'%'))
-    sys.stdout.flush()
+    if not silence:
+        sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
+            str(int(100*count/total))+'%'))
+        sys.stdout.flush()
 backup = [item for sublist in backup for item in sublist]
 pvs = [item for sublist in pvs for item in sublist]
 
@@ -172,15 +183,17 @@ out = '# BACKUP CREATED: '+date+'\n# COMMENTS: '+comment+'\n#\n'
 for i,pv in enumerate(pvs):
     out += pv+'\t'+backup[i]+'\n'
     count = count + 1
-    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)\
-            *'=',str(int(100*count/total))+'%'))
-    sys.stdout.flush()
+    if not silence:
+        sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)\
+                *'=',str(int(100*count/total))+'%'))
+        sys.stdout.flush()
 with open(outFile,'w') as f:
     f.write(out)
-print('\nBackup complete.\n')
+if not silence:
+    print('\nBackup complete.\n')
 
-
-print('Verifying backup...')
+if not silence:
+    print('Verifying backup...')
 with open(outFile,'r') as f:
     restData = f.readlines()
 count = 0
@@ -202,10 +215,10 @@ for line in restData:
     if len(hold2) >= size:
         vals.append(hold2)
         hold2 = []
-
-    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
-        str(int(100*count/total))+'%'))
-    sys.stdout.flush()
+    if not silence:
+        sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
+            str(int(100*count/total))+'%'))
+        sys.stdout.flush()
 if len(pvs) == 0 or len(hold) < size:
     pvs.append(hold)
 if len(vals) == 0 or len(hold2) < size:
@@ -217,9 +230,10 @@ for n,grp in enumerate(pvs):
     vCheck = vals[n]
     check = epics.caget_many(grp,as_string=True)
     count = count + 500
-    sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
-        str(int(100*count/total))+'%'))
-    sys.stdout.flush()
+    if not silence:
+        sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
+            str(int(100*count/total))+'%'))
+        sys.stdout.flush()
     for i,item in enumerate(check):
         if 'SV' in grp[i]:
             if item == '1':
@@ -232,17 +246,20 @@ for n,grp in enumerate(pvs):
             okay = False
             failed.append(grp[i])
         count = count + 1
-        sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/total)*'=',\
-            str(int(100*count/total))+'%'))
-        sys.stdout.flush()
+        if not silence:
+            sys.stdout.write(('\r{1} |{0}'+progEnd).format(int(25*count/\
+                total)*'=',str(int(100*count/total))+'%'))
+            sys.stdout.flush()
 if not okay:
-    print('\nERROR:\tBACKUP VERIFICATION FAILED.\n\t'+str(len(failed))+' PVs \
-unable to be backed up.\n')
+    print('\nERROR:\tBACKUP VERIFICATION FAILED.\n\t'+str(len(failed))+\
+        ' PVs unable to be backed up.\n')
 elif okay:
-    print('\nVerification complete.\n\nBackup successful.\n')
+    if not silence:
+        print('\nVerification complete.\n\nBackup successful.\n')
 else:
-    print('\nERROR:\t SOMETHING UNEXPECTED HAPPENED.\n\tAn error occured that \
-was not forseen ever happeneing and was not included in any error handling.\n')
+    print('\nERROR:\t SOMETHING UNEXPECTED HAPPENED.\n\tAn error occured \
+        that was not forseen ever happeneing and was not included in any \
+        error handling.\n')
 
 
 # calculates and prints time it took to run program
@@ -250,4 +267,5 @@ runDuration = round(time.time() - startTime)
 hours = str(int(runDuration/3600))
 minutes = str(int((runDuration%3600)/60)).zfill(2)
 seconds = str(int((runDuration%3600)%60)).zfill(2)
-print('Program complete in '+hours+':'+minutes+':'+seconds)
+if not silence:
+    print('Program complete in '+hours+':'+minutes+':'+seconds)
