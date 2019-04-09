@@ -1,16 +1,30 @@
 #!/usr/bin/env python
+'''
+Author:  Tyler Lemon
+Date:    2019-04-09
 
-import sys
-from datetime import datetime
-import math
-import epics
+Program uses pyepics' caget_many to backup HV channel settings.
+Progarm gets PVs from an input CS-Studio-BOY (CSS) .opi file.
 
+Program is designed to be called from "backup-gui.opi".
+It can still be run from command line, but there are no error handling, input
+checking, or helpful printouts.
+
+Use "dev = True" (line ~23) to use development IOC rather than real PVs.
+Change "dev" to False for normal operation.
+'''
+
+import sys #used to read in user inputs
+from datetime import datetime #used to get date/time of program execution
+import epics #used to call caget_many funciton
+
+# Boolean used to tell program to use development IOC rather than real PVs
+# Chaneg to false for normal operation.
+dev = True
 
 #Checks whether user input a comment.
 if len(sys.argv) >= 4: comment = sys.argv[3]
 else: comment = ''
-
-comment = 'Test of writing comments to backup file to test how it works and see if it all works as expected especially with really long comments.'
 
 #does some nice formatting for user's comment to make sure it wraps nicely
 #in the final backup file.
@@ -65,9 +79,10 @@ buList = []
 for pv in pvs:
     hold = [pv[4:].split(':')]
     for prop in props:
-        # TO USE DEV IOC PVS, COMMENT OUT LINE BELOW AND UNCOMMENT NEXT LINE
-        #hold.append(pv+':'+prop)
-        hold.append('devIOC:ai'+str(count))
+        if dev:
+            hold.append('devIOC:ai'+str(count))
+        else:
+            hold.append(pv+':'+prop)
         count += 1
     buList.append(hold)
 
