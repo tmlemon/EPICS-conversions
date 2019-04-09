@@ -20,6 +20,10 @@ Programs are designed to run from Linux command line.
   - Reads from a backup file and writes values to PVs.
   - Not a conversion, but added to repository for completeness of programs developed for EPICS.
 
+- HV-backup.py
+  - Backup program specifically for Hall C CSS HV screens.
+  - Not a conversion, but added to repository for completeness of programs developed for EPICS.
+  
 - hv_map.py
   - Replicates Hall C's perl scripts used when generating HV TCL/TK HV screens.
   - Program reads in .hvc config file and outputs channel map, group map, and ALH config file.
