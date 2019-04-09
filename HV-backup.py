@@ -4,12 +4,13 @@ import sys
 from datetime import datetime
 import math
 import epics
-import subprocess
 
 
 #Checks whether user input a comment.
 if len(sys.argv) >= 4: comment = sys.argv[3]
 else: comment = ''
+
+comment = 'Test of writing comments to backup file to test how it works and see if it all works as expected especially with really long comments.'
 
 #does some nice formatting for user's comment to make sure it wraps nicely
 #in the final backup file.
@@ -28,6 +29,7 @@ if len(comment) > 60:
         else:
             newComm += (' '.join(comment.split(' ')[start:item]))+'\n'
         start = item
+    newComm += '#\t\t\t'+(' '.join(comment.split(' ')[start:]))+'\n'
     comment = newComm.strip()
 
 #declares input file (inFile), and path where input file is (path).
@@ -41,6 +43,7 @@ props = ['V0Set','I0Set','SVMax','RUp','RDwn']
 #Reads in input file and stores it as an array where each element is a line
 # in the file.
 with open(path+inFile,'r') as f: data = f.readlines()
+
 
 # reads data from input file and extracts PVs in file. Output of code section
 # (pvs) is an array of PV prefixes for each HV channel (ex. hchv2:00:000:)
@@ -93,4 +96,4 @@ with open(path+outFile,'w') as f:
         f.write('\n')
 
 # prints a reponse that CSS looks for to indicate program is done.
-print('DONE!')
+print('BACKUP COMPLETE')
