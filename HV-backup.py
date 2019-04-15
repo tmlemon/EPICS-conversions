@@ -16,7 +16,7 @@ Change "dev" to False for normal operation.
 
 import sys #used to read in user inputs
 from datetime import datetime #used to get date/time of program execution
-
+import os
 try:
     import epics #used to call caget_many funciton
 except:
@@ -40,7 +40,7 @@ systems = ['HMS Hodo 1 X','HMS Hodo 1 Y','HMS Hodo 2 X','HMS Hodo 2 Y',\
 
 
 #Checks whether user input a comment.
-if len(sys.argv) >= 4: comment = sys.argv[3]
+if len(sys.argv) >= 3: comment = sys.argv[2]
 else: comment = ''
 
 #does some nice formatting for user's comment to make sure it wraps nicely
@@ -66,39 +66,29 @@ if len(comment) > 60:
 #declares input file (inFile), and path where input file is (path).
 #path will also be where final backup file is stored.
 path = sys.argv[1]
-fileTitle = sys.argv[2]
+if path[-1] != '/': path += '/'
 
-with open(path+'chid_map.txt','r') as f:    chids = f.readlines()
+prevSav = []
+for item in os.listdir(path):
+    if item[-4:] == '.sav':
+        prevSav.append(item)
+if len(prevSav) != 0:
+    refFile = sorted(prevSav)[-1]
+else:
+    refFile = 'chID_reference.txt'
+
+with open(path+refFile,'r') as f:    chids = f.readlines()
 ids,maps = [],[]
 for item in chids:
-    ids.append(item.split('\t')[0])
-    maps.append('\t'.join(item.split('\t')[1:]).strip())
-
-
-if fileTitle == 'All HMS Systems':
-    toBackup = ['HMS Hodo 1 X','HMS Hodo 1 Y','HMS Hodo 2 X','HMS Hodo 2 Y',\
-    'HMS Drift Chambers','HMS Shower Counter A','HMS Shower Counter B',\
-    'HMS Cherenkov and Aerogel']
-elif fileTitle == 'All SHMS Systems':
-    toBackup = ['SHMS Hodo 1 X','SHMS Hodo 1 Y','SHMS Hodo 2 X',\
-    'SHMS Hodo 2 Y','SHMS Drift Chambers','SHMS Shower A',\
-    'SHMS Shower B','SHMS Shower C','SHMS Shower D','SHMS Preshower',\
-    'SHMS NGC','SHMS HGC','SHMS Aerogel']
-elif fileTitle == 'All Hall C Systems':
-    toBackup = ['HMS Hodo 1 X','HMS Hodo 1 Y','HMS Hodo 2 X','HMS Hodo 2 Y',\
-    'HMS Drift Chambers','HMS Shower Counter A','HMS Shower Counter B',\
-    'HMS Cherenkov and Aerogel','SHMS Hodo 1 X','SHMS Hodo 1 Y',\
-    'SHMS Hodo 2 X','SHMS Hodo 2 Y','SHMS Drift Chambers',\
-    'SHMS Shower A','SHMS Shower B','SHMS Shower C','SHMS Shower D',\
-    'SHMS Preshower','SHMS NGC','SHMS HGC','SHMS Aerogel']
-else:
-     toBackup = [fileTitle]
+    if item.strip()[0] != '#':
+        ids.append(item.split('\t')[0])
+        maps.append('\t'.join(item.split('\t')[2:5]).strip())
 
 date = str(datetime.now())[:str(datetime.now()).find('.')]
-bu = ['# '+fileTitle+' HV Backup','# Backup created:\t'+date,'# Comment:\t'\
+bu = ['# Hall C HV Backup','# Backup created:\t'+date,'# Comment:\t'\
     +comment,'#']
 
-for item in toBackup:
+for item in systems:
     group = groups[systems.index(item)]
     inFile = item.replace(' ','-')+'-list.opi'
 
@@ -142,7 +132,7 @@ for item in toBackup:
     # title of backup file.
     title = inFile.split('/')[-1].replace('-',' ')[:inFile.find('-list.opi')]
 
-    bu.append('# '+title)
+    bu.append('# Detector: '+title)
     bu.append('# chid\tgroup\tcrate\tslot\tchannel\tV0Set\tI0Set\tSVMax\t\
 RUp\tRDwn')
 
@@ -160,11 +150,12 @@ RUp\tRDwn')
 
 #writes data to a text file (file extension .sav can be changed to fit user
 # preferences).
-outFile = fileTitle.replace(' ','-')+'_'+date.replace(' ','_')+'.sav'
+outFile = 'HV-backup_'+date.replace(' ','_')+'.sav'
 with open(path+outFile,'w') as f:
     for line in bu:
         f.write(line)
         f.write('\n')
 
 # prints a reponse that CSS looks for to indicate program is done.
-print('BACKUP COMPLETE')
+print('BACKUP COMPLETE\n'+outFile+' created.')
+
