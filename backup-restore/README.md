@@ -13,6 +13,8 @@ Programs are designed to run from Linux command line.
 
 - HV-backup.py
   - Backup program specifically for Hall C CSS HV screens.
+  - Program designed to be called from a CS-Studio GUI.
+  - Can still be called from Linux command line, but it contains very little error handling.
   
 - chID_reference.txt
   - reference document containing all Hall C HV channel ID and mapping.
