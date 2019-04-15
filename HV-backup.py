@@ -16,11 +16,28 @@ Change "dev" to False for normal operation.
 
 import sys #used to read in user inputs
 from datetime import datetime #used to get date/time of program execution
-import epics #used to call caget_many funciton
+
+try:
+    import epics #used to call caget_many funciton
+except:
+    print('ERROR: pyepics not found.')
+    sys.exit(1)
 
 # Boolean used to tell program to use development IOC rather than real PVs
 # Chaneg to false for normal operation.
 dev = True
+
+
+#group mapping from old Tcl/Tk system
+groups = ['1','2','3','4','5','7','8','9','11','12','13','14','15','16','17',\
+    '18','19','20','21','22','10']
+systems = ['HMS Hodo 1 X','HMS Hodo 1 Y','HMS Hodo 2 X','HMS Hodo 2 Y',\
+    'HMS Drift Chambers','HMS Shower Counter A','HMS Shower Counter B',\
+    'HMS Cherenkov and Aerogel','SHMS Hodo 1 X','SHMS Hodo 1 Y',\
+    'SHMS Hodo 2 X','SHMS Hodo 2 Y','SHMS HGC','SHMS NGC','SHMS Aerogel',\
+    'SHMS Preshower','SHMS Shower A','SHMS Shower B','SHMS Shower C',\
+    'SHMS Shower D','SHMS Drift Chambers']
+
 
 #Checks whether user input a comment.
 if len(sys.argv) >= 4: comment = sys.argv[3]
@@ -49,62 +66,101 @@ if len(comment) > 60:
 #declares input file (inFile), and path where input file is (path).
 #path will also be where final backup file is stored.
 path = sys.argv[1]
-inFile = sys.argv[2]
+fileTitle = sys.argv[2]
 
-#properties of each HV channel that will be backed up
-props = ['V0Set','I0Set','SVMax','RUp','RDwn']
+with open(path+'chid_map.txt','r') as f:    chids = f.readlines()
+ids,maps = [],[]
+for item in chids:
+    ids.append(item.split('\t')[0])
+    maps.append('\t'.join(item.split('\t')[1:]).strip())
 
-#Reads in input file and stores it as an array where each element is a line
-# in the file.
-with open(path+inFile,'r') as f: data = f.readlines()
 
+if fileTitle == 'All HMS Systems':
+    toBackup = ['HMS Hodo 1 X','HMS Hodo 1 Y','HMS Hodo 2 X','HMS Hodo 2 Y',\
+    'HMS Drift Chambers','HMS Shower Counter A','HMS Shower Counter B',\
+    'HMS Cherenkov and Aerogel']
+elif fileTitle == 'All SHMS Systems':
+    toBackup = ['SHMS Hodo 1 X','SHMS Hodo 1 Y','SHMS Hodo 2 X',\
+    'SHMS Hodo 2 Y','SHMS Drift Chambers','SHMS Shower A',\
+    'SHMS Shower B','SHMS Shower C','SHMS Shower D','SHMS Preshower',\
+    'SHMS NGC','SHMS HGC','SHMS Aerogel']
+elif fileTitle == 'All Hall C Systems':
+    toBackup = ['HMS Hodo 1 X','HMS Hodo 1 Y','HMS Hodo 2 X','HMS Hodo 2 Y',\
+    'HMS Drift Chambers','HMS Shower Counter A','HMS Shower Counter B',\
+    'HMS Cherenkov and Aerogel','SHMS Hodo 1 X','SHMS Hodo 1 Y',\
+    'SHMS Hodo 2 X','SHMS Hodo 2 Y','SHMS Drift Chambers',\
+    'SHMS Shower A','SHMS Shower B','SHMS Shower C','SHMS Shower D',\
+    'SHMS Preshower','SHMS NGC','SHMS HGC','SHMS Aerogel']
+else:
+     toBackup = [fileTitle]
 
-# reads data from input file and extracts PVs in file. Output of code section
-# (pvs) is an array of PV prefixes for each HV channel (ex. hchv2:00:000:)
-pvs = []
-for item in data:
-    item = item.strip()
-    if item[:9] == '<pv_name>' and item[-10:] == '</pv_name>':
-        pv  = item.split('<pv_name>')[1].split('</pv_name>')[0]
-        if pv != '' and 'loc://' not in pv:
-            if pv.split(':')[3] in props:
-                pvs.append(':'.join(pv.split(':')[:3]))
-pvs = list(set(pvs))
-
-#uses pv list and properties to generate list of all pvs that need backing up.
-#Result of code section (buList) is a 2D list where each element is a list
-# of a channel's properties PVs that need backing up.
-count = 1
-buList = []
-for pv in pvs:
-    hold = [pv[4:].split(':')]
-    for prop in props:
-        if dev:
-            hold.append('devIOC:ai'+str(count))
-        else:
-            hold.append(pv+':'+prop)
-        count += 1
-    buList.append(hold)
-
-# Creates date string and title of backup file.
 date = str(datetime.now())[:str(datetime.now()).find('.')]
-title = inFile.split('/')[-1].replace('-',' ')[:inFile.find('-list.opi')]
+bu = ['# '+fileTitle+' HV Backup','# Backup created:\t'+date,'# Comment:\t'\
+    +comment,'#']
 
-#creates header of backup file.
-bu = ['# '+title+' HV Backup','# Backup created:\t'+date,'# Comment:\t'+\
-comment,'#','# crate\tslot\tchannel\tV0Set\tI0Set\tSVMax\tRUp\tRDwn']
+for item in toBackup:
+    group = groups[systems.index(item)]
+    inFile = item.replace(' ','-')+'-list.opi'
 
-# performs caget_many function for every list element of buList
-count = 0
-for pv in buList:
-    line = '\t'.join(map(str,map(int,pv[0])))+'\t'
-    res = epics.caget_many(pv[1:],as_string=True)
-    line += '\t'.join(res)
-    bu.append(line.strip())
+    #properties of each HV channel that will be backed up
+    props = ['V0Set','I0Set','SVMax','RUp','RDwn']
+
+
+    #Reads in input file and stores it as an array where each element is a line
+    # in the file.
+    with open(path+inFile,'r') as f: data = f.readlines()
+
+
+    # reads data from input file and extracts PVs in file.
+    # Output of code section (pvs) is an array of PV prefixes for each
+    # HV channel (ex. hchv2:00:000:)
+    pvs = []
+    for item in data:
+        item = item.strip()
+        if item[:9] == '<pv_name>' and item[-10:] == '</pv_name>':
+            pv  = item.split('<pv_name>')[1].split('</pv_name>')[0]
+            if pv != '' and 'loc://' not in pv:
+                if pv.split(':')[3] in props:
+                    pvs.append(':'.join(pv.split(':')[:3]))
+    pvs = list(set(pvs))
+
+    #uses pv list and properties to generate list of all pvs that need backing
+    # up. Result of code section (buList) is a 2D list where each element is
+    # a list of a channel's properties PVs that need backing up.
+    count = 1
+    buList = []
+    for pv in pvs:
+        hold = [pv[4:].split(':')]
+        for prop in props:
+            if dev:
+                hold.append('devIOC:ai'+str(count))
+            else:
+                hold.append(pv+':'+prop)
+            count += 1
+        buList.append(hold)
+
+    # title of backup file.
+    title = inFile.split('/')[-1].replace('-',' ')[:inFile.find('-list.opi')]
+
+    bu.append('# '+title)
+    bu.append('# chid\tgroup\tcrate\tslot\tchannel\tV0Set\tI0Set\tSVMax\t\
+RUp\tRDwn')
+
+    # performs caget_many function for every list element of buList
+    count = 0
+    for pv in buList:
+        ch = '\t'.join(map(str,map(int,pv[0])))
+        chid = ids[maps.index(ch)]
+        line = chid+'\t'+group+'\t'+ch+'\t'
+        res = epics.caget_many(pv[1:],as_string=True)
+        line += '\t'.join(res)
+        bu.append(line.strip())
+
+    bu.append('#')
 
 #writes data to a text file (file extension .sav can be changed to fit user
 # preferences).
-outFile = 'backup_'+date.replace(' ','_')+'.sav'
+outFile = fileTitle.replace(' ','-')+'_'+date.replace(' ','_')+'.sav'
 with open(path+outFile,'w') as f:
     for line in bu:
         f.write(line)
