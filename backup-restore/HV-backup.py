@@ -24,7 +24,7 @@ except:
     sys.exit(1)
 
 # Boolean used to tell program to use development IOC rather than real PVs
-# Chaneg to false for normal operation.
+# Change to false for normal operation.
 dev = True
 
 
@@ -78,16 +78,19 @@ else:
     refFile = 'chID_reference.txt'
 
 with open(path+refFile,'r') as f:    chids = f.readlines()
-ids,maps = [],[]
+ids,maps,groupsTest = [],[],[]
 for item in chids:
     if item.strip()[0] != '#':
         ids.append(item.split('\t')[0])
-        maps.append('\t'.join(item.split('\t')[2:5]).strip())
+        maps.append('\t'.join(item.split('\t')[1:4]).strip())
+        groupsTest.append(item.split('\t')[1])
+groupsTest = list(set(groupsTest))
+
 
 date = str(datetime.now())[:str(datetime.now()).find('.')]
 bu = ['# Hall C HV Backup','# Backup created:\t'+date,'# Comment:\t'\
     +comment,'#']
-
+refLog = []
 for item in systems:
     group = groups[systems.index(item)]
     inFile = item.replace(' ','-')+'-list.opi'
@@ -133,7 +136,7 @@ for item in systems:
     title = inFile.split('/')[-1].replace('-',' ')[:inFile.find('-list.opi')]
 
     bu.append('# Detector: '+title)
-    bu.append('# chid\tgroup\tcrate\tslot\tchannel\tV0Set\tI0Set\tSVMax\t\
+    bu.append('# chid\tcrate\tslot\tchannel\tgroup\tV0Set\tI0Set\tSVMax\t\
 RUp\tRDwn')
 
     # performs caget_many function for every list element of buList
@@ -141,7 +144,8 @@ RUp\tRDwn')
     for pv in buList:
         ch = '\t'.join(map(str,map(int,pv[0])))
         chid = ids[maps.index(ch)]
-        line = chid+'\t'+group+'\t'+ch+'\t'
+        line = chid+'\t'+ch+'\t'+group+'\t'
+        refLog.append(line.strip())
         res = epics.caget_many(pv[1:],as_string=True)
         line += '\t'.join(res)
         bu.append(line.strip())
@@ -158,4 +162,3 @@ with open(path+outFile,'w') as f:
 
 # prints a reponse that CSS looks for to indicate program is done.
 print('BACKUP COMPLETE\n'+outFile+' created.')
-
