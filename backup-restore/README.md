@@ -3,6 +3,9 @@
 
 *Development of these scripts are ongoing as of April 15, 2019.*
 
+- css-gui
+  - All CS-Studio GUIs developed for backup and restore.
+
 - HV-backup.py
   - Backup program specifically for Hall C CSS HV screens.
   - Program designed to be called from a CS-Studio GUI.
