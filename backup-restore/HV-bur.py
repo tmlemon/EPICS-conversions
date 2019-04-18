@@ -60,7 +60,7 @@ size = 500
 # Regardless of wheter backup or restore, second input arguement from CSS will
 # be the path at which the files to backup will be stored.
 path = sys.argv[2]
-if path[-1] != '/': path+'/'
+if path[-1] != '/': path += '/'
 
 
 # START OF CASE FOR RESTORE FUNCTIONALITY
@@ -68,7 +68,7 @@ if sys.argv[1] == 'restore':
     # User can either put in a file to restore from, or leave the control
     # blank in CSS to look in path for latest backup file.
     if sys.argv[3] != 'LATEST':
-        savFile = sys.argv[1]
+        savFile = sys.argv[3]
     else:
         fList = os.listdir(path)
         poss = []
