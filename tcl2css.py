@@ -55,7 +55,69 @@ screenTemplate = [\
 '  <width>SCREEN_WIDTH</width>',\
 '  <wuid>54b97197:16750d3dd5b:-7755</wuid>',\
 '  <x>-1</x>',\
-'  <y>-1</y>']
+'  <y>-1</y>',\
+'  <widget typeId="org.csstudio.opibuilder.widgets.MenuButton" version="1.0.0">',\
+'    <actions hook="false" hook_all="false">',\
+'      <action type="OPEN_DISPLAY">',\
+'        <path>backup-gui.opi</path>',\
+'        <macros>',\
+'          <include_parent_macros>true</include_parent_macros>',\
+'        </macros>',\
+'        <mode>6</mode>',\
+'        <description>Backup</description>',\
+'      </action>',\
+'      <action type="OPEN_DISPLAY">',\
+'        <path>restore-gui.opi</path>',\
+'        <macros>',\
+'          <include_parent_macros>true</include_parent_macros>',\
+'        </macros>',\
+'        <mode>6</mode>',\
+'        <description>Restore</description>',\
+'      </action>',\
+'    </actions>',\
+'    <actions_from_pv>false</actions_from_pv>',\
+'    <alarm_pulsing>false</alarm_pulsing>',\
+'    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>',\
+'    <background_color>',\
+'      <color red="240" green="240" blue="240" />',\
+'    </background_color>',\
+'    <border_alarm_sensitive>false</border_alarm_sensitive>',\
+'    <border_color>',\
+'      <color red="0" green="128" blue="255" />',\
+'    </border_color>',\
+'    <border_style>6</border_style>',\
+'    <border_width>1</border_width>',\
+'    <enabled>true</enabled>',\
+'    <font>',\
+'      <opifont.name fontName="Cantarell" height="11" style="0" pixels="false">Default</opifont.name>',\
+'    </font>',\
+'    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>',\
+'    <foreground_color>',\
+'      <color red="0" green="0" blue="0" />',\
+'    </foreground_color>',\
+'    <height>25</height>',\
+'    <label>File</label>',\
+'    <name>Menu Button_1</name>',\
+'    <pv_name></pv_name>',\
+'    <pv_value />',\
+'    <rules />',\
+'    <scale_options>',\
+'      <width_scalable>true</width_scalable>',\
+'      <height_scalable>true</height_scalable>',\
+'      <keep_wh_ratio>false</keep_wh_ratio>',\
+'    </scale_options>',\
+'    <scripts />',\
+'    <show_down_arrow>true</show_down_arrow>',\
+'    <tooltip>$(pv_name)',\
+'$(pv_value)</tooltip>',\
+'    <transparent>false</transparent>',\
+'    <visible>true</visible>',\
+'    <widget_type>Menu Button</widget_type>',\
+'    <width>100</width>',\
+'    <wuid>22564f20:16a30a2eecf:-7b8d</wuid>',\
+'    <x>50</x>',\
+'    <y>10</y>',\
+'  </widget>']
 
 #The last line of the text OPI needs to be this.
 lastLine = '</display>'
@@ -613,7 +675,7 @@ menuEnd = [\
 '      <color red="0" green="0" blue="0" />',\
 '    </foreground_color>',\
 '    <height>25</height>',\
-'    <label>SPCTRMTR Detector HV Controls</label>',\
+'    <label>Group</label>',\
 '    <name>Menu Button</name>',\
 '    <pv_name></pv_name>',\
 '    <pv_value />',\
@@ -630,7 +692,7 @@ menuEnd = [\
 '    <transparent>false</transparent>',\
 '    <visible>true</visible>',\
 '    <widget_type>Menu Button</widget_type>',\
-'    <width>225</width>',\
+'    <width>100</width>',\
 '    <wuid>-6af80d88:167c7f66d30:-6d81</wuid>',\
 '    <x>X_POS</x>',\
 '    <y>Y_POS</y>',\
@@ -749,8 +811,7 @@ def makeMenu(menuOptions,grpName,spectrometer,screen):
 			line = line.replace('OPT_TITLE',opt[0])
 			screen.append(line)
 	for line in menuEnd:
-		line = line.replace('SPCTRMTR',spectrometer)
-		line = line.replace('X_POS',str(615))
+		line = line.replace('X_POS',str(690))
 		line = line.replace('Y_POS',str(10))
 		screen.append(line)
 	return screen
@@ -933,8 +994,8 @@ inputWidth = indicatorWidth = 68
 horizDivLen = 760
 
 
-channelProps = ['VMon','IMon','Status','V0Setr','Trip','SVMax',\
-	'RUpr','RDWnr']
+channelProps = ['Pw','VMon','IMon','Status','V0Set','I0Set','SVMax',\
+	'RUp','RDWn']
 # Creates screens showing each group in table format.
 vMon,iMon,allPVs = [],[],[]
 for grp in groups:
@@ -1122,3 +1183,5 @@ for i,item in enumerate(menuOptions):
 # makes histogram plots for overall spectrometer
 screen = makeHistoPlot(spectrometer,flatten(vMon),flatten(iMon),menuOptions)
 writeFile(outPath,spectrometer+'-plot.opi',screen)
+
+
