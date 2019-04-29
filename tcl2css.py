@@ -32,7 +32,7 @@ screenTemplate = [\
 '  </auto_scale_widgets>',\
 '  <auto_zoom_to_fit_all>false</auto_zoom_to_fit_all>',\
 '  <background_color>',\
-'    <color red="240" green="240" blue="240" />',\
+'    <color red="77" green="77" blue="77" />',\
 '  </background_color>',\
 '  <boy_version>5.1.0.201707071649</boy_version>',\
 '  <foreground_color>',\
@@ -83,9 +83,9 @@ screenTemplate = [\
 '    </background_color>',\
 '    <border_alarm_sensitive>false</border_alarm_sensitive>',\
 '    <border_color>',\
-'      <color red="0" green="128" blue="255" />',\
+'      <color red="0" green="0" blue="0" />',\
 '    </border_color>',\
-'    <border_style>6</border_style>',\
+'    <border_style>1</border_style>',\
 '    <border_width>1</border_width>',\
 '    <enabled>true</enabled>',\
 '    <font>',\
@@ -113,9 +113,9 @@ screenTemplate = [\
 '    <transparent>false</transparent>',\
 '    <visible>true</visible>',\
 '    <widget_type>Menu Button</widget_type>',\
-'    <width>100</width>',\
+'    <width>75</width>',\
 '    <wuid>22564f20:16a30a2eecf:-7b8d</wuid>',\
-'    <x>50</x>',\
+'    <x>25</x>',\
 '    <y>10</y>',\
 '  </widget>']
 
@@ -134,7 +134,7 @@ textUpdate = [\
 '    </background_color>',\
 '    <border_alarm_sensitive>true</border_alarm_sensitive>',\
 '    <border_color>',\
-'      <color red="0" green="0" blue="0" />',\
+'      <color red="191" green="191" blue="191" />',\
 '    </border_color>',\
 '    <border_style>1</border_style>',\
 '    <border_width>1</border_width>',\
@@ -186,9 +186,9 @@ label = [\
 '      <color red="255" green="255" blue="255" />',\
 '    </background_color>',\
 '    <border_color>',\
-'      <color red="0" green="128" blue="255" />',\
+'      <color red="191" green="191" blue="191" />',\
 '    </border_color>',\
-'    <border_style>0</border_style>',\
+'    <border_style>BORDER</border_style>',\
 '    <border_width>1</border_width>',\
 '    <enabled>true</enabled>',\
 '    <font>',\
@@ -196,7 +196,7 @@ label = [\
 pixels="false" />',\
 '    </font>',\
 '    <foreground_color>',\
-'      <color red="0" green="0" blue="0" />',\
+'      <color red="255" green="255" blue="255" />',\
 '    </foreground_color>',\
 '    <height>LABEL_HEIGHT</height>',\
 '    <horizontal_alignment>1</horizontal_alignment>',\
@@ -297,7 +297,7 @@ version="1.0.0">',\
 '    <bit>-1</bit>',\
 '    <border_alarm_sensitive>false</border_alarm_sensitive>',\
 '    <border_color>',\
-'      <color red="0" green="0" blue="0" />',\
+'      <color red="191" green="191" blue="191" />',\
 '    </border_color>',\
 '    <border_style>1</border_style>',\
 '    <border_width>1</border_width>',\
@@ -356,7 +356,7 @@ version="1.0.0">',\
 '    <toggle_button>true</toggle_button>',\
 '    <tooltip>$(pv_name)',\
 '$(pv_value)</tooltip>',\
-'    <visible>true</visible>',\
+'    <visible>CANBESEEN</visible>',\
 '    <widget_type>Boolean Button</widget_type>',\
 '    <width>BUTTON_WIDTH</width>',\
 '    <wuid>7ef955a:167a9382857:-7b6b</wuid>',\
@@ -376,9 +376,9 @@ textInput = [\
 '    </background_color>',\
 '    <border_alarm_sensitive>false</border_alarm_sensitive>',\
 '    <border_color>',\
-'      <color red="0" green="0" blue="0" />',\
+'      <color red="191" green="191" blue="191" />',\
 '    </border_color>',\
-'    <border_style>2</border_style>',\
+'    <border_style>1</border_style>',\
 '    <border_width>1</border_width>',\
 '    <confirm_message></confirm_message>',\
 '    <enabled>true</enabled>',\
@@ -436,7 +436,7 @@ lineFmt = [\
 '    <arrows>0</arrows>',\
 '    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>',\
 '    <background_color>',\
-'      <color red="0" green="0" blue="0" />',\
+'      <color red="191" green="191" blue="191" />',\
 '    </background_color>',\
 '    <border_alarm_sensitive>false</border_alarm_sensitive>',\
 '    <border_color>',\
@@ -661,9 +661,9 @@ menuEnd = [\
 '    </background_color>',\
 '    <border_alarm_sensitive>false</border_alarm_sensitive>',\
 '    <border_color>',\
-'      <color red="0" green="128" blue="255" />',\
+'      <color red="0" green="0" blue="0" />',\
 '    </border_color>',\
-'    <border_style>6</border_style>',\
+'    <border_style>1</border_style>',\
 '    <border_width>1</border_width>',\
 '    <enabled>true</enabled>',\
 '    <font>',\
@@ -692,7 +692,7 @@ menuEnd = [\
 '    <transparent>false</transparent>',\
 '    <visible>true</visible>',\
 '    <widget_type>Menu Button</widget_type>',\
-'    <width>100</width>',\
+'    <width>75</width>',\
 '    <wuid>-6af80d88:167c7f66d30:-6d81</wuid>',\
 '    <x>X_POS</x>',\
 '    <y>Y_POS</y>',\
@@ -710,7 +710,7 @@ statusTextUpdate = [\
 '    </background_color>',\
 '    <border_alarm_sensitive>true</border_alarm_sensitive>',\
 '    <border_color>',\
-'      <color red="0" green="0" blue="0" />',\
+'      <color red="191" green="191" blue="191" />',\
 '    </border_color>',\
 '    <border_style>1</border_style>',\
 '    <border_width>1</border_width>',\
@@ -787,7 +787,7 @@ allOFFbutton = [\
 '    </border_color>',
 '    <border_style>1</border_style>',
 '    <border_width>1</border_width>',
-'    <confirm_message>Are you sure you want to do this?</confirm_message>',
+'    <confirm_message>Turn ALL HV OFF?</confirm_message>',
 '    <data_type>0</data_type>',
 '    <effect_3d>true</effect_3d>',
 '    <enabled>true</enabled>',
@@ -808,7 +808,7 @@ allOFFbutton = [\
 '    <on_color>',
 '      <color red="0" green="255" blue="0" />',
 '    </on_color>',
-'    <on_label>ON</on_label>',
+'    <on_label>OFF</on_label>',
 '    <password></password>',
 '    <push_action_index>0</push_action_index>',
 '    <pv_name>loc://allOFF(0)</pv_name>',
@@ -827,7 +827,7 @@ allOFFbutton = [\
 '      </path>',
 '    </scripts>',
 '    <show_boolean_label>true</show_boolean_label>',
-'    <show_confirm_dialog>0</show_confirm_dialog>',
+'    <show_confirm_dialog>1</show_confirm_dialog>',
 '    <show_led>false</show_led>',
 '    <square_button>true</square_button>',
 '    <toggle_button>false</toggle_button>',
@@ -841,7 +841,138 @@ allOFFbutton = [\
 '    <y>Y_POS</y>',
 '  </widget>']
 
+allONbutton = [\
+'  <widget typeId="org.csstudio.opibuilder.widgets.BoolButton" version="1.0.0">',
+'    <actions hook="false" hook_all="true" />',
+'    <alarm_pulsing>false</alarm_pulsing>',
+'    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>',
+'    <background_color>',
+'      <color red="0" green="255" blue="0" />',
+'    </background_color>',
+'    <bit>-1</bit>',
+'    <border_alarm_sensitive>false</border_alarm_sensitive>',
+'    <border_color>',
+'      <color red="0" green="0" blue="0" />',
+'    </border_color>',
+'    <border_style>1</border_style>',
+'    <border_width>1</border_width>',
+'    <confirm_message>Turn ALL HV ON?</confirm_message>',
+'    <data_type>0</data_type>',
+'    <effect_3d>true</effect_3d>',
+'    <enabled>true</enabled>',
+'    <font>',
+'      <fontdata fontName="Cantarell" height="11" style="1" pixels="false" />',
+'    </font>',
+'    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>',
+'    <foreground_color>',
+'      <color red="0" green="0" blue="0" />',
+'    </foreground_color>',
+'    <height>HEIGHT</height>',
+'    <labels_from_pv>false</labels_from_pv>',
+'    <name>Boolean Button_1</name>',
+'    <off_color>',
+'      <color red="0" green="100" blue="0" />',
+'    </off_color>',
+'    <off_label>ON</off_label>',
+'    <on_color>',
+'      <color red="0" green="255" blue="0" />',
+'    </on_color>',
+'    <on_label>ON</on_label>',
+'    <password></password>',
+'    <push_action_index>0</push_action_index>',
+'    <pv_name>loc://allON(0)</pv_name>',
+'    <pv_value />',
+'    <released_action_index>0</released_action_index>',
+'    <rules />',
+'    <scale_options>',
+'      <width_scalable>true</width_scalable>',
+'      <height_scalable>true</height_scalable>',
+'      <keep_wh_ratio>true</keep_wh_ratio>',
+'    </scale_options>',
+'    <scripts>',
+'      <path pathString="all_on.py" checkConnect="true" sfe="false" seoe="false">',
+'        <pv trig="false">DISPLAYPV</pv>',
+'        <pv trig="true">$(pv_name)</pv>',
+'      </path>',
+'    </scripts>',
+'    <show_boolean_label>true</show_boolean_label>',
+'    <show_confirm_dialog>1</show_confirm_dialog>',
+'    <show_led>false</show_led>',
+'    <square_button>true</square_button>',
+'    <toggle_button>false</toggle_button>',
+'    <tooltip>$(pv_name)',
+'$(pv_value)</tooltip>',
+'    <visible>true</visible>',
+'    <widget_type>Boolean Button</widget_type>',
+'    <width>WIDTH</width>',
+'    <wuid>-658daadc:16a54a1e40f:-72e1</wuid>',
+'    <x>X_POS</x>',
+'    <y>Y_POS</y>',
+'  </widget>']
 
+allSetInput = [\
+'  <widget typeId="org.csstudio.opibuilder.widgets.TextInput" version="2.0.0">',
+'    <actions hook="false" hook_all="false" />',
+'    <alarm_pulsing>false</alarm_pulsing>',
+'    <auto_size>false</auto_size>',
+'    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>',
+'    <background_color>',
+'      <color red="255" green="255" blue="255" />',
+'    </background_color>',
+'    <border_alarm_sensitive>false</border_alarm_sensitive>',
+'    <border_color>',
+'      <color red="191" green="191" blue="191" />',
+'    </border_color>',
+'    <border_style>1</border_style>',
+'    <border_width>1</border_width>',
+'    <confirm_message></confirm_message>',
+'    <enabled>true</enabled>',
+'    <font>',
+'      <opifont.name fontName="Cantarell" height="11" style="0" pixels="false">Default</opifont.name>',
+'    </font>',
+'    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>',
+'    <foreground_color>',
+'      <color red="0" green="0" blue="0" />',
+'    </foreground_color>',
+'    <format_type>0</format_type>',
+'    <height>HEIGHT</height>',
+'    <horizontal_alignment>0</horizontal_alignment>',
+'    <limits_from_pv>false</limits_from_pv>',
+'    <maximum>1.7976931348623157E308</maximum>',
+'    <minimum>-1.7976931348623157E308</minimum>',
+'    <multiline_input>false</multiline_input>',
+'    <name>Text Input_160</name>',
+'    <precision>0</precision>',
+'    <precision_from_pv>true</precision_from_pv>',
+'    <pv_name>PV_NAME(0)</pv_name>',
+'    <pv_value />',
+'    <rotation_angle>0.0</rotation_angle>',
+'    <rules />',
+'    <scale_options>',
+'      <width_scalable>true</width_scalable>',
+'      <height_scalable>true</height_scalable>',
+'      <keep_wh_ratio>false</keep_wh_ratio>',
+'    </scale_options>',
+'    <scripts>',
+'      <path pathString="all_set.py" checkConnect="true" sfe="false" seoe="false">',
+'        <pv trig="false">DISPLAYPV</pv>',
+'        <pv trig="true">$(pv_name)</pv>',
+'      </path>',
+'    </scripts>',
+'    <selector_type>0</selector_type>',
+'    <show_units>true</show_units>',
+'    <style>0</style>',
+'    <text></text>',
+'    <tooltip>$(pv_name)',
+'$(pv_value)</tooltip>',
+'    <transparent>false</transparent>',
+'    <visible>true</visible>',
+'    <widget_type>Text Input</widget_type>',
+'    <width>WIDTH</width>',
+'    <wuid>5370568c:16a699d6a57:-7b0a</wuid>',
+'    <x>X_POS</x>',
+'    <y>Y_POS</y>',
+'  </widget>']
 
 # Function to "flatten" a 2-D list of lists into a 1-D list.
 flatten = lambda lst: [item for sublist in lst for item in sublist]
@@ -882,7 +1013,7 @@ def makeMenu(menuOptions,grpName,spectrometer,screen):
             line = line.replace('OPT_TITLE',opt[0])
             screen.append(line)
     for line in menuEnd:
-        line = line.replace('X_POS',str(690))
+        line = line.replace('X_POS',str(725))
         line = line.replace('Y_POS',str(10))
         screen.append(line)
     return screen
@@ -902,18 +1033,19 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
     for line in screenTemplate:
         line = line.replace('OPI_NAME',spectrometer+'-HV-Monitor')
         line = line.replace('SCREEN_WIDTH',str(800))
-        line = line.replace('SCREEN_HEIGHT',str(725))
+        line = line.replace('SCREEN_HEIGHT',str(700))
         screen.append(line)
     #title label for plot screen
     for line in label:
-        line = line.replace('LABEL_HEIGHT',str(40))
+        line = line.replace('LABEL_HEIGHT',str(25))
         line = line.replace('LABEL_WIDTH',str(600))
         line = line.replace('LABEL_TEXT',spectrometer+' HV Monitor')
         line = line.replace('LABEL_NAME',spectrometer+' HV Monitor')
-        line = line.replace('LABEL_Y_POS',str(34))
+        line = line.replace('LABEL_Y_POS',str(10))
         line = line.replace('LABEL_X_POS',str((800/2)-300))
         line = line.replace('FONT_STYLE',str(1))
         line = line.replace('FONT_SIZE',str(14))
+        line = line.replace('BORDER',str(0))
         screen.append(line)
     #Creates bar plot for voltage monitoring
     for line in xyPlotStart:
@@ -927,7 +1059,7 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
         line = line.replace('NUMBER_OF_PVS',str(len(vMon)))
         line = line.replace('WIDTH',str(700))
         line = line.replace('X_POS',str(50))
-        line = line.replace('Y_POS',str(75))
+        line = line.replace('Y_POS',str(50))
         screen.append(line)
     #Creates bar plot for current monitoring
     for line in xyPlotStart:
@@ -941,7 +1073,7 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
         line = line.replace('NUMBER_OF_PVS',str(len(iMon)))
         line = line.replace('WIDTH',str(700))
         line = line.replace('X_POS',str(50))
-        line = line.replace('Y_POS',str(400))
+        line = line.replace('Y_POS',str(365))
         screen.append(line)
     #Makes dropdown menu
     for line in menuStart:
@@ -954,7 +1086,7 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
             screen.append(line)
     for line in menuEnd:
         line = line.replace('SPCTRMTR',spectrometer.split(' ')[0])
-        line = line.replace('X_POS',str(550))
+        line = line.replace('X_POS',str(675))
         line = line.replace('Y_POS',str(10))
         screen.append(line)
     screen.append(lastLine)
@@ -1261,14 +1393,14 @@ for i,grp in enumerate(groups):
 
 
 # Constants for widget placement on CSS screens.
-xSpacing = 10
-ySpacing = 8
-screenWidth = 850
+xSpacing = 0#10
+ySpacing = 0#8
+screenWidth = 800
 labelHeight = buttonHeight = indicatorHeight = ledHeight = inputHeight = 20
 labelWidth = 75
-buttonWidth = ledWidth = 50
-inputWidth = indicatorWidth = 68
-horizDivLen = 760
+buttonWidth = ledWidth = 75#50
+inputWidth = indicatorWidth = 75#68
+horizDivLen = 750
 
 
 channelProps = ['Pw','VMon','IMon','Status','V0Set','I0Set','SVMax',\
@@ -1287,8 +1419,7 @@ for grp in groups:
         line = line.replace('OPI_NAME',fileName)
         line = line.replace('SCREEN_WIDTH',str(screenWidth))
         line = line.replace('SCREEN_HEIGHT',\
-            str(2*y0+len(channels)*(labelHeight+ySpacing)+ySpacing+\
-                buttonHeight))
+            str(2*y0+len(channels)*(labelHeight+ySpacing)+45))
         screen.append(line)
     #hidden indicator containing display name for all off/on/reset scripts.
     for line in textUpdate:
@@ -1299,17 +1430,19 @@ for grp in groups:
         line = line.replace('PV_NAME','loc://fileName_'+fileName+\
                 '("$(DNAME)")')
         line = line.replace('CANBESEEN','false')
+        line = line.replace('INDICATOR_NAME','fileName_'+fileName)
         screen.append(line)
     #title label for table
     for line in label:
-        line = line.replace('LABEL_HEIGHT',str(40))
-        line = line.replace('LABEL_WIDTH',str(600))
+        line = line.replace('LABEL_HEIGHT',str(25))
+        line = line.replace('LABEL_WIDTH',str(screenWidth))
         line = line.replace('LABEL_TEXT',grpName+' HV Controls')
         line = line.replace('LABEL_NAME',grpName+' HV Controls')
-        line = line.replace('LABEL_Y_POS',str(5))
-        line = line.replace('LABEL_X_POS',str((screenWidth/2)-300))
+        line = line.replace('LABEL_Y_POS',str(10))
+        line = line.replace('LABEL_X_POS',str(0))
         line = line.replace('FONT_STYLE',str(1))
         line = line.replace('FONT_SIZE',str(14))
+        line = line.replace('BORDER',str(0))
         screen.append(line)
 
     # Calls function to add dropdown menu to screen.
@@ -1317,6 +1450,7 @@ for grp in groups:
 
     #Generates labels for table header.
     #For FONT_STYLE, 1 is bold, 0 regular
+    #for BORDER, 0 is no border, 1 is line border
     headerContents = ['Ch ID','On/Off','Status','Vmon','Imon','Vset',\
         'Itrip','Vmax','RmpUp','RmpDwn']
     for part in headerContents:
@@ -1326,9 +1460,13 @@ for grp in groups:
             line = line.replace('LABEL_TEXT',part)
             line = line.replace('LABEL_NAME',part)
             line = line.replace('LABEL_Y_POS',str(y))
-            line = line.replace('LABEL_X_POS',str(x))
+            if part == 'Ch ID':
+                line = line.replace('LABEL_X_POS',str(x-13))
+            else:
+                line = line.replace('LABEL_X_POS',str(x))
             line = line.replace('FONT_STYLE',str(1))
             line = line.replace('FONT_SIZE',str(9))
+            line = line.replace('BORDER',str(0))
             screen.append(line)
         x += labelWidth
     y += labelHeight+ySpacing
@@ -1344,13 +1482,14 @@ for grp in groups:
         #Channel ID label
         for line in label:
             line = line.replace('LABEL_HEIGHT',str(labelHeight))
-            line = line.replace('LABEL_WIDTH',str(labelWidth))
+            line = line.replace('LABEL_WIDTH',str(labelWidth+25))
             line = line.replace('LABEL_TEXT',chID)
             line = line.replace('LABEL_NAME',chID)
             line = line.replace('LABEL_Y_POS',str(y))
-            line = line.replace('LABEL_X_POS',str(x))
+            line = line.replace('LABEL_X_POS',str(x-25))
             line = line.replace('FONT_STYLE',str(0))
             line = line.replace('FONT_SIZE',str(9))
+            line = line.replace('BORDER',str(1))
             screen.append(line)
         x += labelWidth
         #channel control button
@@ -1361,6 +1500,7 @@ for grp in groups:
             line = line.replace('BUTTON_X_POS',str(x+(labelWidth-\
                 buttonWidth)/2))
             line = line.replace('PV_NAME',pvBase+'Pw')
+            line = line.replace('CANBESEEN','true')
             screen.append(line)
         allOffXLoc = str(x+(labelWidth-buttonWidth)/2)
         x += labelWidth
@@ -1372,6 +1512,7 @@ for grp in groups:
             line = line.replace('INDICATOR_X_POS',\
                     str(x+(labelWidth-indicatorWidth)/2))
             line = line.replace('PV_NAME',pvBase+'Status')
+            line = line.replace('INDICATOR_NAME',pvBase+'Status')
             screen.append(line)
         x += labelWidth
         #Voltage readback
@@ -1382,6 +1523,7 @@ for grp in groups:
             line = line.replace('INDICATOR_X_POS',\
                     str(x+(labelWidth-indicatorWidth)/2))
             line = line.replace('PV_NAME',pvBase+'VMon')
+            line = line.replace('INDICATOR_NAME',pvBase+'VMon')
             line = line.replace('CANBESEEN','true')
             screen.append(line)
         x += labelWidth
@@ -1393,6 +1535,7 @@ for grp in groups:
             line = line.replace('INDICATOR_X_POS',\
                     str(x+(labelWidth-indicatorWidth)/2))
             line = line.replace('PV_NAME',pvBase+'IMon')
+            line = line.replace('INDICATOR_NAME',pvBase+'IMon')
             line = line.replace('CANBESEEN','true')
             screen.append(line)
         x += labelWidth
@@ -1435,6 +1578,7 @@ for grp in groups:
                 inputWidth)/2))
             line = line.replace('PV_NAME',pvBase+'RUp')
             screen.append(line)
+        allRUpXLoc = str(x+(labelWidth-inputWidth)/2)
         x += labelWidth
         #channel ramp down rate
         for    line in textInput:
@@ -1445,6 +1589,7 @@ for grp in groups:
                 inputWidth)/2))
             line = line.replace('PV_NAME',pvBase+'RDWn')
             screen.append(line)
+        allRDWnXLoc = str(x+(labelWidth-inputWidth)/2)
         #horizontal divider line between channels.
         for line in lineFmt:
             line = line.replace('LINE_HEIGHT',str(1))
@@ -1455,14 +1600,77 @@ for grp in groups:
             line = line.replace('PT1_Y',str(y-(ySpacing/2)))
             line = line.replace('PT2_X',str(x0+horizDivLen))
             line = line.replace('PT2_Y',str(y-(ySpacing/2)))
-            screen.append(line)
+            #screen.append(line)
         y += labelHeight+ySpacing
+    # label for all channel controls
+    for line in label:
+        line = line.replace('LABEL_HEIGHT',str(labelHeight*2))
+        line = line.replace('LABEL_WIDTH',str(labelWidth+25))
+        line = line.replace('LABEL_TEXT','ALL CHANNELS')
+        line = line.replace('LABEL_NAME','ALL_CHANNELS')
+        line = line.replace('LABEL_Y_POS',str(y))
+        line = line.replace('LABEL_X_POS',str(x0-25))
+        line = line.replace('FONT_STYLE',str(0))
+        line = line.replace('FONT_SIZE',str(9))
+        line = line.replace('BORDER',str(1))
+        screen.append(line)
+    #control to turn all channels off
     for line in allOFFbutton:
         line = line.replace('WIDTH',str(buttonWidth))
         line = line.replace('HEIGHT',str(buttonHeight))
         line = line.replace('X_POS',str(allOffXLoc))
         line = line.replace('Y_POS',str(y))
         line = line.replace('DISPLAYPV','loc://fileName_'+fileName)
+        screen.append(line)
+    #label for all ramp up control
+    for line in label:
+        line = line.replace('LABEL_HEIGHT',str(labelHeight))
+        line = line.replace('LABEL_WIDTH',str(labelWidth))
+        line = line.replace('LABEL_TEXT','RmpUp')
+        line = line.replace('LABEL_NAME','allRmpUp')
+        line = line.replace('LABEL_Y_POS',str(y))
+        line = line.replace('LABEL_X_POS',str(allRUpXLoc))
+        line = line.replace('FONT_STYLE',str(1))
+        line = line.replace('FONT_SIZE',str(9))
+        line = line.replace('BORDER',str(0))
+        screen.append(line)
+    #label for all ramp down control
+    for line in label:
+        line = line.replace('LABEL_HEIGHT',str(labelHeight))
+        line = line.replace('LABEL_WIDTH',str(labelWidth))
+        line = line.replace('LABEL_TEXT','RmpDwn')
+        line = line.replace('LABEL_NAME','allRmpDwn')
+        line = line.replace('LABEL_Y_POS',str(y))
+        line = line.replace('LABEL_X_POS',str(allRDWnXLoc))
+        line = line.replace('FONT_STYLE',str(1))
+        line = line.replace('FONT_SIZE',str(9))
+        line = line.replace('BORDER',str(0))
+        screen.append(line)
+    #control to turn all channels on
+    for line in allONbutton:
+        line = line.replace('WIDTH',str(buttonWidth))
+        line = line.replace('HEIGHT',str(buttonHeight))
+        line = line.replace('X_POS',str(allOffXLoc))
+        line = line.replace('Y_POS',str(y+buttonHeight))
+        line = line.replace('DISPLAYPV','loc://fileName_'+fileName)
+        screen.append(line)
+    #control to set all ramp up rates
+    for line in allSetInput:
+        line = line.replace('WIDTH',str(buttonWidth))
+        line = line.replace('HEIGHT',str(buttonHeight))
+        line = line.replace('X_POS',str(allRUpXLoc))
+        line = line.replace('Y_POS',str(y+buttonHeight))
+        line = line.replace('DISPLAYPV','loc://fileName_'+fileName)
+        line = line.replace('PV_NAME','loc://allRUp_'+fileName)
+        screen.append(line)
+    #control to set all ramp down rates
+    for line in allSetInput:
+        line = line.replace('WIDTH',str(buttonWidth))
+        line = line.replace('HEIGHT',str(buttonHeight))
+        line = line.replace('X_POS',str(allRDWnXLoc))
+        line = line.replace('Y_POS',str(y+buttonHeight))
+        line = line.replace('DISPLAYPV','loc://fileName_'+fileName)
+        line = line.replace('PV_NAME','loc://allRDWn_'+fileName)
         screen.append(line)
     #appends group vMon and iMon PVs to overall list.
     vMon.append(vMonHold)
@@ -1481,5 +1689,5 @@ for i,item in enumerate(menuOptions):
 # makes histogram plots for overall spectrometer
 screen = makeHistoPlot(spectrometer,flatten(vMon),flatten(iMon),menuOptions)
 writeFile(outPath,spectrometer+'-plot.opi',screen)
-
+print(' ')
 
