@@ -7,13 +7,13 @@ Programs are designed to run from Linux command line.
 
 
 
-
-
-- csv2edl.py
-  - Converts comma-separated-variable table of PVs and labels to EDM .edl files.
-  
 - backup-restore
   - all backup and restore programs developed for Hall C EPICS.
+- group-controls
+  - all scripts called in CSS to write values to multiple PVs using one widget.
+  
+- csv2edl.py
+  - Converts comma-separated-variable table of PVs and labels to EDM .edl files.
   
 - hv_map.py
   - Replicates Hall C's perl scripts used when generating HV TCL/TK HV screens.
