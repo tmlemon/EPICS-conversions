@@ -3,7 +3,11 @@
 from org.csstudio.opibuilder.scriptUtil import PVUtil
 from org.csstudio.opibuilder.scriptUtil import ConsoleUtil
 
-dev = True
+#looks at host name to see if it development PC
+import socket
+devList = ['dsg-c-linux1.jlab.org']
+dev = socket.gethostname() in devList
+
 
 prop = str(pvs[1])[6:-3].split('_')[0][3:]
 

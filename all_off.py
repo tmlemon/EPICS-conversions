@@ -3,7 +3,10 @@
 from org.csstudio.opibuilder.scriptUtil import PVUtil
 from org.csstudio.opibuilder.scriptUtil import ConsoleUtil
 
-dev = True
+#looks at host name to see if it development PC
+import socket
+devList = ['dsg-c-linux1.jlab.org']
+dev = socket.gethostname() in devList
 
 #screen = 'HMS-Hodo-1-X-list.opi'
 screen = str(PVUtil.getString(pvs[0]))

@@ -29,7 +29,7 @@ python <path>/HV-bur.py restore <path> [file]
 
 
 to BACKUP:
-python <path>/HV-bur.py restore <path> [comment]
+python <path>/HV-bur.py backup <path> [comment]
 
 <path>    is the path where HV-bur.py, backup files, and CSS-BOY OPI files are.
 [comment] (optional) is any comment to add to backup file. When running from
@@ -39,6 +39,7 @@ python <path>/HV-bur.py restore <path> [comment]
 
 import sys #used to read in user inputs
 from datetime import datetime #used to get date/time of program execution
+import time
 import os
 try:
     import epics #used to call caget_many funciton
@@ -46,12 +47,17 @@ except:
     print('ERROR: pyepics not found.')
     sys.exit(1)
 
+startT = time.time()
 
 # Boolean used to tell program to use development IOC rather than real PVs
-# Change to false for normal operation.
-dev = True
+# Looks at host name to see if it development PC. Add PC to devList to
+# automatically run in dev mode when on PC.
+import socket
+devList = ['dsg-c-linux1.jlab.org']
+dev = socket.gethostname() in devList
+
 if dev:
-    print('DEV MODE ENABLED (see HV-bur.py code, line 50)')
+    print('DEV MODE ENABLED (see HV-bur.py code, line 52)')
 # Size of sub-arrays used in restore. caput_many seems to have problems with
 # arrays larger than 600 PVs, so "size" variable was added to let user change
 # sub-array size if it makes a difference in execution time.
@@ -281,3 +287,6 @@ RUp\tRDwn')
 else:
     print('ERROR: "backup" or "restore" not selected or other fatal error. \
 See CSS Console for more info.')
+
+dT = time.time() - startT
+print(dT)
