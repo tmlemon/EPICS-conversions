@@ -1,5 +1,5 @@
 # EPICS Conversion Scripts
-**Python script to convert EPICS formats.**
+**Python script to convert EPICS formats and for Hall C HV Tcl/Tk-to-CSS conversion.**
 
 *Development of these scripts are ongoing as of December 6, 2018.*
 
@@ -9,6 +9,7 @@ Programs are designed to run from Linux command line.
 
 - backup-restore
   - all backup and restore programs developed for Hall C EPICS.
+  
 - group-controls
   - all scripts called in CSS to write values to multiple PVs using one widget.
   
