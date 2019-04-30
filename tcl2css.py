@@ -1038,11 +1038,11 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
     #title label for plot screen
     for line in label:
         line = line.replace('LABEL_HEIGHT',str(25))
-        line = line.replace('LABEL_WIDTH',str(600))
+        line = line.replace('LABEL_WIDTH',str(800-25))
         line = line.replace('LABEL_TEXT',spectrometer+' HV Monitor')
         line = line.replace('LABEL_NAME',spectrometer+' HV Monitor')
         line = line.replace('LABEL_Y_POS',str(10))
-        line = line.replace('LABEL_X_POS',str((800/2)-300))
+        line = line.replace('LABEL_X_POS',str(25))
         line = line.replace('FONT_STYLE',str(1))
         line = line.replace('FONT_SIZE',str(14))
         line = line.replace('BORDER',str(0))
@@ -1057,8 +1057,8 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
         screen.append(xyPlotChannelFmt.replace('INSERT_PV_HERE',pv))
     for line in xyPlotEnd:
         line = line.replace('NUMBER_OF_PVS',str(len(vMon)))
-        line = line.replace('WIDTH',str(700))
-        line = line.replace('X_POS',str(50))
+        line = line.replace('WIDTH',str(775))
+        line = line.replace('X_POS',str(25))
         line = line.replace('Y_POS',str(50))
         screen.append(line)
     #Creates bar plot for current monitoring
@@ -1071,9 +1071,9 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
         screen.append(xyPlotChannelFmt.replace('INSERT_PV_HERE',pv))
     for line in xyPlotEnd:
         line = line.replace('NUMBER_OF_PVS',str(len(iMon)))
-        line = line.replace('WIDTH',str(700))
-        line = line.replace('X_POS',str(50))
-        line = line.replace('Y_POS',str(365))
+        line = line.replace('WIDTH',str(775))
+        line = line.replace('X_POS',str(25))
+        line = line.replace('Y_POS',str(355))
         screen.append(line)
     #Makes dropdown menu
     for line in menuStart:
@@ -1086,7 +1086,7 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
             screen.append(line)
     for line in menuEnd:
         line = line.replace('SPCTRMTR',spectrometer.split(' ')[0])
-        line = line.replace('X_POS',str(675))
+        line = line.replace('X_POS',str(725))
         line = line.replace('Y_POS',str(10))
         screen.append(line)
     screen.append(lastLine)
@@ -1435,11 +1435,11 @@ for grp in groups:
     #title label for table
     for line in label:
         line = line.replace('LABEL_HEIGHT',str(25))
-        line = line.replace('LABEL_WIDTH',str(screenWidth))
+        line = line.replace('LABEL_WIDTH',str(screenWidth-25))
         line = line.replace('LABEL_TEXT',grpName+' HV Controls')
         line = line.replace('LABEL_NAME',grpName+' HV Controls')
         line = line.replace('LABEL_Y_POS',str(10))
-        line = line.replace('LABEL_X_POS',str(0))
+        line = line.replace('LABEL_X_POS',str(25))
         line = line.replace('FONT_STYLE',str(1))
         line = line.replace('FONT_SIZE',str(14))
         line = line.replace('BORDER',str(0))
@@ -1602,6 +1602,8 @@ for grp in groups:
             line = line.replace('PT2_Y',str(y-(ySpacing/2)))
             #screen.append(line)
         y += labelHeight+ySpacing
+
+    ## Group controls at bottom of list
     # label for all channel controls
     for line in label:
         line = line.replace('LABEL_HEIGHT',str(labelHeight*2))
@@ -1614,14 +1616,42 @@ for grp in groups:
         line = line.replace('FONT_SIZE',str(9))
         line = line.replace('BORDER',str(1))
         screen.append(line)
+    x = x0+labelWidth
     #control to turn all channels off
     for line in allOFFbutton:
         line = line.replace('WIDTH',str(buttonWidth))
         line = line.replace('HEIGHT',str(buttonHeight))
-        line = line.replace('X_POS',str(allOffXLoc))
+        line = line.replace('X_POS',str(x))
         line = line.replace('Y_POS',str(y))
         line = line.replace('DISPLAYPV','loc://fileName_'+fileName)
         screen.append(line)
+    x += labelWidth*5
+    #label for all I Trip control
+    for line in label:
+        line = line.replace('LABEL_HEIGHT',str(labelHeight))
+        line = line.replace('LABEL_WIDTH',str(labelWidth))
+        line = line.replace('LABEL_TEXT','Itrip')
+        line = line.replace('LABEL_NAME','allITrip')
+        line = line.replace('LABEL_Y_POS',str(y))
+        line = line.replace('LABEL_X_POS',str(x))
+        line = line.replace('FONT_STYLE',str(1))
+        line = line.replace('FONT_SIZE',str(9))
+        line = line.replace('BORDER',str(0))
+        screen.append(line)
+    x += labelWidth
+    #label for all V Max control
+    for line in label:
+        line = line.replace('LABEL_HEIGHT',str(labelHeight))
+        line = line.replace('LABEL_WIDTH',str(labelWidth))
+        line = line.replace('LABEL_TEXT','Vmax')
+        line = line.replace('LABEL_NAME','allVmax')
+        line = line.replace('LABEL_Y_POS',str(y))
+        line = line.replace('LABEL_X_POS',str(x))
+        line = line.replace('FONT_STYLE',str(1))
+        line = line.replace('FONT_SIZE',str(9))
+        line = line.replace('BORDER',str(0))
+        screen.append(line)
+    x += labelWidth
     #label for all ramp up control
     for line in label:
         line = line.replace('LABEL_HEIGHT',str(labelHeight))
@@ -1629,11 +1659,12 @@ for grp in groups:
         line = line.replace('LABEL_TEXT','RmpUp')
         line = line.replace('LABEL_NAME','allRmpUp')
         line = line.replace('LABEL_Y_POS',str(y))
-        line = line.replace('LABEL_X_POS',str(allRUpXLoc))
+        line = line.replace('LABEL_X_POS',str(x))
         line = line.replace('FONT_STYLE',str(1))
         line = line.replace('FONT_SIZE',str(9))
         line = line.replace('BORDER',str(0))
         screen.append(line)
+    x += labelWidth
     #label for all ramp down control
     for line in label:
         line = line.replace('LABEL_HEIGHT',str(labelHeight))
@@ -1641,37 +1672,63 @@ for grp in groups:
         line = line.replace('LABEL_TEXT','RmpDwn')
         line = line.replace('LABEL_NAME','allRmpDwn')
         line = line.replace('LABEL_Y_POS',str(y))
-        line = line.replace('LABEL_X_POS',str(allRDWnXLoc))
+        line = line.replace('LABEL_X_POS',str(x))
         line = line.replace('FONT_STYLE',str(1))
         line = line.replace('FONT_SIZE',str(9))
         line = line.replace('BORDER',str(0))
         screen.append(line)
+
+    x = x0+labelWidth
+    y = y+buttonHeight
     #control to turn all channels on
     for line in allONbutton:
         line = line.replace('WIDTH',str(buttonWidth))
         line = line.replace('HEIGHT',str(buttonHeight))
-        line = line.replace('X_POS',str(allOffXLoc))
-        line = line.replace('Y_POS',str(y+buttonHeight))
+        line = line.replace('X_POS',str(x))
+        line = line.replace('Y_POS',str(y))
         line = line.replace('DISPLAYPV','loc://fileName_'+fileName)
         screen.append(line)
+    x += labelWidth*5
+    #control to set all I trips
+    for line in allSetInput:
+        line = line.replace('WIDTH',str(buttonWidth))
+        line = line.replace('HEIGHT',str(buttonHeight))
+        line = line.replace('X_POS',str(x))
+        line = line.replace('Y_POS',str(y))
+        line = line.replace('DISPLAYPV','loc://fileName_'+fileName)
+        line = line.replace('PV_NAME','loc://allI0Set_'+fileName)
+        screen.append(line)
+    x += labelWidth
+    #control to set all V max
+    for line in allSetInput:
+        line = line.replace('WIDTH',str(buttonWidth))
+        line = line.replace('HEIGHT',str(buttonHeight))
+        line = line.replace('X_POS',str(x))
+        line = line.replace('Y_POS',str(y))
+        line = line.replace('DISPLAYPV','loc://fileName_'+fileName)
+        line = line.replace('PV_NAME','loc://allSVMax_'+fileName)
+        screen.append(line)
+    x += labelWidth
     #control to set all ramp up rates
     for line in allSetInput:
         line = line.replace('WIDTH',str(buttonWidth))
         line = line.replace('HEIGHT',str(buttonHeight))
-        line = line.replace('X_POS',str(allRUpXLoc))
-        line = line.replace('Y_POS',str(y+buttonHeight))
+        line = line.replace('X_POS',str(x))
+        line = line.replace('Y_POS',str(y))
         line = line.replace('DISPLAYPV','loc://fileName_'+fileName)
         line = line.replace('PV_NAME','loc://allRUp_'+fileName)
         screen.append(line)
+    x += labelWidth
     #control to set all ramp down rates
     for line in allSetInput:
         line = line.replace('WIDTH',str(buttonWidth))
         line = line.replace('HEIGHT',str(buttonHeight))
-        line = line.replace('X_POS',str(allRDWnXLoc))
-        line = line.replace('Y_POS',str(y+buttonHeight))
+        line = line.replace('X_POS',str(x))
+        line = line.replace('Y_POS',str(y))
         line = line.replace('DISPLAYPV','loc://fileName_'+fileName)
         line = line.replace('PV_NAME','loc://allRDWn_'+fileName)
         screen.append(line)
+
     #appends group vMon and iMon PVs to overall list.
     vMon.append(vMonHold)
     iMon.append(iMonHold)
@@ -1682,6 +1739,7 @@ for grp in groups:
     writeFile(outPath,fileName+'-list.opi',screen)
 
 #makes Histogram plots for individual detectors
+# makeHistoPlot function on line ~ 1031
 for i,item in enumerate(menuOptions):
     screen = makeHistoPlot(item[0],vMon[i],iMon[i],menuOptions)
     writeFile(outPath,item[1][:-9]+'-plot.opi',screen)
