@@ -162,7 +162,7 @@ textUpdate = [\
 '      <keep_wh_ratio>false</keep_wh_ratio>',\
 '    </scale_options>',\
 '    <scripts />',\
-'    <show_units>true</show_units>',\
+'    <show_units>false</show_units>',\
 '    <text>######</text>',\
 '    <tooltip>$(pv_name)',\
 '$(pv_value)</tooltip>',\
@@ -411,7 +411,7 @@ textInput = [\
 '    </scale_options>',\
 '    <scripts />',\
 '    <selector_type>0</selector_type>',\
-'    <show_units>true</show_units>',\
+'    <show_units>false</show_units>',\
 '    <style>0</style>',\
 '    <text></text>',\
 '    <tooltip>$(pv_name)',\
@@ -757,7 +757,7 @@ statusTextUpdate = [\
 '      <keep_wh_ratio>false</keep_wh_ratio>',\
 '    </scale_options>',\
 '    <scripts />',\
-'    <show_units>true</show_units>',\
+'    <show_units>false</show_units>',\
 '    <text>######</text>',\
 '    <tooltip>$(pv_name)',\
 '$(pv_value)</tooltip>',\
@@ -960,7 +960,7 @@ allSetInput = [\
 '      </path>',
 '    </scripts>',
 '    <selector_type>0</selector_type>',
-'    <show_units>true</show_units>',
+'    <show_units>false</show_units>',
 '    <style>0</style>',
 '    <text></text>',
 '    <tooltip>$(pv_name)',
