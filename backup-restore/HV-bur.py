@@ -212,8 +212,7 @@ elif sys.argv[1] == 'backup':
         inFile = item.replace(' ','-')+'-list.opi'
 
         #properties of each HV channel that will be backed up
-        props = ['V0Set','I0Set','SVMax','RUp','RDwn']
-
+        props = ['V0Set','I0Set','SVMax','RUp','RDWn']
 
         #Reads in input file and stores it as an array where each element is
         # a line in the file.
