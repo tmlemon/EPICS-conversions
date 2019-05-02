@@ -288,4 +288,4 @@ else:
 See CSS Console for more info.')
 
 dT = time.time() - startT
-print(dT)
+print('Execution time: '+str(round(dT,2))+' seconds')
