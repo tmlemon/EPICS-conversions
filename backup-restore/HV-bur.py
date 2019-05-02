@@ -99,7 +99,7 @@ if sys.argv[1] == 'restore':
     # Parses lines of backup file and extracts all PVs for a channel and the
     # value contained in the backup file. Also splits PVs and values into
     # sub-arrays of length "size" (variable from beginning).
-    props = ['V0Set','I0Set','SVMax','Rup','RDWn']
+    props = ['V0Set','I0Set','SVMax','RUp','RDWn']
     count = 0
     pvs,vals = [],[]
     pvsHold,valsHold = [],[]
