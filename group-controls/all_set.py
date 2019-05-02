@@ -2,6 +2,7 @@
 
 from org.csstudio.opibuilder.scriptUtil import PVUtil
 from org.csstudio.opibuilder.scriptUtil import ConsoleUtil
+import os
 
 #looks at host name to see if it development PC
 import socket
@@ -22,7 +23,9 @@ except:
 screen = str(PVUtil.getString(pvs[0]))
 
 if chg:
-    path = '/home/tlemon/CSS-Workspaces/dev/CSS/'
+    #path = '/home/tlemon/CSS-Workspaces/dev/CSS/'
+    path = os.getcwd()
+    if path[-1] != '/':	path += '/'
     inFile = path+screen+'-list.opi'
 
     with open(inFile,'r') as f:
