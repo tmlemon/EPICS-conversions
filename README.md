@@ -28,3 +28,6 @@ Programs are designed to run from Linux command line.
   - Converts .tcl files to CSS .opi files.
   - Script will output hv_map.py's files if ```-m``` option is added as first input argument.
   - Script is not universal; Parsing of files used to generate .tcl screens are based on Hall C HV screens.
+  
+- tcl2css_V2
+  - Scripts and GUIs that use Tcl/Tk config files (HV.hvc, HV.group) to generate screens as they are opened in CSS.
