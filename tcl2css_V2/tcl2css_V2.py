@@ -181,42 +181,43 @@ if change:
     lc.setPropertyValue('background_color',bkgColor)
     widget.addChild(lc)
 
-# pulls out group that matches toShow and creates table-format control screen.
-for grp in groups:
-    grpID,grpName = grp[:2]
-    channels = grp[2:]
-    display.setPropertyValue('height',len(channels)*25+2*x0)
-    if grpName == toShow:
-        #title label of screen
-        w = SU.WidgetUtil.createWidgetModel\
-            ("org.csstudio.opibuilder.widgets.Label")
-        w.setPropertyValue('border_style',0);
-        w.setPropertyValue('border_color',blk)
-        w.setPropertyValue('width',775)
-        w.setPropertyValue('height',widgetHeight*2)
-        w.setPropertyValue('x',25)
-        w.setPropertyValue('y',0)
-        w.setPropertyValue('text',toShow+' HV Controls')
-        w.setPropertyValue('font',titleFont)
-        w.setPropertyValue('foreground_color',white)
-        widget.addChild(w)
-        x = x0
-        y = y0
-        for channel in channels:
-            chID,crate,slot,ch = channel
-            pvBase = 'hchv'+crate+':'+slot.zfill(2)+':'+ch.zfill(3)+':'
-            putChLabel(x,y,chID) # channel ID label
-            putPowerButton(x+25+widgetWidth,y,pvBase+'Pw') #power button
-            putIndicator(x+25+2*widgetWidth,y,pvBase+'Status') # status indic.
-            putIndicator(x+25+3*widgetWidth,y,pvBase+'VMon')# voltage readback
-            putIndicator(x+25+4*widgetWidth,y,pvBase+'IMon')# current readback
-            putControl(x+25+5*widgetWidth,y,pvBase+'V0Set')# voltage set pt ctrl
-            putControl(x+25+6*widgetWidth,y,pvBase+'I0Set')# current set pt ctrl
-            putControl(x+25+7*widgetWidth,y,pvBase+'SVMax')# max voltage set pt
-            putControl(x+25+8*widgetWidth,y,pvBase+'RUp')# ramp up rate ctrl
-            putControl(x+25+9*widgetWidth,y,pvBase+'RDWn')# ramp down rate ctrl
-            y += widgetHeight
+    # pulls out group that matches toShow and creates table-format control
+    # screen.
+    for grp in groups:
+        grpID,grpName = grp[:2]
+        channels = grp[2:]
+        display.setPropertyValue('height',len(channels)*25+2*x0)
+        if grpName == toShow:
+            #title label of screen
+            w = SU.WidgetUtil.createWidgetModel\
+                ("org.csstudio.opibuilder.widgets.Label")
+            w.setPropertyValue('border_style',0);
+            w.setPropertyValue('border_color',blk)
+            w.setPropertyValue('width',775)
+            w.setPropertyValue('height',widgetHeight*2)
+            w.setPropertyValue('x',25)
+            w.setPropertyValue('y',0)
+            w.setPropertyValue('text',toShow+' HV Controls')
+            w.setPropertyValue('font',titleFont)
+            w.setPropertyValue('foreground_color',white)
+            widget.addChild(w)
+            x = x0
+            y = y0
+            for channel in channels:
+                chID,crate,slot,ch = channel
+                pvBase = 'hchv'+crate+':'+slot.zfill(2)+':'+ch.zfill(3)+':'
+                putChLabel(x,y,chID)
+                putPowerButton(x+25+widgetWidth,y,pvBase+'Pw')
+                putIndicator(x+25+2*widgetWidth,y,pvBase+'Status')
+                putIndicator(x+25+3*widgetWidth,y,pvBase+'VMon')
+                putIndicator(x+25+4*widgetWidth,y,pvBase+'IMon')
+                putControl(x+25+5*widgetWidth,y,pvBase+'V0Set')
+                putControl(x+25+6*widgetWidth,y,pvBase+'I0Set')
+                putControl(x+25+7*widgetWidth,y,pvBase+'SVMax')
+                putControl(x+25+8*widgetWidth,y,pvBase+'RUp')
+                putControl(x+25+9*widgetWidth,y,pvBase+'RDWn')
+                y += widgetHeight
 
 # saves toShow as last, used to check whether screen to display has changed on
-# next loop of progra,.
+# next loop of program.
 last = toShow
