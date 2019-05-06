@@ -240,10 +240,10 @@ go = (PVUtil.getDouble(pvs[0]) == 1)
 
 
 #path containing CSS OPI files and to save backup to.
-burpyPath = '/home/tlemon/CSS-Workspaces/dev/CSS/'
+burpyPath = '/home/tlemon/CSS-Workspaces/clas12-epics/CSS/'
 restTarget = PVUtil.getString(pvs[2])
 
-cmd = ['python',burpyPath+'HV-bur.py','restore',burpyPath]
+cmd = ['python',burpyPath+'HV-bur_v2.py','restore',burpyPath]
 
 if restTarget != '':
     cmd.append(str(restTarget))
@@ -273,61 +273,6 @@ $(pv_value)</tooltip>
     <x>39</x>
     <y>84</y>
   </widget>
-  <widget typeId="org.csstudio.opibuilder.widgets.ActionButton" version="2.0.0">
-    <actions hook="false" hook_all="false">
-      <action type="OPEN_DISPLAY">
-        <path>restore-browser.opi</path>
-        <macros>
-          <include_parent_macros>true</include_parent_macros>
-        </macros>
-        <mode>6</mode>
-        <description></description>
-      </action>
-    </actions>
-    <alarm_pulsing>false</alarm_pulsing>
-    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
-    <background_color>
-      <color red="240" green="240" blue="240" />
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-    <border_color>
-      <color red="0" green="128" blue="255" />
-    </border_color>
-    <border_style>0</border_style>
-    <border_width>1</border_width>
-    <enabled>true</enabled>
-    <font>
-      <fontdata fontName="Cantarell" height="9" style="0" pixels="false" />
-    </font>
-    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
-    <foreground_color>
-      <color red="0" green="0" blue="0" />
-    </foreground_color>
-    <height>28</height>
-    <image></image>
-    <name>Action Button</name>
-    <push_action_index>0</push_action_index>
-    <pv_name></pv_name>
-    <pv_value />
-    <rules />
-    <scale_options>
-      <width_scalable>true</width_scalable>
-      <height_scalable>true</height_scalable>
-      <keep_wh_ratio>false</keep_wh_ratio>
-    </scale_options>
-    <scripts />
-    <style>0</style>
-    <text>Browse</text>
-    <toggle_button>false</toggle_button>
-    <tooltip>$(pv_name)
-$(pv_value)</tooltip>
-    <visible>true</visible>
-    <widget_type>Action Button</widget_type>
-    <width>52</width>
-    <wuid>-1403108a:16a31f3215a:-7d5b</wuid>
-    <x>390</x>
-    <y>44</y>
-  </widget>
   <widget typeId="org.csstudio.opibuilder.widgets.TextInput" version="2.0.0">
     <actions hook="false" hook_all="false" />
     <alarm_pulsing>false</alarm_pulsing>
@@ -344,14 +289,16 @@ $(pv_value)</tooltip>
     <border_width>1</border_width>
     <confirm_message></confirm_message>
     <enabled>true</enabled>
+    <file_return_part>1</file_return_part>
+    <file_source>1</file_source>
     <font>
-      <opifont.name fontName="Cantarell" height="11" style="0" pixels="false">Default</opifont.name>
+      <fontdata fontName="Cantarell" height="10" style="0" pixels="false" />
     </font>
     <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
-    <format_type>0</format_type>
+    <format_type>4</format_type>
     <height>25</height>
     <horizontal_alignment>0</horizontal_alignment>
     <limits_from_pv>false</limits_from_pv>
@@ -371,8 +318,8 @@ $(pv_value)</tooltip>
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <scripts />
-    <selector_type>0</selector_type>
-    <show_units>true</show_units>
+    <selector_type>1</selector_type>
+    <show_units>false</show_units>
     <style>0</style>
     <text></text>
     <tooltip>$(pv_name)
@@ -380,7 +327,7 @@ $(pv_value)</tooltip>
     <transparent>false</transparent>
     <visible>true</visible>
     <widget_type>Text Input</widget_type>
-    <width>250</width>
+    <width>307</width>
     <wuid>44e6502f:16a2b968b35:-7fd4</wuid>
     <x>135</x>
     <y>47</y>
@@ -438,7 +385,7 @@ $(pv_value)</tooltip>
     <border_width>1</border_width>
     <enabled>true</enabled>
     <font>
-      <fontdata fontName="Cantarell" height="8" style="0" pixels="false" />
+      <fontdata fontName="Cantarell" height="9" style="0" pixels="false" />
     </font>
     <foreground_color>
       <color red="0" green="0" blue="0" />
@@ -469,7 +416,7 @@ $(pv_value)</tooltip>
     <width>250</width>
     <wrap_words>false</wrap_words>
     <wuid>44e6502f:16a2b968b35:-7fd2</wuid>
-    <x>135</x>
+    <x>156</x>
     <y>50</y>
   </widget>
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">

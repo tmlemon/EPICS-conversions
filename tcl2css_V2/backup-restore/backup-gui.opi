@@ -19,7 +19,7 @@
   <macros>
     <include_parent_macros>true</include_parent_macros>
   </macros>
-  <name>restore-gui.opi</name>
+  <name>backup-gui.opi</name>
   <rules />
   <scripts />
   <show_close_button>true</show_close_button>
@@ -32,15 +32,12 @@
   <wuid>-7e0a5a83:169e9d6cf46:-8000</wuid>
   <x>-1</x>
   <y>-1</y>
-  <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
     <actions hook="false" hook_all="false" />
-    <alarm_pulsing>false</alarm_pulsing>
     <auto_size>false</auto_size>
-    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
     <background_color>
       <color red="255" green="255" blue="255" />
     </background_color>
-    <border_alarm_sensitive>true</border_alarm_sensitive>
     <border_color>
       <color red="0" green="128" blue="255" />
     </border_color>
@@ -50,19 +47,12 @@
     <font>
       <opifont.name fontName="Cantarell" height="11" style="0" pixels="false">Default</opifont.name>
     </font>
-    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
     <foreground_color>
       <color red="0" green="0" blue="0" />
     </foreground_color>
-    <format_type>0</format_type>
     <height>20</height>
-    <horizontal_alignment>0</horizontal_alignment>
-    <name>Text Update_1</name>
-    <precision>0</precision>
-    <precision_from_pv>true</precision_from_pv>
-    <pv_name>loc://null("null")</pv_name>
-    <pv_value />
-    <rotation_angle>0.0</rotation_angle>
+    <horizontal_alignment>1</horizontal_alignment>
+    <name>screen-dimension-ref</name>
     <rules />
     <scale_options>
       <width_scalable>true</width_scalable>
@@ -70,19 +60,17 @@
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <scripts />
-    <show_units>true</show_units>
-    <text>######</text>
-    <tooltip>$(pv_name)
-$(pv_value)</tooltip>
-    <transparent>false</transparent>
+    <text>230x450</text>
+    <tooltip></tooltip>
+    <transparent>true</transparent>
     <vertical_alignment>1</vertical_alignment>
     <visible>true</visible>
-    <widget_type>Text Update</widget_type>
-    <width>100</width>
+    <widget_type>Label</widget_type>
+    <width>80</width>
     <wrap_words>false</wrap_words>
-    <wuid>-1403108a:16a31f3215a:-7d27</wuid>
-    <x>33</x>
-    <y>91</y>
+    <wuid>-7e0a5a83:169e9d6cf46:-4fa9</wuid>
+    <x>39</x>
+    <y>28</y>
   </widget>
   <widget typeId="org.csstudio.opibuilder.widgets.Rectangle" version="1.0.0">
     <actions hook="false" hook_all="false" />
@@ -98,7 +86,7 @@ $(pv_value)</tooltip>
     </bg_gradient_color>
     <border_alarm_sensitive>false</border_alarm_sensitive>
     <border_color>
-      <color red="255" green="128" blue="0" />
+      <color red="255" green="255" blue="0" />
     </border_color>
     <border_style>1</border_style>
     <border_width>3</border_width>
@@ -122,7 +110,7 @@ $(pv_value)</tooltip>
     </line_color>
     <line_style>0</line_style>
     <line_width>0</line_width>
-    <name>Rectangle_1</name>
+    <name>Rectangle</name>
     <pv_name></pv_name>
     <pv_value />
     <rules />
@@ -138,7 +126,7 @@ $(pv_value)</tooltip>
     <visible>true</visible>
     <widget_type>Rectangle</widget_type>
     <width>433</width>
-    <wuid>44e6502f:16a2b968b35:-7f5e</wuid>
+    <wuid>-7e0a5a83:169e9d6cf46:-629f</wuid>
     <x>24</x>
     <y>7</y>
   </widget>
@@ -158,9 +146,9 @@ $(pv_value)</tooltip>
       <fontdata fontName="Cantarell" height="16" style="1" pixels="false" />
     </font>
     <foreground_color>
-      <color red="255" green="128" blue="0" />
+      <color red="255" green="255" blue="0" />
     </foreground_color>
-    <height>32</height>
+    <height>30</height>
     <horizontal_alignment>1</horizontal_alignment>
     <name>Label</name>
     <rules />
@@ -170,7 +158,7 @@ $(pv_value)</tooltip>
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <scripts />
-    <text>Restore</text>
+    <text>Backup</text>
     <tooltip></tooltip>
     <transparent>true</transparent>
     <vertical_alignment>1</vertical_alignment>
@@ -192,7 +180,7 @@ $(pv_value)</tooltip>
     <bit>-1</bit>
     <border_alarm_sensitive>false</border_alarm_sensitive>
     <border_color>
-      <color red="255" green="128" blue="0" />
+      <color red="255" green="255" blue="0" />
     </border_color>
     <border_style>1</border_style>
     <border_width>2</border_width>
@@ -213,14 +201,14 @@ $(pv_value)</tooltip>
     <off_color>
       <color red="0" green="100" blue="0" />
     </off_color>
-    <off_label>Run Restore</off_label>
+    <off_label>Run Backup</off_label>
     <on_color>
       <color red="0" green="255" blue="0" />
     </on_color>
-    <on_label>Run Restore</on_label>
+    <on_label>Run Backup</on_label>
     <password></password>
     <push_action_index>0</push_action_index>
-    <pv_name>loc://executeRestore(0)</pv_name>
+    <pv_name>loc://executeBackup3(0)</pv_name>
     <pv_value />
     <released_action_index>0</released_action_index>
     <rules />
@@ -231,7 +219,7 @@ $(pv_value)</tooltip>
     </scale_options>
     <scripts>
       <path pathString="EmbeddedPy" checkConnect="true" sfe="false" seoe="false">
-        <scriptName>execute-restore</scriptName>
+        <scriptName>exec-burpy</scriptName>
         <scriptText><![CDATA[from org.csstudio.opibuilder.scriptUtil import PVUtil
 import subprocess
 
@@ -240,23 +228,21 @@ go = (PVUtil.getDouble(pvs[0]) == 1)
 
 
 #path containing CSS OPI files and to save backup to.
-burpyPath = '/home/tlemon/CSS-Workspaces/dev/CSS/'
-restTarget = PVUtil.getString(pvs[2])
+burpyPath = '/home/tlemon/CSS-Workspaces/clas12-epics/CSS/'
+comments = PVUtil.getString(pvs[2])
 
-cmd = ['python',burpyPath+'HV-bur.py','restore',burpyPath]
+cmd = ['python',burpyPath+'HV-bur_v2.py','backup',burpyPath]
 
-if restTarget != '':
-    cmd.append(str(restTarget))
-else:
-    cmd.append('LATEST')
+if comments != '':
+    cmd.append('"'+comments+'"')
 
 if go:
     debugMsg.setValue('')
     res = subprocess.check_output(cmd)
     debugMsg.setValue(res.strip())]]></scriptText>
         <pv trig="true">$(pv_name)</pv>
-        <pv trig="false">loc://restoreDebugOut</pv>
-        <pv trig="false">loc://system2restore</pv>
+        <pv trig="false">loc://backupDebugOut</pv>
+        <pv trig="false">loc://comments</pv>
       </path>
     </scripts>
     <show_boolean_label>true</show_boolean_label>
@@ -264,7 +250,7 @@ if go:
     <show_led>false</show_led>
     <square_button>true</square_button>
     <toggle_button>false</toggle_button>
-    <tooltip>
+    <tooltip>$(pv_name)
 $(pv_value)</tooltip>
     <visible>true</visible>
     <widget_type>Boolean Button</widget_type>
@@ -273,97 +259,30 @@ $(pv_value)</tooltip>
     <x>39</x>
     <y>84</y>
   </widget>
-  <widget typeId="org.csstudio.opibuilder.widgets.ActionButton" version="2.0.0">
-    <actions hook="false" hook_all="false">
-      <action type="OPEN_DISPLAY">
-        <path>restore-browser.opi</path>
-        <macros>
-          <include_parent_macros>true</include_parent_macros>
-        </macros>
-        <mode>6</mode>
-        <description></description>
-      </action>
-    </actions>
-    <alarm_pulsing>false</alarm_pulsing>
-    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
+  <widget typeId="org.csstudio.opibuilder.widgets.groupingContainer" version="1.0.0">
+    <actions hook="false" hook_all="false" />
     <background_color>
       <color red="240" green="240" blue="240" />
     </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
     <border_color>
       <color red="0" green="128" blue="255" />
     </border_color>
     <border_style>0</border_style>
     <border_width>1</border_width>
     <enabled>true</enabled>
-    <font>
-      <fontdata fontName="Cantarell" height="9" style="0" pixels="false" />
-    </font>
-    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
-    <foreground_color>
-      <color red="0" green="0" blue="0" />
-    </foreground_color>
-    <height>28</height>
-    <image></image>
-    <name>Action Button</name>
-    <push_action_index>0</push_action_index>
-    <pv_name></pv_name>
-    <pv_value />
-    <rules />
-    <scale_options>
-      <width_scalable>true</width_scalable>
-      <height_scalable>true</height_scalable>
-      <keep_wh_ratio>false</keep_wh_ratio>
-    </scale_options>
-    <scripts />
-    <style>0</style>
-    <text>Browse</text>
-    <toggle_button>false</toggle_button>
-    <tooltip>$(pv_name)
-$(pv_value)</tooltip>
-    <visible>true</visible>
-    <widget_type>Action Button</widget_type>
-    <width>52</width>
-    <wuid>-1403108a:16a31f3215a:-7d5b</wuid>
-    <x>390</x>
-    <y>44</y>
-  </widget>
-  <widget typeId="org.csstudio.opibuilder.widgets.TextInput" version="2.0.0">
-    <actions hook="false" hook_all="false" />
-    <alarm_pulsing>false</alarm_pulsing>
-    <auto_size>false</auto_size>
-    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
-    <background_color>
-      <color red="255" green="255" blue="255" />
-    </background_color>
-    <border_alarm_sensitive>false</border_alarm_sensitive>
-    <border_color>
-      <color red="0" green="128" blue="255" />
-    </border_color>
-    <border_style>3</border_style>
-    <border_width>1</border_width>
-    <confirm_message></confirm_message>
-    <enabled>true</enabled>
+    <fc>false</fc>
     <font>
       <opifont.name fontName="Cantarell" height="11" style="0" pixels="false">Default</opifont.name>
     </font>
-    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
     <foreground_color>
-      <color red="0" green="0" blue="0" />
+      <color red="192" green="192" blue="192" />
     </foreground_color>
-    <format_type>0</format_type>
     <height>25</height>
-    <horizontal_alignment>0</horizontal_alignment>
-    <limits_from_pv>false</limits_from_pv>
-    <maximum>1.7976931348623157E308</maximum>
-    <minimum>-1.7976931348623157E308</minimum>
-    <multiline_input>false</multiline_input>
-    <name>Text Input</name>
-    <precision>0</precision>
-    <precision_from_pv>true</precision_from_pv>
-    <pv_name>loc://system2restore("")</pv_name>
-    <pv_value />
-    <rotation_angle>0.0</rotation_angle>
+    <lock_children>true</lock_children>
+    <macros>
+      <include_parent_macros>true</include_parent_macros>
+    </macros>
+    <name>Grouping Container</name>
     <rules />
     <scale_options>
       <width_scalable>true</width_scalable>
@@ -371,106 +290,159 @@ $(pv_value)</tooltip>
       <keep_wh_ratio>false</keep_wh_ratio>
     </scale_options>
     <scripts />
-    <selector_type>0</selector_type>
-    <show_units>true</show_units>
-    <style>0</style>
-    <text></text>
-    <tooltip>$(pv_name)
-$(pv_value)</tooltip>
-    <transparent>false</transparent>
-    <visible>true</visible>
-    <widget_type>Text Input</widget_type>
-    <width>250</width>
-    <wuid>44e6502f:16a2b968b35:-7fd4</wuid>
-    <x>135</x>
-    <y>47</y>
-  </widget>
-  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
-    <actions hook="false" hook_all="false" />
-    <auto_size>false</auto_size>
-    <background_color>
-      <color red="255" green="255" blue="255" />
-    </background_color>
-    <border_color>
-      <color red="0" green="128" blue="255" />
-    </border_color>
-    <border_style>0</border_style>
-    <border_width>1</border_width>
-    <enabled>true</enabled>
-    <font>
-      <fontdata fontName="Cantarell" height="11" style="1" pixels="false" />
-    </font>
-    <foreground_color>
-      <color red="255" green="255" blue="255" />
-    </foreground_color>
-    <height>20</height>
-    <horizontal_alignment>2</horizontal_alignment>
-    <name>Label_2</name>
-    <rules />
-    <scale_options>
-      <width_scalable>true</width_scalable>
-      <height_scalable>true</height_scalable>
-      <keep_wh_ratio>false</keep_wh_ratio>
-    </scale_options>
-    <scripts />
-    <text>Backup File:</text>
+    <show_scrollbar>false</show_scrollbar>
     <tooltip></tooltip>
     <transparent>true</transparent>
-    <vertical_alignment>1</vertical_alignment>
     <visible>true</visible>
-    <widget_type>Label</widget_type>
-    <width>88</width>
-    <wrap_words>false</wrap_words>
-    <wuid>44e6502f:16a2b968b35:-7fd3</wuid>
+    <widget_type>Grouping Container</widget_type>
+    <width>403</width>
+    <wuid>79baf520:16a21206e91:-7f37</wuid>
     <x>39</x>
-    <y>50</y>
-  </widget>
-  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
-    <actions hook="false" hook_all="false" />
-    <auto_size>false</auto_size>
-    <background_color>
-      <color red="255" green="255" blue="255" />
-    </background_color>
-    <border_color>
-      <color red="0" green="128" blue="255" />
-    </border_color>
-    <border_style>0</border_style>
-    <border_width>1</border_width>
-    <enabled>true</enabled>
-    <font>
-      <fontdata fontName="Cantarell" height="8" style="0" pixels="false" />
-    </font>
-    <foreground_color>
-      <color red="0" green="0" blue="0" />
-    </foreground_color>
-    <height>20</height>
-    <horizontal_alignment>1</horizontal_alignment>
-    <name>Label_4</name>
-    <rules>
-      <rule name="visible" prop_id="visible" out_exp="false">
-        <exp bool_exp="PVUtil.getString(pvs[0]) != &quot;&quot;">
-          <value>false</value>
-        </exp>
-        <pv trig="true">loc://system2restore</pv>
-      </rule>
-    </rules>
-    <scale_options>
-      <width_scalable>true</width_scalable>
-      <height_scalable>true</height_scalable>
-      <keep_wh_ratio>false</keep_wh_ratio>
-    </scale_options>
-    <scripts />
-    <text>Enter Backup File or Leave Blank to Use Latest</text>
-    <tooltip></tooltip>
-    <transparent>true</transparent>
-    <vertical_alignment>1</vertical_alignment>
-    <visible>true</visible>
-    <widget_type>Label</widget_type>
-    <width>250</width>
-    <wrap_words>false</wrap_words>
-    <wuid>44e6502f:16a2b968b35:-7fd2</wuid>
-    <x>135</x>
-    <y>50</y>
+    <y>47</y>
+    <widget typeId="org.csstudio.opibuilder.widgets.TextInput" version="2.0.0">
+      <actions hook="false" hook_all="false" />
+      <alarm_pulsing>false</alarm_pulsing>
+      <auto_size>false</auto_size>
+      <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
+      <background_color>
+        <color red="255" green="255" blue="255" />
+      </background_color>
+      <border_alarm_sensitive>false</border_alarm_sensitive>
+      <border_color>
+        <color red="0" green="128" blue="255" />
+      </border_color>
+      <border_style>3</border_style>
+      <border_width>1</border_width>
+      <confirm_message></confirm_message>
+      <enabled>true</enabled>
+      <font>
+        <opifont.name fontName="Cantarell" height="11" style="0" pixels="false">Default</opifont.name>
+      </font>
+      <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
+      <foreground_color>
+        <color red="0" green="0" blue="0" />
+      </foreground_color>
+      <format_type>0</format_type>
+      <height>25</height>
+      <horizontal_alignment>0</horizontal_alignment>
+      <limits_from_pv>false</limits_from_pv>
+      <maximum>1.7976931348623157E308</maximum>
+      <minimum>-1.7976931348623157E308</minimum>
+      <multiline_input>false</multiline_input>
+      <name>Text Input</name>
+      <precision>0</precision>
+      <precision_from_pv>true</precision_from_pv>
+      <pv_name>loc://comments("")</pv_name>
+      <pv_value />
+      <rotation_angle>0.0</rotation_angle>
+      <rules />
+      <scale_options>
+        <width_scalable>true</width_scalable>
+        <height_scalable>true</height_scalable>
+        <keep_wh_ratio>false</keep_wh_ratio>
+      </scale_options>
+      <scripts />
+      <selector_type>0</selector_type>
+      <show_units>true</show_units>
+      <style>0</style>
+      <text></text>
+      <tooltip>$(pv_name)
+$(pv_value)</tooltip>
+      <transparent>false</transparent>
+      <visible>true</visible>
+      <widget_type>Text Input</widget_type>
+      <width>304</width>
+      <wuid>-7e0a5a83:169e9d6cf46:-64ba</wuid>
+      <x>99</x>
+      <y>0</y>
+    </widget>
+    <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+      <actions hook="false" hook_all="false" />
+      <auto_size>false</auto_size>
+      <background_color>
+        <color red="255" green="255" blue="255" />
+      </background_color>
+      <border_color>
+        <color red="0" green="128" blue="255" />
+      </border_color>
+      <border_style>0</border_style>
+      <border_width>1</border_width>
+      <enabled>true</enabled>
+      <font>
+        <fontdata fontName="Cantarell" height="11" style="1" pixels="false" />
+      </font>
+      <foreground_color>
+        <color red="255" green="255" blue="255" />
+      </foreground_color>
+      <height>20</height>
+      <horizontal_alignment>2</horizontal_alignment>
+      <name>Label_2</name>
+      <rules />
+      <scale_options>
+        <width_scalable>true</width_scalable>
+        <height_scalable>true</height_scalable>
+        <keep_wh_ratio>false</keep_wh_ratio>
+      </scale_options>
+      <scripts />
+      <text>Comments:</text>
+      <tooltip></tooltip>
+      <transparent>true</transparent>
+      <vertical_alignment>1</vertical_alignment>
+      <visible>true</visible>
+      <widget_type>Label</widget_type>
+      <width>88</width>
+      <wrap_words>false</wrap_words>
+      <wuid>-7e0a5a83:169e9d6cf46:-64b6</wuid>
+      <x>0</x>
+      <y>0</y>
+    </widget>
+    <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+      <actions hook="false" hook_all="false" />
+      <auto_size>false</auto_size>
+      <background_color>
+        <color red="255" green="255" blue="255" />
+      </background_color>
+      <border_color>
+        <color red="0" green="128" blue="255" />
+      </border_color>
+      <border_style>0</border_style>
+      <border_width>1</border_width>
+      <enabled>true</enabled>
+      <font>
+        <opifont.name fontName="Cantarell" height="11" style="0" pixels="false">Default</opifont.name>
+      </font>
+      <foreground_color>
+        <color red="0" green="0" blue="0" />
+      </foreground_color>
+      <height>20</height>
+      <horizontal_alignment>1</horizontal_alignment>
+      <name>Label_4</name>
+      <rules>
+        <rule name="visible" prop_id="visible" out_exp="false">
+          <exp bool_exp="PVUtil.getString(pvs[0]) != &quot;&quot;">
+            <value>false</value>
+          </exp>
+          <pv trig="true">loc://comments</pv>
+        </rule>
+      </rules>
+      <scale_options>
+        <width_scalable>true</width_scalable>
+        <height_scalable>true</height_scalable>
+        <keep_wh_ratio>false</keep_wh_ratio>
+      </scale_options>
+      <scripts />
+      <text>Enter Comments</text>
+      <tooltip></tooltip>
+      <transparent>true</transparent>
+      <vertical_alignment>1</vertical_alignment>
+      <visible>true</visible>
+      <widget_type>Label</widget_type>
+      <width>178</width>
+      <wrap_words>false</wrap_words>
+      <wuid>-6c2c82d8:16a0c601ff2:-7c57</wuid>
+      <x>162</x>
+      <y>3</y>
+    </widget>
   </widget>
   <widget typeId="org.csstudio.opibuilder.widgets.TextUpdate" version="1.0.0">
     <actions hook="false" hook_all="false" />
@@ -495,12 +467,12 @@ $(pv_value)</tooltip>
       <color red="0" green="255" blue="0" />
     </foreground_color>
     <format_type>0</format_type>
-    <height>95</height>
+    <height>103</height>
     <horizontal_alignment>1</horizontal_alignment>
     <name>Text Update</name>
     <precision>0</precision>
     <precision_from_pv>true</precision_from_pv>
-    <pv_name>loc://restoreDebugOut("")</pv_name>
+    <pv_name>loc://backupDebugOut("")</pv_name>
     <pv_value />
     <rotation_angle>0.0</rotation_angle>
     <rules>
@@ -527,16 +499,16 @@ $(pv_value)</tooltip>
     <scripts />
     <show_units>true</show_units>
     <text>######</text>
-    <tooltip>
+    <tooltip>$(pv_name)
 $(pv_value)</tooltip>
     <transparent>false</transparent>
     <vertical_alignment>1</vertical_alignment>
     <visible>true</visible>
     <widget_type>Text Update</widget_type>
-    <width>412</width>
+    <width>415</width>
     <wrap_words>true</wrap_words>
     <wuid>7c422627:169fd838d00:-7c15</wuid>
-    <x>35</x>
-    <y>16</y>
+    <x>33</x>
+    <y>12</y>
   </widget>
 </display>

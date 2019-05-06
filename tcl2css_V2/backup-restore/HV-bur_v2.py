@@ -140,18 +140,7 @@ if sys.argv[1] == 'restore':
 
 # START OF CASE FOR BACKUP FUNCTIONALITY
 elif sys.argv[1] == 'backup':
-    #group mapping from old Tcl/Tk system
-    groups = ['1','2','3','4','5','7','8','9','11','12','13','14','15','16',\
-        '17','18','19','20','21','22','10']
-    systems = ['HMS Hodo 1 X','HMS Hodo 1 Y','HMS Hodo 2 X','HMS Hodo 2 Y',\
-        'HMS Drift Chambers','HMS Shower Counter A','HMS Shower Counter B',\
-        'HMS Cherenkov and Aerogel','SHMS Hodo 1 X','SHMS Hodo 1 Y',\
-        'SHMS Hodo 2 X','SHMS Hodo 2 Y','SHMS HGC','SHMS NGC','SHMS Aerogel',\
-        'SHMS Preshower','SHMS Shower A','SHMS Shower B','SHMS Shower C',\
-        'SHMS Shower D','SHMS Drift Chambers']
-
-
-    #Checks whether user input a comment.
+       #Checks whether user input a comment.
     if len(sys.argv) >= 4: comment = sys.argv[3]
     else: comment = ''
 
@@ -190,84 +179,72 @@ elif sys.argv[1] == 'backup':
             prevSav.append(item)
     if len(prevSav) != 0:
         refFile = sorted(prevSav)[-1]
+        sep = '\t'
     else:
-        refFile = 'chID_reference.txt'
+        refFile = 'HV.hvc'
+        sep = ' '
 
-    with open(path+refFile,'r') as f:    chids = f.readlines()
-    ids,maps,groupsTest = [],[],[]
-    for item in chids:
-        if item.strip()[0] != '#':
-            ids.append(item.split('\t')[0])
-            maps.append('\t'.join(item.split('\t')[1:4]).strip())
-            groupsTest.append(item.split('\t')[1])
-    groupsTest = list(set(groupsTest))
+    groups,systems = [],[]
+    with open(path+'HV.group','r') as f:
+        for line in f.readlines():
+            spectrometer = line.strip().split(' ')[1]
+            groups.append(line.strip().split(' ')[0])
+            systems.append([' '.join(line.strip().split(' ')[1:])])
+
+
+    with open(path+refFile,'r') as f:    refData = f.readlines()
+
+
+    for item in refData:
+        if len(item.strip()) > 0:
+            if item.strip()[0] != '#':
+                chID = item.strip().split(sep)[0]
+                cr,sl,ch,gr = item.strip().split(sep)[1:5]
+                sysI = groups.index(gr)
+                systems[sysI].append([chID,[cr,sl,ch,gr]])
+
 
     # Creates header for backup file
     date = str(datetime.now())[:str(datetime.now()).find('.')]
     bu = ['# Hall C HV Backup','# Backup created:\t'+date,'# Comment:\t'\
         +comment,'#']
+
     refLog = []
     for item in systems:
-        group = groups[systems.index(item)]
-        inFile = item.replace(' ','-')+'-list.opi'
-
+        detector = item[0]
+        pvs = item[1:]
         #properties of each HV channel that will be backed up
         props = ['V0Set','I0Set','SVMax','RUp','RDWn']
-
-        #Reads in input file and stores it as an array where each element is
-        # a line in the file.
-        with open(path+inFile,'r') as f: data = f.readlines()
-
-        # reads data from input file and extracts PVs in file.
-        # Output of code section (pvs) is an array of PV prefixes for each
-        # HV channel (ex. hchv2:00:000:)
-        pvs = []
-        for item in data:
-            item = item.strip()
-            if item[:9] == '<pv_name>' and item[-10:] == '</pv_name>':
-                pv  = item.split('<pv_name>')[1].split('</pv_name>')[0]
-                if pv != '' and 'loc://' not in pv:
-                    if pv.split(':')[3] in props:
-                        pvs.append(':'.join(pv.split(':')[:3]))
-        pvs = list(set(pvs))
-
-        # Uses pv list and properties to generate list of all pvs that
-        # need backing up. Result of code section (buList) is a 2D list
-        # where each element is a list of a channel's properties PVs
-        # that need backing up.
-        count = 1
         buList = []
+        count = 1
         for pv in pvs:
-            hold = [pv[4:].split(':')]
+            channelID = pv[0]
+            cr,sl,ch,gr = pv[1]
+            hold = [channelID+'\t'+cr+'\t'+sl+'\t'+ch+'\t'+gr+'\t']
             for prop in props:
                 if dev:
                     hold.append('devIOC:ai'+str(count))
                 else:
-                    hold.append(pv+':'+prop)
+                    hold.append('hchv'+cr+':'+sl.zfill(2)+':'+ch.zfill(3)\
+                        +':'+prop)
                 count += 1
             buList.append(hold)
 
-        # title of backup file.
-        title = inFile.split('/')[-1].replace('-',' ')[:inFile.find\
-                ('-list.opi')]
-
         # Creates header for each detector group.
-        bu.append('# Detector: '+title)
+        bu.append('# Detector: '+detector)
         bu.append('# chid\tcrate\tslot\tchannel\tgroup\tV0Set\tI0Set\tSVMax\t\
 RUp\tRDwn')
 
         # performs caget_many function for every list element of buList
-        count = 0
         for pv in buList:
-            ch = '\t'.join(map(str,map(int,pv[0])))
-            chid = ids[maps.index(ch)]
-            line = chid+'\t'+ch+'\t'+group+'\t'
+            data = pv[1:]
+            line = pv[0]
             refLog.append(line.strip())
             res = epics.caget_many(pv[1:],as_string=True)
             line += '\t'.join(res)
             bu.append(line.strip())
-
         bu.append('#')
+
 
     #writes data to a text file (file extension .sav can be changed to fit user
     # preferences).

@@ -1,0 +1,628 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<display typeId="org.csstudio.opibuilder.Display" version="1.0.0">
+  <actions hook="false" hook_all="false" />
+  <auto_scale_widgets>
+    <auto_scale_widgets>false</auto_scale_widgets>
+    <min_width>-1</min_width>
+    <min_height>-1</min_height>
+  </auto_scale_widgets>
+  <auto_zoom_to_fit_all>false</auto_zoom_to_fit_all>
+  <background_color>
+    <color red="77" green="77" blue="77" />
+  </background_color>
+  <boy_version>5.1.0.201707071649</boy_version>
+  <foreground_color>
+    <color red="192" green="192" blue="192" />
+  </foreground_color>
+  <grid_space>5</grid_space>
+  <height>600</height>
+  <macros>
+    <include_parent_macros>true</include_parent_macros>
+  </macros>
+  <name></name>
+  <rules />
+  <scripts />
+  <show_close_button>true</show_close_button>
+  <show_edit_range>true</show_edit_range>
+  <show_grid>true</show_grid>
+  <show_ruler>true</show_ruler>
+  <snap_to_geometry>true</snap_to_geometry>
+  <widget_type>Display</widget_type>
+  <width>800</width>
+  <wuid>578949c:16a7ddef660:-7f91</wuid>
+  <x>-1</x>
+  <y>-1</y>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <auto_size>false</auto_size>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <border_color>
+      <color red="0" green="0" blue="0" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <font>
+      <fontdata fontName="Cantarell" height="11" style="1" pixels="false" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <height>20</height>
+    <horizontal_alignment>1</horizontal_alignment>
+    <name>Label</name>
+    <rules />
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <text>Channel ID</text>
+    <tooltip></tooltip>
+    <transparent>true</transparent>
+    <vertical_alignment>1</vertical_alignment>
+    <visible>true</visible>
+    <widget_type>Label</widget_type>
+    <width>100</width>
+    <wrap_words>false</wrap_words>
+    <wuid>578949c:16a7ddef660:-43e2</wuid>
+    <x>25</x>
+    <y>50</y>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <auto_size>false</auto_size>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <border_color>
+      <color red="0" green="0" blue="0" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <font>
+      <fontdata fontName="Cantarell" height="11" style="1" pixels="false" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <height>20</height>
+    <horizontal_alignment>1</horizontal_alignment>
+    <name>Label_1</name>
+    <rules />
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <text>Power</text>
+    <tooltip></tooltip>
+    <transparent>true</transparent>
+    <vertical_alignment>1</vertical_alignment>
+    <visible>true</visible>
+    <widget_type>Label</widget_type>
+    <width>75</width>
+    <wrap_words>false</wrap_words>
+    <wuid>578949c:16a7ddef660:-439d</wuid>
+    <x>125</x>
+    <y>50</y>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <auto_size>false</auto_size>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <border_color>
+      <color red="0" green="0" blue="0" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <font>
+      <fontdata fontName="Cantarell" height="11" style="1" pixels="false" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <height>20</height>
+    <horizontal_alignment>1</horizontal_alignment>
+    <name>Label_2</name>
+    <rules />
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <text>Status</text>
+    <tooltip></tooltip>
+    <transparent>true</transparent>
+    <vertical_alignment>1</vertical_alignment>
+    <visible>true</visible>
+    <widget_type>Label</widget_type>
+    <width>75</width>
+    <wrap_words>false</wrap_words>
+    <wuid>578949c:16a7ddef660:-4399</wuid>
+    <x>200</x>
+    <y>50</y>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <auto_size>false</auto_size>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <border_color>
+      <color red="0" green="0" blue="0" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <font>
+      <fontdata fontName="Cantarell" height="11" style="1" pixels="false" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <height>20</height>
+    <horizontal_alignment>1</horizontal_alignment>
+    <name>Label_3</name>
+    <rules />
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <text>VMon</text>
+    <tooltip></tooltip>
+    <transparent>true</transparent>
+    <vertical_alignment>1</vertical_alignment>
+    <visible>true</visible>
+    <widget_type>Label</widget_type>
+    <width>75</width>
+    <wrap_words>false</wrap_words>
+    <wuid>578949c:16a7ddef660:-4391</wuid>
+    <x>275</x>
+    <y>50</y>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <auto_size>false</auto_size>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <border_color>
+      <color red="0" green="0" blue="0" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <font>
+      <fontdata fontName="Cantarell" height="11" style="1" pixels="false" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <height>20</height>
+    <horizontal_alignment>1</horizontal_alignment>
+    <name>Label_4</name>
+    <rules />
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <text>IMon</text>
+    <tooltip></tooltip>
+    <transparent>true</transparent>
+    <vertical_alignment>1</vertical_alignment>
+    <visible>true</visible>
+    <widget_type>Label</widget_type>
+    <width>75</width>
+    <wrap_words>false</wrap_words>
+    <wuid>578949c:16a7ddef660:-438b</wuid>
+    <x>350</x>
+    <y>50</y>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <auto_size>false</auto_size>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <border_color>
+      <color red="0" green="0" blue="0" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <font>
+      <fontdata fontName="Cantarell" height="11" style="1" pixels="false" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <height>20</height>
+    <horizontal_alignment>1</horizontal_alignment>
+    <name>Label_5</name>
+    <rules />
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <text>V0Set</text>
+    <tooltip></tooltip>
+    <transparent>true</transparent>
+    <vertical_alignment>1</vertical_alignment>
+    <visible>true</visible>
+    <widget_type>Label</widget_type>
+    <width>75</width>
+    <wrap_words>false</wrap_words>
+    <wuid>578949c:16a7ddef660:-4385</wuid>
+    <x>425</x>
+    <y>50</y>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <auto_size>false</auto_size>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <border_color>
+      <color red="0" green="0" blue="0" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <font>
+      <fontdata fontName="Cantarell" height="11" style="1" pixels="false" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <height>20</height>
+    <horizontal_alignment>1</horizontal_alignment>
+    <name>Label_6</name>
+    <rules />
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <text>I0Set</text>
+    <tooltip></tooltip>
+    <transparent>true</transparent>
+    <vertical_alignment>1</vertical_alignment>
+    <visible>true</visible>
+    <widget_type>Label</widget_type>
+    <width>75</width>
+    <wrap_words>false</wrap_words>
+    <wuid>578949c:16a7ddef660:-4373</wuid>
+    <x>500</x>
+    <y>50</y>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <auto_size>false</auto_size>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <border_color>
+      <color red="0" green="0" blue="0" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <font>
+      <fontdata fontName="Cantarell" height="11" style="1" pixels="false" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <height>20</height>
+    <horizontal_alignment>1</horizontal_alignment>
+    <name>Label_7</name>
+    <rules />
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <text>SVMax</text>
+    <tooltip></tooltip>
+    <transparent>true</transparent>
+    <vertical_alignment>1</vertical_alignment>
+    <visible>true</visible>
+    <widget_type>Label</widget_type>
+    <width>75</width>
+    <wrap_words>false</wrap_words>
+    <wuid>578949c:16a7ddef660:-436d</wuid>
+    <x>575</x>
+    <y>50</y>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <auto_size>false</auto_size>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <border_color>
+      <color red="0" green="0" blue="0" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <font>
+      <fontdata fontName="Cantarell" height="11" style="1" pixels="false" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <height>20</height>
+    <horizontal_alignment>1</horizontal_alignment>
+    <name>Label_8</name>
+    <rules />
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <text>RUp</text>
+    <tooltip></tooltip>
+    <transparent>true</transparent>
+    <vertical_alignment>1</vertical_alignment>
+    <visible>true</visible>
+    <widget_type>Label</widget_type>
+    <width>75</width>
+    <wrap_words>false</wrap_words>
+    <wuid>578949c:16a7ddef660:-4367</wuid>
+    <x>650</x>
+    <y>50</y>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">
+    <actions hook="false" hook_all="false" />
+    <auto_size>false</auto_size>
+    <background_color>
+      <color red="255" green="255" blue="255" />
+    </background_color>
+    <border_color>
+      <color red="0" green="0" blue="0" />
+    </border_color>
+    <border_style>0</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <font>
+      <fontdata fontName="Cantarell" height="11" style="1" pixels="false" />
+    </font>
+    <foreground_color>
+      <color red="255" green="255" blue="255" />
+    </foreground_color>
+    <height>20</height>
+    <horizontal_alignment>1</horizontal_alignment>
+    <name>Label_9</name>
+    <rules />
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <text>RDWn</text>
+    <tooltip></tooltip>
+    <transparent>true</transparent>
+    <vertical_alignment>1</vertical_alignment>
+    <visible>true</visible>
+    <widget_type>Label</widget_type>
+    <width>75</width>
+    <wrap_words>false</wrap_words>
+    <wuid>578949c:16a7ddef660:-4353</wuid>
+    <x>725</x>
+    <y>50</y>
+  </widget>
+  <widget typeId="org.csstudio.opibuilder.widgets.MenuButton" version="1.0.0">
+    <actions hook="false" hook_all="false">
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>HMS Hodo 1 X</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>HMS Hodo 1 X</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>HMS Hodo 1 Y</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>HMS Hodo 1 Y</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>HMS Hodo 2 X</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>HMS Hodo 2 X</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>HMS Hodo 2 Y</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>HMS Hodo 2 Y</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>HMS Drift Chambers</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>HMS Drift Chambers</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>HMS Shower Counter A</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>HMS Shower Counter A</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>HMS Shower Counter B</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>HMS Shower Counter B</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>HMS Cherenkov and Aerogel</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>HMS Cherenkov and Aerogel</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>SHMS Hodo 1 X</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>SHMS Hodo 1 X</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>SHMS Hodo 1 Y</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>SHMS Hodo 1 Y</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>SHMS Hodo 2 X</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>SHMS Hodo 2 X</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>SHMS Hodo 2 Y</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>SHMS Hodo 2 Y</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>SHMS HGC</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>SHMS HGC</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>HMS NGC</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>HMS NGC</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>SHMS Aerogel</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>SHMS Aerogel</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>SHMS Preshower</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>SHMS Preshower</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>SHMS Shower A</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>SHMS Shower A</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>SHMS Shower B</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>SHMS Shower B</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>SHMS Shower C</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>SHMS Shower C</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>SHMS Shower D</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>SHMS Shower D</description>
+      </action>
+      <action type="WRITE_PV">
+        <pv_name>loc://toShow</pv_name>
+        <value>SHMS Drift Chambers</value>
+        <timeout>10</timeout>
+        <confirm_message></confirm_message>
+        <description>SHMS Drift Chambers</description>
+      </action>
+    </actions>
+    <actions_from_pv>false</actions_from_pv>
+    <alarm_pulsing>false</alarm_pulsing>
+    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
+    <background_color>
+      <color red="240" green="240" blue="240" />
+    </background_color>
+    <border_alarm_sensitive>false</border_alarm_sensitive>
+    <border_color>
+      <color red="0" green="0" blue="0" />
+    </border_color>
+    <border_style>1</border_style>
+    <border_width>1</border_width>
+    <enabled>true</enabled>
+    <font>
+      <opifont.name fontName="Cantarell" height="11" style="0" pixels="false">Default</opifont.name>
+    </font>
+    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>
+    <foreground_color>
+      <color red="0" green="0" blue="0" />
+    </foreground_color>
+    <height>25</height>
+    <label>Group</label>
+    <name>Menu Button</name>
+    <pv_name></pv_name>
+    <pv_value />
+    <rules />
+    <scale_options>
+      <width_scalable>true</width_scalable>
+      <height_scalable>true</height_scalable>
+      <keep_wh_ratio>false</keep_wh_ratio>
+    </scale_options>
+    <scripts />
+    <show_down_arrow>true</show_down_arrow>
+    <tooltip>$(pv_name)
+$(pv_value)</tooltip>
+    <transparent>false</transparent>
+    <visible>true</visible>
+    <widget_type>Menu Button</widget_type>
+    <width>75</width>
+    <wuid>578949c:16a7ddef660:-2df6</wuid>
+    <x>725</x>
+    <y>12</y>
+  </widget>
+</display>
