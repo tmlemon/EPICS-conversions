@@ -15,7 +15,16 @@ All items are developed to be run from CSS.
 - HV.hvc
   - Tcl/Tk configuration files containing channel mapping (crate/slot/channel) and settings.
   - This version is both HMS and SHMS combined.
+
+- all_off.py
+  - group control script for turning all channels on a screen off.
+ 
+- all_on.py
+  - group control script for turning all channels on a screen on.
   
+- all_set.py
+  - group control for setting value to all channels on screen.
+
 - hv-gui.opi
   - CSS .opi file that is used as the template to display list format controls/monitoring screen.
   
