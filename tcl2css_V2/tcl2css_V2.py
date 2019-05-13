@@ -28,6 +28,7 @@ toShow = SU.PVUtil.getString(pvs[0])
 
 
 
+
 #configuration files for .tcl files.
 # For this program version, these files are both HMS and SHMS tcl/tk config
 # files combined into one.
@@ -64,11 +65,16 @@ bkgColor = SU.ColorFontUtil.getColorFromRGB(77,77,77)
 white = SU.ColorFontUtil.getColorFromRGB(255,255,255)
 labelFont = SU.ColorFontUtil.getFont('Cantarell',11,1)
 titleFont = SU.ColorFontUtil.getFont('Cantarell',16,1)
+ltGrey = SU.ColorFontUtil.getColorFromRGB(191,191,191)
 
-if SU.PVUtil.getDouble(pvs[2]) == 1:
-    displayMode = 'plot'
+if toShow not in ['All HMS','All SHMS']:
+    if SU.PVUtil.getDouble(pvs[2]) == 1:
+        displayMode = 'plot'
+    else:
+        displayMode = 'list'
 else:
-    displayMode = 'list'
+    displayMode = 'plot'
+    pvs[2].setValue(1)
 
 
 
@@ -118,6 +124,7 @@ def putIndicator(x,y,pv):
         ("org.csstudio.opibuilder.widgets.TextUpdate")
     w.setPropertyValue('border_style',1)
     w.setPropertyValue('border_color',white)
+    w.setPropertyValue('background_color',ltGrey)
     w.setPropertyValue('width',widgetWidth)
     w.setPropertyValue('height',widgetHeight)
     w.setPropertyValue('x',x)
@@ -201,7 +208,7 @@ if change:
                     ("org.csstudio.opibuilder.widgets.Label")
                 w.setPropertyValue('border_style',0);
                 w.setPropertyValue('border_color',blk)
-                w.setPropertyValue('width',775)
+                w.setPropertyValue('width',1150)
                 w.setPropertyValue('height',widgetHeight*2)
                 w.setPropertyValue('x',25)
                 w.setPropertyValue('y',0)
@@ -219,11 +226,16 @@ if change:
                     putIndicator(x+25+2*widgetWidth,y,pvBase+'Status')
                     putIndicator(x+25+3*widgetWidth,y,pvBase+'VMon')
                     putIndicator(x+25+4*widgetWidth,y,pvBase+'IMon')
-                    putControl(x+25+5*widgetWidth,y,pvBase+'V0Set')
-                    putControl(x+25+6*widgetWidth,y,pvBase+'I0Set')
-                    putControl(x+25+7*widgetWidth,y,pvBase+'SVMax')
-                    putControl(x+25+8*widgetWidth,y,pvBase+'RUp')
-                    putControl(x+25+9*widgetWidth,y,pvBase+'RDWn')
+                    putIndicator(x+25+5*widgetWidth,y,pvBase+'V0Setr')
+                    putControl(x+25+6*widgetWidth,y,pvBase+'V0Set')
+                    putControl(x+25+7*widgetWidth,y,pvBase+'I0Setr')
+                    putControl(x+25+8*widgetWidth,y,pvBase+'I0Set')
+                    putControl(x+25+9*widgetWidth,y,pvBase+'SVMaxr')
+                    putControl(x+25+10*widgetWidth,y,pvBase+'SVMax')
+                    putControl(x+25+11*widgetWidth,y,pvBase+'RUpr')
+                    putControl(x+25+12*widgetWidth,y,pvBase+'RUp')
+                    putControl(x+25+13*widgetWidth,y,pvBase+'RDWnr')
+                    putControl(x+25+14*widgetWidth,y,pvBase+'RDWn')
                     y += widgetHeight
         lc = SU.WidgetUtil.createWidgetModel\
             ("org.csstudio.opibuilder.widgets.linkingContainer")
@@ -279,6 +291,7 @@ if change:
 last = toShow
 lastMode = displayMode
 
+'''
 if displayMode == 'plot':
     vPlot,iPlot = 'loc://Plot-nA','loc://Plot-V'
     vMon,iMon = [],[]
@@ -294,7 +307,7 @@ if displayMode == 'plot':
     #SU.PVUtil.writePV(vPlot,vMon)
     #SU.PVUtil.writePV(iPlot,iMon)
     SU.ConsoleUtil.writeInfo('test')
-'''
+
 NOTES FOR NEXT TIME:
 Trying to get monitoring histograms to autopopulate with values using script.
 So far its been unsuccessful getting the PVs to be read.
