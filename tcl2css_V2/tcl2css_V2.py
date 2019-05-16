@@ -84,66 +84,6 @@ if compact != 1:
     SU.GUIUtil.compactMode()
     SU.PVUtil.writePV('loc://compact',1)
 
-# functino to create and place channel ID labels.
-def putChLabel(x,y,text):
-    w = SU.WidgetUtil.createWidgetModel\
-        ("org.csstudio.opibuilder.widgets.Label")
-    w.setPropertyValue('border_style',1);
-    w.setPropertyValue('border_color',white)
-    w.setPropertyValue('width',widgetWidth+25)
-    w.setPropertyValue('height',widgetHeight)
-    w.setPropertyValue('x',x)
-    w.setPropertyValue('y',y)
-    w.setPropertyValue('text',text)
-    w.setPropertyValue('font',labelFont)
-    w.setPropertyValue('foreground_color',white)
-    widget.addChild(w)
-
-# function to create and place power control button.
-def putPowerButton(x,y,pv):
-    w = SU.WidgetUtil.createWidgetModel\
-            ("org.csstudio.opibuilder.widgets.BoolButton")
-    w.setPropertyValue('border_style',1)
-    w.setPropertyValue('border_color',white)
-    w.setPropertyValue('width',widgetWidth)
-    w.setPropertyValue('height',widgetHeight)
-    w.setPropertyValue('x',x)
-    w.setPropertyValue('y',y)
-    w.setPropertyValue('pv_name',pv)
-    w.setPropertyValue('show_led',False)
-    w.setPropertyValue('square_button',True)
-    w.setPropertyValue('toggle_button',True)
-    w.setPropertyValue('show_boolean_label',True)
-    w.setPropertyValue('off_label','OFF')
-    w.setPropertyValue('on_label','ON')
-    widget.addChild(w)
-
-#function to create and place indicator widget
-def putIndicator(x,y,pv):
-    w = SU.WidgetUtil.createWidgetModel\
-        ("org.csstudio.opibuilder.widgets.TextUpdate")
-    w.setPropertyValue('border_style',1)
-    w.setPropertyValue('border_color',white)
-    w.setPropertyValue('background_color',ltGrey)
-    w.setPropertyValue('width',widgetWidth)
-    w.setPropertyValue('height',widgetHeight)
-    w.setPropertyValue('x',x)
-    w.setPropertyValue('y',y)
-    w.setPropertyValue('pv_name',pv)
-    widget.addChild(w)
-
-# function to create and place control widget.
-def putControl(x,y,pv):
-    w = SU.WidgetUtil.createWidgetModel\
-        ("org.csstudio.opibuilder.widgets.TextInput")
-    w.setPropertyValue('border_style',1)
-    w.setPropertyValue('border_color',white)
-    w.setPropertyValue('width',widgetWidth)
-    w.setPropertyValue('height',widgetHeight)
-    w.setPropertyValue('x',x)
-    w.setPropertyValue('y',y)
-    w.setPropertyValue('pv_name',pv)
-    widget.addChild(w)
 
 def putPlot(x,y,plotType,barWidth):
     if plotType == 'nA': yAxLog = True
@@ -208,7 +148,7 @@ if change:
                     ("org.csstudio.opibuilder.widgets.Label")
                 w.setPropertyValue('border_style',0);
                 w.setPropertyValue('border_color',blk)
-                w.setPropertyValue('width',1150)
+                w.setPropertyValue('width',775)
                 w.setPropertyValue('height',widgetHeight*2)
                 w.setPropertyValue('x',25)
                 w.setPropertyValue('y',0)
@@ -221,21 +161,18 @@ if change:
                 for channel in channels:
                     chID,crate,slot,ch = channel
                     pvBase = 'hchv'+crate+':'+slot.zfill(2)+':'+ch.zfill(3)+':'
-                    putChLabel(x,y,chID)
-                    putPowerButton(x+25+widgetWidth,y,pvBase+'Pw')
-                    putIndicator(x+25+2*widgetWidth,y,pvBase+'Status')
-                    putIndicator(x+25+3*widgetWidth,y,pvBase+'VMon')
-                    putIndicator(x+25+4*widgetWidth,y,pvBase+'IMon')
-                    putIndicator(x+25+5*widgetWidth,y,pvBase+'V0Setr')
-                    putControl(x+25+6*widgetWidth,y,pvBase+'V0Set')
-                    putControl(x+25+7*widgetWidth,y,pvBase+'I0Setr')
-                    putControl(x+25+8*widgetWidth,y,pvBase+'I0Set')
-                    putControl(x+25+9*widgetWidth,y,pvBase+'SVMaxr')
-                    putControl(x+25+10*widgetWidth,y,pvBase+'SVMax')
-                    putControl(x+25+11*widgetWidth,y,pvBase+'RUpr')
-                    putControl(x+25+12*widgetWidth,y,pvBase+'RUp')
-                    putControl(x+25+13*widgetWidth,y,pvBase+'RDWnr')
-                    putControl(x+25+14*widgetWidth,y,pvBase+'RDWn')
+                    lc = SU.WidgetUtil.createWidgetModel\
+                        ("org.csstudio.opibuilder.widgets.linkingContainer")
+                    lc.setPropertyValue("opi_file","hv-row-template.opi")
+                    lc.setPropertyValue("auto_size",True)
+                    lc.setPropertyValue("zoom_to_fit",False)
+                    lc.setPropertyValue("border_style",0)
+                    lc.setPropertyValue('x',25)
+                    lc.setPropertyValue('y',y)
+                    lc.setPropertyValue('background_color',bkgColor)
+                    lc.addMacro('PVBASE',pvBase)
+                    lc.addMacro('CHID',chID)
+                    widget.addChild(lc)
                     y += widgetHeight
         lc = SU.WidgetUtil.createWidgetModel\
             ("org.csstudio.opibuilder.widgets.linkingContainer")
@@ -250,40 +187,87 @@ if change:
 
 
     if displayMode == 'plot':
-        for grp in groups:
-            grpID,grpName = grp[:2]
-            channels = grp[2:]
-            if grpName == toShow:
-                #title label of screen
-                w = SU.WidgetUtil.createWidgetModel\
-                    ("org.csstudio.opibuilder.widgets.Label")
-                w.setPropertyValue('border_style',0);
-                w.setPropertyValue('border_color',blk)
-                w.setPropertyValue('width',775)
-                w.setPropertyValue('height',widgetHeight*2)
-                w.setPropertyValue('x',25)
-                w.setPropertyValue('y',0)
-                w.setPropertyValue('text',toShow+' HV Monitoring')
-                w.setPropertyValue('font',titleFont)
-                w.setPropertyValue('foreground_color',white)
-                widget.addChild(w)
-                x = x0
-                y = y0-25
+        if toShow not in ['All HMS','All SHMS']:
+            for grp in groups:
+                grpID,grpName = grp[:2]
+                channels = grp[2:]
+                if grpName == toShow:
+                    #title label of screen
+                    w = SU.WidgetUtil.createWidgetModel\
+                        ("org.csstudio.opibuilder.widgets.Label")
+                    w.setPropertyValue('border_style',0);
+                    w.setPropertyValue('border_color',blk)
+                    w.setPropertyValue('width',775)
+                    w.setPropertyValue('height',widgetHeight*2)
+                    w.setPropertyValue('x',25)
+                    w.setPropertyValue('y',0)
+                    w.setPropertyValue('text',toShow+' HV Monitoring')
+                    w.setPropertyValue('font',titleFont)
+                    w.setPropertyValue('foreground_color',white)
+                    widget.addChild(w)
+                    x = x0
+                    y = y0-25
 
-                putPlot(x,y,'V',int(500/len(channels)))
-                putPlot(x,y+300+5,'nA',int(500/len(channels)))
+                    lc = SU.WidgetUtil.createWidgetModel\
+                        ("org.csstudio.opibuilder.widgets.linkingContainer")
+                    lc.setPropertyValue("opi_file","hv-plot-template.opi")
+                    lc.setPropertyValue("auto_size",True)
+                    lc.setPropertyValue("zoom_to_fit",False)
+                    lc.setPropertyValue("border_style",0)
+                    lc.setPropertyValue('x',x)
+                    lc.setPropertyValue('y',y)
+                    lc.setPropertyValue('background_color',bkgColor)
+                    widget.addChild(lc)
+                    widget.addChild(lc)
 
+                    lc = SU.WidgetUtil.createWidgetModel\
+                        ("org.csstudio.opibuilder.widgets.linkingContainer")
+                    lc.setPropertyValue("opi_file","hv-footer.opi")
+                    lc.setPropertyValue("auto_size",True)
+                    lc.setPropertyValue("zoom_to_fit",False)
+                    lc.setPropertyValue("border_style",0)
+                    lc.setPropertyValue('x',25)
+                    lc.setPropertyValue('y',y+600+10)
+                    lc.setPropertyValue('background_color',bkgColor)
+                    widget.addChild(lc)
+        else:
+            w = SU.WidgetUtil.createWidgetModel\
+                ("org.csstudio.opibuilder.widgets.Label")
+            w.setPropertyValue('border_style',0);
+            w.setPropertyValue('border_color',blk)
+            w.setPropertyValue('width',775)
+            w.setPropertyValue('height',widgetHeight*2)
+            w.setPropertyValue('x',25)
+            w.setPropertyValue('y',0)
+            w.setPropertyValue('text',toShow+' HV Monitoring')
+            w.setPropertyValue('font',titleFont)
+            w.setPropertyValue('foreground_color',white)
+            widget.addChild(w)
+            x = x0
+            y = y0-25
 
-                lc = SU.WidgetUtil.createWidgetModel\
-                    ("org.csstudio.opibuilder.widgets.linkingContainer")
-                lc.setPropertyValue("opi_file","hv-footer.opi")
-                lc.setPropertyValue("auto_size",True)
-                lc.setPropertyValue("zoom_to_fit",False)
-                lc.setPropertyValue("border_style",0)
-                lc.setPropertyValue('x',25)
-                lc.setPropertyValue('y',y+600+10)
-                lc.setPropertyValue('background_color',bkgColor)
-                widget.addChild(lc)
+            lc = SU.WidgetUtil.createWidgetModel\
+                ("org.csstudio.opibuilder.widgets.linkingContainer")
+            lc.setPropertyValue("opi_file","hv-plot-template.opi")
+            lc.setPropertyValue("auto_size",True)
+            lc.setPropertyValue("zoom_to_fit",False)
+            lc.setPropertyValue("border_style",0)
+            lc.setPropertyValue('x',x)
+            lc.setPropertyValue('y',y)
+            lc.setPropertyValue('background_color',bkgColor)
+            widget.addChild(lc)
+            widget.addChild(lc)
+
+            lc = SU.WidgetUtil.createWidgetModel\
+                ("org.csstudio.opibuilder.widgets.linkingContainer")
+            lc.setPropertyValue("opi_file","hv-footer.opi")
+            lc.setPropertyValue("auto_size",True)
+            lc.setPropertyValue("zoom_to_fit",False)
+            lc.setPropertyValue("border_style",0)
+            lc.setPropertyValue('x',25)
+            lc.setPropertyValue('y',y+600+10)
+            lc.setPropertyValue('background_color',bkgColor)
+            widget.addChild(lc)
 
 
 # saves toShow as last, used to check whether screen to display has changed on
@@ -291,28 +275,3 @@ if change:
 last = toShow
 lastMode = displayMode
 
-'''
-if displayMode == 'plot':
-    vPlot,iPlot = 'loc://Plot-nA','loc://Plot-V'
-    vMon,iMon = [],[]
-    count = 1
-    for channel in channels:
-        chID,crate,slot,ch = channel
-        pvBase = 'hchv'+crate+':'+slot.zfill(2)+':'+ch.zfill(3)+':'
-        vPV = SU.PVUtil.createPV('devIOC:ai'+str(count),widget)
-        v = SU.PVUtil.getDouble(vPV)
-        vMon.append(v)
-        #iMon.append(v)
-        count += 1
-    #SU.PVUtil.writePV(vPlot,vMon)
-    #SU.PVUtil.writePV(iPlot,iMon)
-    SU.ConsoleUtil.writeInfo('test')
-
-NOTES FOR NEXT TIME:
-Trying to get monitoring histograms to autopopulate with values using script.
-So far its been unsuccessful getting the PVs to be read.
-Best way would be to figure out how to configure an embedded script in the
-XY plot widget and do the same thing as the previous version.
-Haven't been able to figure that out yet though.
-
-'''
