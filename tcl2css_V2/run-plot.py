@@ -90,12 +90,8 @@ for gNum,grp in enumerate(groups):
         for channel in channels:
             chID,crate,slot,ch = channel
             if dev:
-                if gNum%2 == 0:
-                    vMonPVs.append('devIOC:counter')
-                    iMonPVs.append('devIOC:counter')
-                else:
-                    vMonPVs.append('devIOC:ai1')
-                    iMonPVs.append('devIOC:ai1')
+                vMonPVs.append('devIOC:counter')
+                iMonPVs.append('devIOC:counter')
             else:
                 pvBase = 'hchv'+crate+':'+slot.zfill(2)+':'+ch.zfill(3)+':'
                 vMonPVs.append(pvBase+'VMon')

@@ -409,7 +409,15 @@ textInput = [\
 '      <height_scalable>true</height_scalable>',\
 '      <keep_wh_ratio>false</keep_wh_ratio>',\
 '    </scale_options>',\
-'    <scripts />',\
+'    <scripts>',\
+'      <path pathString="EmbeddedPy" checkConnect="true" sfe="false" seoe="false">',\
+'        <scriptName>rb-ctrl_pv_fix</scriptName>',\
+'        <scriptText><![CDATA[from org.csstudio.opibuilder.scriptUtil import PVUtil',\
+'PVUtil.writePV(str(pvs[0])[:-1],PVUtil.getDouble(pvs[0]))',\
+']]></scriptText>',\
+'        <pv trig="true">$(pv_name)</pv>',\
+'      </path>',\
+'    </scripts>',\
 '    <selector_type>0</selector_type>',\
 '    <show_units>false</show_units>',\
 '    <style>0</style>',\
@@ -1403,8 +1411,8 @@ inputWidth = indicatorWidth = 75#68
 horizDivLen = 750
 
 
-channelProps = ['Pw','VMon','IMon','Status','V0Set','I0Set','SVMax',\
-    'RUp','RDWn']
+channelProps = ['Pw','VMon','IMon','Status','V0Setr','I0Setr','SVMaxr',\
+    'RUpr','RDWnr']
 # Creates screens showing each group in table format.
 vMon,iMon,allPVs = [],[],[]
 for grp in groups:
@@ -1546,7 +1554,7 @@ for grp in groups:
             line = line.replace('INPUT_Y_POS',str(y))
             line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
                 inputWidth)/2))
-            line = line.replace('PV_NAME',pvBase+'V0Set')
+            line = line.replace('PV_NAME',pvBase+'V0Setr')
             screen.append(line)
         x += labelWidth
         #Current trip level
@@ -1556,7 +1564,7 @@ for grp in groups:
             line = line.replace('INPUT_Y_POS',str(y))
             line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
                 inputWidth)/2))
-            line = line.replace('PV_NAME',pvBase+'I0Set')
+            line = line.replace('PV_NAME',pvBase+'I0Setr')
             screen.append(line)
         x += labelWidth
         #Max allowable set voltage
@@ -1566,7 +1574,7 @@ for grp in groups:
             line = line.replace('INPUT_Y_POS',str(y))
             line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
                 inputWidth)/2))
-            line = line.replace('PV_NAME',pvBase+'SVMax')
+            line = line.replace('PV_NAME',pvBase+'SVMaxr')
             screen.append(line)
         x += labelWidth
         #Channel ramp up rate
@@ -1576,7 +1584,7 @@ for grp in groups:
             line = line.replace('INPUT_Y_POS',str(y))
             line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
                 inputWidth)/2))
-            line = line.replace('PV_NAME',pvBase+'RUp')
+            line = line.replace('PV_NAME',pvBase+'RUpr')
             screen.append(line)
         allRUpXLoc = str(x+(labelWidth-inputWidth)/2)
         x += labelWidth
@@ -1587,7 +1595,7 @@ for grp in groups:
             line = line.replace('INPUT_Y_POS',str(y))
             line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
                 inputWidth)/2))
-            line = line.replace('PV_NAME',pvBase+'RDWn')
+            line = line.replace('PV_NAME',pvBase+'RDWnr')
             screen.append(line)
         allRDWnXLoc = str(x+(labelWidth-inputWidth)/2)
         #horizontal divider line between channels.
