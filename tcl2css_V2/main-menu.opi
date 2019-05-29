@@ -1322,23 +1322,7 @@ $(pv_value)</tooltip>
     <y>531</y>
   </widget>
   <widget typeId="org.csstudio.opibuilder.widgets.ActionButton" version="2.0.0">
-    <actions hook="false" hook_all="true">
-      <action type="OPEN_DISPLAY">
-        <path>hv-gui.opi</path>
-        <macros>
-          <include_parent_macros>true</include_parent_macros>
-        </macros>
-        <mode>6</mode>
-        <description></description>
-      </action>
-      <action type="WRITE_PV">
-        <pv_name>loc://toShow</pv_name>
-        <value>SHMS NGC</value>
-        <timeout>10</timeout>
-        <confirm_message></confirm_message>
-        <description></description>
-      </action>
-    </actions>
+    <actions hook="false" hook_all="true" />
     <alarm_pulsing>false</alarm_pulsing>
     <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>
     <background_color>

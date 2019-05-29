@@ -13,14 +13,27 @@ histograms on the screen.
 THIS PROGRAM WILL NOT WORK OUTSIDE OF CSS.
 
 '''
-
-
-
 from org.csstudio.opibuilder.scriptUtil import PVUtil,FileUtil,ConsoleUtil,\
     WidgetUtil
 from array import array
 import subprocess
 import socket
+
+# Function to convert lost of PVs into a list of PV values for plot.
+def makePlotList(cmdIn):
+    res = subprocess.check_output(cmdIn)
+    resOut = [float(i) for i in res.strip().split('\n')]
+    return resOut
+
+def padPlot(lst,fill):
+    lst.append(fill)
+    lst = [fill] + lst
+    return lst
+
+#function to flatten a 2-D array to 1-D
+def flatten(l):
+    return [item for sublist in l for item in sublist]
+
 
 # Looks at what host that script is run from to use dev PVs
 devhosts = ['dsg-c-linux1.jlab.org']
@@ -42,10 +55,10 @@ configFile,groupFile = dirr+'HV.hvc',dirr+'HV.group'
 groups = []
 with open(groupFile,'r') as f:
     for line in f.readlines():
-        spectrometer = line.strip().split(' ')[1]
-        groups.append([line.strip().split(' ')[0],\
-            ' '.join(line.strip().split(' ')[1:])])
-
+        if line[0].strip() != '#':
+            spectrometer = line.strip().split(' ')[1]
+            groups.append([line.strip().split(' ')[0],\
+                ' '.join(line.strip().split(' ')[1:])])
 
 # Reads in channel configuration file and splits up config file into groups.
 with open(configFile,'r') as f:
@@ -58,44 +71,29 @@ for i,grp in enumerate(groups):
                 groups[int(i)].append(line.strip().split(' ')[:4])
 
 
-# Show or hide shaded boxes on all channels histograms.
-# Most likely a temporary inclusion since if channels change or systems are
-# modifed, the box locations will be incorrect.
-hmsBoxes = display.getWidget('HMS_boxes')
-shmsBoxes = display.getWidget('SHMS_boxes')
-if toShow == 'All HMS':
-    hmsBoxes.setPropertyValue('visible',True)
-else:
-    hmsBoxes.setPropertyValue('visible',False)
-if toShow == 'All SHMS':
-    shmsBoxes.setPropertyValue('visible',True)
-else:
-    shmsBoxes.setPropertyValue('visible',False)
-
 # Looks through all groups and pulls out channel information on the group
 # selected by the user to display.
 # Also creates a list of all HMS or SHMS VMon and IMon PVs to be able to
 # display the all channels monitoring histogram.
 
-
-'''
-WORKING ON SPLITTING INTO GROUPS ON ALL PLOT
-'''
 vMonPVs,iMonPVs,vCmd = [],[],[]
-for gNum,grp in enumerate(groups):
+for grp in groups:
     grpID,grpName = grp[:2]
     channels = grp[2:]
     # Creates all channels VMon and IMon PV list
     if toShow.split(' ')[1] == grpName.split(' ')[0]:
+        vMonPVsHold,iMonPVsHold = [],[]
         for channel in channels:
             chID,crate,slot,ch = channel
             if dev:
-                vMonPVs.append('devIOC:counter')
-                iMonPVs.append('devIOC:counter')
+                vMonPVsHold.append('devIOC:counter')
+                iMonPVsHold.append('devIOC:counter')
             else:
                 pvBase = 'hchv'+crate+':'+slot.zfill(2)+':'+ch.zfill(3)+':'
-                vMonPVs.append(pvBase+'VMon')
-                iMonPVs.append(pvBase+'IMon')
+                vMonPVsHold.append(pvBase+'VMon')
+                iMonPVsHold.append(pvBase+'IMon')
+        vMonPVs.append(vMonPVsHold)
+        iMonPVs.append(iMonPVsHold)
     # Creates PV list of all PVs for the group selected by the user.
     if grpName == toShow:
         vCmd,iCmd = ['caget','-t'],['caget','-t']
@@ -108,36 +106,51 @@ for gNum,grp in enumerate(groups):
                 pvBase = 'hchv'+crate+':'+slot.zfill(2)+':'+ch.zfill(3)+':'
                 vCmd.append(pvBase+'VMon')
                 iCmd.append(pvBase+'IMon')
-# If user selects all channels, the array vCmd will be empty, prompting the
-# program to use the all channels VMon and IMon PV lists from above.
-if len(vCmd) == 0:
-    vCmd,iCmd = ['caget','-t'],['caget','-t']
-    for g,item in enumerate(vMonPVs):
-        vCmd.append(item)
-        iCmd.append(iMonPVs[g])
 
-# formats the histrogram plot bars to make it so the bar size is correlated to
-# the number of channels displayed
-barWidth = int(650/(len(vCmd)-2))
+# widget references for plots to be able to set properties with the script
 vP = display.getWidget('v_plot')
 iP = display.getWidget('i_plot')
 
+# If user selects all channels, the array vCmd will be empty, prompting the
+# program to use the all channels VMon and IMon PV lists from above.
+if len(vCmd) == 0:
+    vPVs,iPVs = [[],[]],[[],[]]
+    for g,grp in enumerate(vMonPVs):
+        if g%2 == 0:
+            vPVs[0].append(makePlotList(['caget','-t']+grp))
+            vPVs[1].append([0]*len(grp))
+            iPVs[0].append(makePlotList(['caget','-t']+iMonPVs[g]))
+            iPVs[1].append([1]*len(grp))
+        elif g%2 == 1:
+            vPVs[0].append([0]*len(grp))
+            vPVs[1].append(makePlotList(['caget','-t']+grp))
+            iPVs[0].append([1]*len(grp))
+            iPVs[1].append(makePlotList(['caget','-t']+iMonPVs[g]))
+    vRes0,vRes1 = padPlot(flatten(vPVs[0]),0),padPlot(flatten(vPVs[1]),0)
+    iRes0,iRes1 = padPlot(flatten(iPVs[0]),1),padPlot(flatten(iPVs[1]),1)
+    vP.setPropertyValue('trace_1_visible',True)
+    iP.setPropertyValue('trace_1_visible',True)
+else:
+    vRes0 = padPlot(makePlotList(vCmd),0)
+    iRes0 = padPlot(makePlotList(iCmd),1)
+    vRes1,iRes1 = [],[]
+    vP.setPropertyValue('trace_1_visible',False)
+    iP.setPropertyValue('trace_1_visible',False)
+
+# formats the histrogram plot bars to make it so the bar size is correlated to
+# the number of channels displayed
+barWidth = int(600/(len(vRes0)-2))
+
+
 vP.setPropertyValue('trace_0_line_width',barWidth)
 iP.setPropertyValue('trace_0_line_width',barWidth)
+vP.setPropertyValue('trace_1_line_width',barWidth)
+iP.setPropertyValue('trace_1_line_width',barWidth)
 
-# Uses subprocess to call caget to read PV values
-vRes = subprocess.check_output(vCmd)
-iRes = subprocess.check_output(iCmd)
-# Splits caget results into a list and converts it to a list of floats.
-vOutRes = [float(i) for i in vRes.strip().split('\n')]
-iOutRes = [float(i) for i in iRes.strip().split('\n')]
-# Adds an empty channel to voltage and current monitor array so first and
-# last channel are not cut off by autoscaling of x-axis
-vOutRes.append(0)
-vOutRes = [0] + vOutRes
-iOutRes.append(1)
-iOutRes = [1] + iOutRes
-# Converts list to a float array. Float arrays are needed by XY plot widget
-# to be able to display data on the plot.
-pvs[2].setValue(array('f',vOutRes))
-pvs[3].setValue(array('f',iOutRes))
+
+
+# Calls funciton to create array of PV values for plot
+pvs[2].setValue(array('f',vRes0))
+pvs[3].setValue(array('f',vRes1))
+pvs[4].setValue(array('f',iRes0))
+pvs[5].setValue(array('f',iRes1))
