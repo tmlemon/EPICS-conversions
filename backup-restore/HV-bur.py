@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''
 @author: Tyler Lemon (tlemon)
 Date:    2019-04-17
