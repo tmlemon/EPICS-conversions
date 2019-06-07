@@ -982,6 +982,116 @@ allSetInput = [\
 '    <y>Y_POS</y>',
 '  </widget>']
 
+
+specialControl = [\
+'  <widget typeId="org.csstudio.opibuilder.widgets.TextInput" version="2.0.0">',\
+'    <actions hook="false" hook_all="false" />',\
+'    <alarm_pulsing>false</alarm_pulsing>',\
+'    <auto_size>false</auto_size>',\
+'    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>',\
+'    <background_color>',\
+'      <color red="255" green="255" blue="255" />',\
+'    </background_color>',\
+'    <border_alarm_sensitive>false</border_alarm_sensitive>',\
+'    <border_color>',\
+'      <color red="0" green="128" blue="255" />',\
+'    </border_color>',\
+'    <border_style>3</border_style>',\
+'    <border_width>1</border_width>',\
+'    <confirm_message></confirm_message>',\
+'    <enabled>true</enabled>',\
+'    <font>',\
+'      <opifont.name fontName="Cantarell" height="11" style="0" pixels="false">Default</opifont.name>',\
+'    </font>',\
+'    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>',\
+'    <foreground_color>',\
+'      <color red="0" green="0" blue="0" />',\
+'    </foreground_color>',\
+'    <format_type>0</format_type>',\
+'    <height>INPUT_HEIGHT</height>',\
+'    <horizontal_alignment>0</horizontal_alignment>',\
+'    <limits_from_pv>false</limits_from_pv>',\
+'    <maximum>Infinity</maximum>',\
+'    <minimum>-Infinity</minimum>',\
+'    <multiline_input>false</multiline_input>',\
+'    <name>PV_NAME</name>',\
+'    <precision>0</precision>',\
+'    <precision_from_pv>true</precision_from_pv>',\
+'    <pv_name>PV_NAME</pv_name>',\
+'    <pv_value />',\
+'    <rotation_angle>0.0</rotation_angle>',\
+'    <rules />',\
+'    <scale_options>',\
+'      <width_scalable>true</width_scalable>',\
+'      <height_scalable>true</height_scalable>',\
+'      <keep_wh_ratio>false</keep_wh_ratio>',\
+'    </scale_options>',\
+'    <scripts />',\
+'    <selector_type>0</selector_type>',\
+'    <show_units>true</show_units>',\
+'    <style>0</style>',\
+'    <text>$(pv_name)r</text>',\
+'    <tooltip>$(pv_name)',\
+'$(pv_value)</tooltip>',\
+'    <transparent>false</transparent>',\
+'    <visible>true</visible>',\
+'    <widget_type>Text Input</widget_type>',\
+'    <width>INPUT_WIDTH</width>',\
+'    <wuid>-6330685b:16b32d2975c:-7e45</wuid>',\
+'    <x>INPUT_X_POS</x>',\
+'    <y>INPUT_Y_POS</y>',\
+'  </widget>',\
+'  <widget typeId="org.csstudio.opibuilder.widgets.Label" version="1.0.0">',\
+'    <actions hook="false" hook_all="false" />',\
+'    <auto_size>false</auto_size>',\
+'    <background_color>',\
+'      <color red="255" green="255" blue="255" />',\
+'    </background_color>',\
+'    <border_color>',\
+'      <color red="191" green="191" blue="191" />',\
+'    </border_color>',\
+'    <border_style>1</border_style>',\
+'    <border_width>1</border_width>',\
+'    <enabled>true</enabled>',\
+'    <font>',\
+'      <opifont.name fontName="Cantarell" height="10" style="0" pixels="false">Default</opifont.name>',\
+'    </font>',\
+'    <foreground_color>',\
+'      <color red="0" green="0" blue="0" />',\
+'    </foreground_color>',\
+'    <height>INPUT_HEIGHT</height>',\
+'    <horizontal_alignment>1</horizontal_alignment>',\
+'    <name>Label</name>',\
+'    <rules />',\
+'    <scale_options>',\
+'      <width_scalable>true</width_scalable>',\
+'      <height_scalable>true</height_scalable>',\
+'      <keep_wh_ratio>false</keep_wh_ratio>',\
+'    </scale_options>',\
+'    <scripts>',\
+'      <path pathString="EmbeddedPy" checkConnect="true" sfe="false" seoe="false">',\
+'        <scriptName>old-CAEN-fix</scriptName>',\
+'        <scriptText><![CDATA[from org.csstudio.opibuilder.scriptUtil import PVUtil',\
+'val = str(PVUtil.getDouble(pvs[0]))',\
+'units = str(PVUtil.getString(pvs[1]))',\
+'widget.setPropertyValue("text",val+" "+units)]]></scriptText>',\
+'        <pv trig="true">PV_NAMEr</pv>',\
+'        <pv trig="true">PV_NAMEr.EGU</pv>',\
+'      </path>',\
+'    </scripts>',\
+'    <text>Label</text>',\
+'    <tooltip></tooltip>',\
+'    <transparent>false</transparent>',\
+'    <vertical_alignment>1</vertical_alignment>',\
+'    <visible>true</visible>',\
+'    <widget_type>Label</widget_type>',\
+'    <width>INPUT_WIDTH</width>',\
+'    <wrap_words>false</wrap_words>',\
+'    <wuid>-6330685b:16b32d2975c:-7da9</wuid>',\
+'    <x>INPUT_X_POS</x>',\
+'    <y>INPUT_Y_POS</y>',\
+'  </widget>']
+
 # Function to "flatten" a 2-D list of lists into a 1-D list.
 flatten = lambda lst: [item for sublist in lst for item in sublist]
 
@@ -1411,8 +1521,8 @@ inputWidth = indicatorWidth = 75#68
 horizDivLen = 750
 
 
-channelProps = ['Pw','VMon','IMon','Status','V0Setr','I0Setr','SVMaxr',\
-    'RUpr','RDWnr']
+channelProps = ['Pw','VMon','IMon','Status','V0Set','I0Set','SVMax',\
+    'RUp','RDWn']
 # Creates screens showing each group in table format.
 vMon,iMon,allPVs = [],[],[]
 for grp in groups:
@@ -1548,54 +1658,54 @@ for grp in groups:
             screen.append(line)
         x += labelWidth
         #Set voltage
-        for    line in textInput:
+        for    line in specialControl:
             line = line.replace('INPUT_HEIGHT',str(inputHeight))
             line = line.replace('INPUT_WIDTH',str(inputWidth))
             line = line.replace('INPUT_Y_POS',str(y))
             line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
                 inputWidth)/2))
-            line = line.replace('PV_NAME',pvBase+'V0Setr')
+            line = line.replace('PV_NAME',pvBase+'V0Set')
             screen.append(line)
         x += labelWidth
         #Current trip level
-        for    line in textInput:
+        for    line in specialControl:
             line = line.replace('INPUT_HEIGHT',str(inputHeight))
             line = line.replace('INPUT_WIDTH',str(inputWidth))
             line = line.replace('INPUT_Y_POS',str(y))
             line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
                 inputWidth)/2))
-            line = line.replace('PV_NAME',pvBase+'I0Setr')
+            line = line.replace('PV_NAME',pvBase+'I0Set')
             screen.append(line)
         x += labelWidth
         #Max allowable set voltage
-        for    line in textInput:
+        for    line in specialControl:
             line = line.replace('INPUT_HEIGHT',str(inputHeight))
             line = line.replace('INPUT_WIDTH',str(inputWidth))
             line = line.replace('INPUT_Y_POS',str(y))
             line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
                 inputWidth)/2))
-            line = line.replace('PV_NAME',pvBase+'SVMaxr')
+            line = line.replace('PV_NAME',pvBase+'SVMax')
             screen.append(line)
         x += labelWidth
         #Channel ramp up rate
-        for    line in textInput:
+        for    line in specialControl:
             line = line.replace('INPUT_HEIGHT',str(inputHeight))
             line = line.replace('INPUT_WIDTH',str(inputWidth))
             line = line.replace('INPUT_Y_POS',str(y))
             line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
                 inputWidth)/2))
-            line = line.replace('PV_NAME',pvBase+'RUpr')
+            line = line.replace('PV_NAME',pvBase+'RUp')
             screen.append(line)
         allRUpXLoc = str(x+(labelWidth-inputWidth)/2)
         x += labelWidth
         #channel ramp down rate
-        for    line in textInput:
+        for    line in specialControl:
             line = line.replace('INPUT_HEIGHT',str(inputHeight))
             line = line.replace('INPUT_WIDTH',str(inputWidth))
             line = line.replace('INPUT_Y_POS',str(y))
             line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
                 inputWidth)/2))
-            line = line.replace('PV_NAME',pvBase+'RDWnr')
+            line = line.replace('PV_NAME',pvBase+'RDWn')
             screen.append(line)
         allRDWnXLoc = str(x+(labelWidth-inputWidth)/2)
         #horizontal divider line between channels.
