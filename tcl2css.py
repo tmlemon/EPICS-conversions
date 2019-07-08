@@ -12,21 +12,20 @@
 # Program also allows for user to generate group_map, channel_map and alhConfig
 # files.
 
-import sys #used to read in user arguements and exit program on errors.
-import os # used to check files required for program.
-import errno # used to catch potential error condition when creating parent
-    # directories for output file locations.
-import array
+import sys,os,errno,array,socket,argparse
 from math import ceil
 from datetime import datetime
 
+#color formats for grouped channels on histogram plots
+g1Bars = '      <color red="21" green="21" blue="196" />'
+g2Bars = '      <color red="30" green="144" blue="255" />'
 
 # Base formatting of an OPI screen in text.
 screenTemplate = [\
 '<display typeId="org.csstudio.opibuilder.Display" version="1.0.0">',\
 '  <actions hook="false" hook_all="false" />',\
 '  <auto_scale_widgets>',\
-'    <auto_scale_widgets>false</auto_scale_widgets>',\
+'    <auto_scale_widgets>AUTOSCALE_IT</auto_scale_widgets>',\
 '    <min_width>-1</min_width>',\
 '    <min_height>-1</min_height>',\
 '  </auto_scale_widgets>',\
@@ -498,7 +497,7 @@ xyPlotStart = [\
 '  <widget typeId="org.csstudio.opibuilder.widgets.xyGraph" version="1.0.0">',\
 '    <actions hook="false" hook_all="false" />',\
 '    <alarm_pulsing>false</alarm_pulsing>',\
-'    <axis_0_auto_scale>true</axis_0_auto_scale>',\
+'    <axis_0_auto_scale>false</axis_0_auto_scale>',\
 '    <axis_0_auto_scale_threshold>0.0</axis_0_auto_scale_threshold>',\
 '    <axis_0_axis_color>',\
 '      <color red="0" green="0" blue="0" />',\
@@ -509,8 +508,8 @@ xyPlotStart = [\
 '      <color red="200" green="200" blue="200" />',\
 '    </axis_0_grid_color>',\
 '    <axis_0_log_scale>false</axis_0_log_scale>',\
-'    <axis_0_maximum>10.0</axis_0_maximum>',\
-'    <axis_0_minimum>0.0</axis_0_minimum>',\
+'    <axis_0_maximum>X_AXIS_MAX</axis_0_maximum>',\
+'    <axis_0_minimum>-1</axis_0_minimum>',\
 '    <axis_0_scale_font>',\
 '      <opifont.name fontName="Cantarell" height="11" style="0"\
  pixels="false">Default</opifont.name>',\
@@ -582,7 +581,7 @@ seoe="false">',\
 import PVUtil',\
 'from array import array',\
 'arr = array("f")',\
-'for pv in pvs[1:]:',\
+'for pv in pvs[2:]:',\
 '    try:',\
 '        val = PVUtil.getDouble(pv)',\
 '        if val != "":',\
@@ -591,14 +590,24 @@ import PVUtil',\
 '            arr.append(0)',\
 '    except:',\
 '        arr.append(0)',\
-'pvs[0].setValue(arr)]]></scriptText>',\
-'        <pv trig="false">$(pv_name)</pv>']
+'pvs[0].setValue(arr)]]>',\
+'pvs[1].setValue(len(pvs[2:]))</scriptText>',\
+'        <pv trig="false">$(pv_name)</pv>',\
+'        <pv trig="false">loc://numChannels-CH_DIFF</pv>']
 
 # Line that is added to XY Plot Widget for every PV to be displayed.
 xyPlotChannelFmt = '        <pv trig="true">INSERT_PV_HERE</pv>'
 
 # End of OPI format for xy plot.
 xyPlotEnd = [\
+'      </path>',\
+'      <path pathString="EmbeddedPy" checkConnect="true" sfe="true" seoe="false">',\
+'        <scriptName>bar-size</scriptName>',\
+'        <scriptText><![CDATA[from org.csstudio.opibuilder.scriptUtil import PVUtil',\
+'s = int((int(widget.getPropertyValue("width"))-200)/(PVUtil.getDouble(pvs[0])))',\
+'widget.setPropertyValue("trace_0_line_width",str(s))]]></scriptText>',\
+'        <pv trig="true">loc://numChannels-CH_DIFF</pv>',\
+'        <pv trig="true">$(pv_name)</pv>',\
 '      </path>',\
 '    </scripts>',\
 '    <show_legend>false</show_legend>',\
@@ -614,13 +623,13 @@ xyPlotEnd = [\
 '    <trace_0_anti_alias>true</trace_0_anti_alias>',\
 '    <trace_0_buffer_size>400</trace_0_buffer_size>',\
 '    <trace_0_concatenate_data>false</trace_0_concatenate_data>',\
-'    <trace_0_line_width>4</trace_0_line_width>',\
+'    <trace_0_line_width>BARSIZE</trace_0_line_width>',\
 '    <trace_0_name>$(trace_0_y_pv)</trace_0_name>',\
 '    <trace_0_plot_mode>0</trace_0_plot_mode>',\
 '    <trace_0_point_size>4</trace_0_point_size>',\
 '    <trace_0_point_style>0</trace_0_point_style>',\
 '    <trace_0_trace_color>',\
-'      <color red="21" green="21" blue="196" />',\
+'BARCOLOR',\
 '    </trace_0_trace_color>',\
 '    <trace_0_trace_type>3</trace_0_trace_type>',\
 '    <trace_0_update_delay>100</trace_0_update_delay>',\
@@ -633,7 +642,7 @@ xyPlotEnd = [\
 '    <trace_0_y_pv>$(pv_name)</trace_0_y_pv>',\
 '    <trace_0_y_pv_value />',\
 '    <trace_count>1</trace_count>',\
-'    <transparent>false</transparent>',\
+'    <transparent>SEETHROUGH</transparent>',\
 '    <trigger_pv></trigger_pv>',\
 '    <trigger_pv_value />',\
 '    <visible>true</visible>',\
@@ -1092,6 +1101,10 @@ specialControl = [\
 '    <y>INPUT_Y_POS</y>',\
 '  </widget>']
 
+
+allPlots = []
+
+
 # Function to "flatten" a 2-D list of lists into a 1-D list.
 flatten = lambda lst: [item for sublist in lst for item in sublist]
 
@@ -1146,12 +1159,16 @@ def writeFile(outPath,fileName,screen):
     return 0
 
 # Creates screen of Bar Plots for voltage and current monitoring
-def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
+def makeHistoPlot(spectrometer,vMon,iMon,menuOptions,vMon2='',iMon2=''):
+    nChan = len(vMon)
+    if nChan <= 0:
+        nChan = 1
     screen = []
     for line in screenTemplate:
         line = line.replace('OPI_NAME',spectrometer+'-HV-Monitor')
-        line = line.replace('SCREEN_WIDTH',str(800))
+        line = line.replace('SCREEN_WIDTH',str(825))
         line = line.replace('SCREEN_HEIGHT',str(700))
+        line = line.replace('AUTOSCALE_IT','true')
         screen.append(line)
     #title label for plot screen
     for line in label:
@@ -1169,21 +1186,54 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
     for line in xyPlotStart:
         line = line.replace('Y_AXIS_LABEL','Volts')
         line = line.replace('HEIGHT',str(300))
-        line = line.replace('DIFFERENTIATE','-VMon')
+        line = line.replace('DIFFERENTIATE','-VMon-'+spectrometer.replace(' ','-'))
+        line = line.replace('CH_DIFF',spectrometer.replace(' ','-'))
+        line = line.replace('X_AXIS_MAX',str(len(vMon)))
         screen.append(line)
     for pv in vMon:
         screen.append(xyPlotChannelFmt.replace('INSERT_PV_HERE',pv))
+    barSize = int(600/(nChan))
+    if 1 < barSize < 5:  barSize = '2'
+    else:  barSize = str(barSize)
     for line in xyPlotEnd:
         line = line.replace('NUMBER_OF_PVS',str(len(vMon)))
         line = line.replace('WIDTH',str(775))
         line = line.replace('X_POS',str(25))
         line = line.replace('Y_POS',str(50))
+        line = line.replace('BARSIZE',barSize)
+        line = line.replace('SEETHROUGH','false')
+        line = line.replace('BARCOLOR',g1Bars)
+        line = line.replace('CH_DIFF',spectrometer.replace(' ','-'))
         screen.append(line)
+    if vMon2 != '':
+        for line in xyPlotStart:
+            line = line.replace('Y_AXIS_LABEL','Volts')
+            line = line.replace('HEIGHT',str(300))
+            line = line.replace('DIFFERENTIATE','-VMon2-'+spectrometer.replace(' ','-'))
+            line = line.replace('CH_DIFF',spectrometer.replace(' ','-'))
+            line = line.replace('X_AXIS_MAX',str(len(vMon2)))
+            screen.append(line)
+        for pv in vMon2:
+            screen.append(xyPlotChannelFmt.replace('INSERT_PV_HERE',pv))
+        for line in xyPlotEnd:
+            line = line.replace('NUMBER_OF_PVS',str(len(vMon2)))
+            line = line.replace('WIDTH',str(775))
+            line = line.replace('X_POS',str(25))
+            line = line.replace('Y_POS',str(50))
+            line = line.replace('BARSIZE',barSize)
+            line = line.replace('SEETHROUGH','true')
+            line = line.replace('BARCOLOR',g2Bars)
+            line = line.replace('CH_DIFF',spectrometer.replace(' ','-'))
+            screen.append(line)
+
+
     #Creates bar plot for current monitoring
     for line in xyPlotStart:
         line = line.replace('Y_AXIS_LABEL','nAmps')
         line = line.replace('HEIGHT',str(300))
-        line = line.replace('DIFFERENTIATE','-IMon')
+        line = line.replace('DIFFERENTIATE','-IMon-'+spectrometer.replace(' ','-'))
+        line = line.replace('CH_DIFF',spectrometer.replace(' ','-'))
+        line = line.replace('X_AXIS_MAX',str(len(iMon)))
         screen.append(line)
     for pv in iMon:
         screen.append(xyPlotChannelFmt.replace('INSERT_PV_HERE',pv))
@@ -1192,7 +1242,32 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions):
         line = line.replace('WIDTH',str(775))
         line = line.replace('X_POS',str(25))
         line = line.replace('Y_POS',str(355))
+        line = line.replace('BARSIZE',barSize)
+        line = line.replace('SEETHROUGH','false')
+        line = line.replace('BARCOLOR',g1Bars)
+        line = line.replace('CH_DIFF',spectrometer.replace(' ','-'))
         screen.append(line)
+    if iMon2 != '':
+        for line in xyPlotStart:
+            line = line.replace('Y_AXIS_LABEL','nAmps')
+            line = line.replace('HEIGHT',str(300))
+            line = line.replace('DIFFERENTIATE','-IMon2-'+spectrometer.replace(' ','-'))
+            line = line.replace('CH_DIFF',spectrometer.replace(' ','-'))
+            line = line.replace('X_AXIS_MAX',str(len(iMon)))
+            screen.append(line)
+        for pv in iMon2:
+            screen.append(xyPlotChannelFmt.replace('INSERT_PV_HERE',pv))
+        for line in xyPlotEnd:
+            line = line.replace('NUMBER_OF_PVS',str(len(iMon2)))
+            line = line.replace('WIDTH',str(775))
+            line = line.replace('X_POS',str(25))
+            line = line.replace('Y_POS',str(355))
+            line = line.replace('BARSIZE',barSize)
+            line = line.replace('SEETHROUGH','true')
+            line = line.replace('BARCOLOR',g2Bars)
+            line = line.replace('CH_DIFF',spectrometer.replace(' ','-'))
+            screen.append(line)
+
     #Makes dropdown menu
     for line in menuStart:
         screen.append(line)
@@ -1215,69 +1290,38 @@ mapOut = False
 cssOut = True
 alhOnly = False
 
-if '-m' in sys.argv:
-    mapOut = True
-    if len(sys.argv)-2 == 1:
-        dirr = checkForInput(sys.argv[2])
-        outPath = ''
-    elif len(sys.argv)-2 == 2:
-        dirr = checkForInput(sys.argv[2])
-        outPath = sys.argv[3]
-        if outPath[-1] != '/':
-            outPath += '/'
-        if not os.path.exists(outPath):
-            try:
-                os.makedirs(outPath)
-            except OSError as err:
-                if err.errno != errno.EEXIST:
-                    raise
-    elif len(sys.argv)-1 == 1:
-        cssOut = False
-        dirr,outPath = '',''
-    else:
-        print('\033[1m'+'\nINPUT ARGUEMENTS HELP'+'\033[0m')
-        print('\npython tcl2css.py [-m] [-a] dir [write]\n')
-        print('[-m]\t-optional argument to output channel_map, group_map, and')
-        print('\tHV.alhConfig.\n')
-        print('[-a]\t-optional argument to output only HV.alhConfig.\n')
-        print('dir\t- mandatory arguement for directory containing HV.hvc and ')
-        print('\tHV.group used to make the CSS screens.\n')
-        print('[write]\t- optional arguement for directory to write resulting ')
-        print('\t.opi files to.\n')
-        sys.exit(0)
-elif '-a' in sys.argv and len(sys.argv)-1==1:
+## Parses input arguments.
+parser = argparse.ArgumentParser()
+parser.add_argument('input',help='Directory containing HV.group and HV.hvc files.')
+parser.add_argument('-o','--output',help='Path of where to write resulting file to.')
+parser.add_argument('-m','--map',help='Output channel map documentation.',action='store_true')
+parser.add_argument('-a','--alarm_only',help='Only generate alarm configuration file.',action='store_true')
+parser.add_argument('-d','--dev',help='Use PVs from development IOC instead of real PVs.',action='store_true')
+args = parser.parse_args()
+
+inputArg = args.input
+outPath = args.output
+mapOut = args.map
+dev = args.dev
+
+if outPath == None:
+    dirr = checkForInput(inputArg)
+    outPath = ''
+else:
+    dirr = checkForInput(inputArg)
+    if outPath == '.': outPath = os.getcwd()
+    if outPath[-1] != '/':  outPath += '/'
+    if not os.path.exists(outPath):
+        try:  os.makedirs(outPath)
+        except OSError as err:
+            if err.errno != errno.EEXIST:
+                raise
+if args.alarm_only:
     alhOnly = True
     mapOut = True
     cssOut = False
     dirr,outPath = '',''
     print('HV.alhConfig generated.')
-else:
-    if len(sys.argv)-1 == 1 and ('--help' not in sys.argv and \
-    '-h' not in sys.argv):
-        dirr = checkForInput(sys.argv[1])
-        outPath = ''
-    elif len(sys.argv)-1 == 2:
-        dirr = checkForInput(sys.argv[1])
-        outPath = sys.argv[2]
-        if outPath[-1] != '/':
-            outPath += '/'
-        if not os.path.exists(outPath):
-            try:
-                os.makedirs(outPath)
-            except OSError as err:
-                if err.errno != errno.EEXIST:
-                    raise
-    else:
-        print('\033[1m'+'\nINPUT ARGUEMENTS HELP'+'\033[0m')
-        print('\npython tcl2css.py [-m] [-a] dir [write]\n')
-        print('[-m]\t-optional argument to output channel_map, group_map, and')
-        print('\tHV.alhConfig.\n')
-        print('[-a]\t-optional argument to output only HV.alhConfig.\n')
-        print('dir\t- mandatory arguement for directory containing HV.hvc and ')
-        print('\tHV.group used to make the CSS screens.\n')
-        print('[write]\t- optional arguement for directory to write resulting ')
-        print('\t.opi files to.\n')
-        sys.exit(0)
 
 
 #CASE FOR OUTPUTTING CHANNEL MAPPING
@@ -1479,11 +1523,13 @@ if mapOut:
         f.write(final)
 #### END CASE FOR CHANNEL MAPPING
 
+
+
+
 print('')
 
 # Ends program here if option to not generate CSS-screens are used.
-if not cssOut:
-    sys.exit(0)
+if not cssOut:  sys.exit(0)
 
 #configuration files for .tcl files.
 configFile,groupFile = dirr+'/HV.hvc',dirr+'/HV.group'
@@ -1493,8 +1539,7 @@ groups = []
 with open(groupFile,'r') as f:
     for line in f.readlines():
         spectrometer = line.strip().split(' ')[1]
-        groups.append([line.strip().split(' ')[0],\
-            ' '.join(line.strip().split(' ')[1:])])
+        groups.append([line.strip().split(' ')[0],' '.join(line.strip().split(' ')[1:])])
 
 
 # Reads in channel configuration file and splits up config file into groups.
@@ -1511,18 +1556,17 @@ for i,grp in enumerate(groups):
 
 
 # Constants for widget placement on CSS screens.
-xSpacing = 0#10
-ySpacing = 0#8
+xSpacing = 0
+ySpacing = 0
 screenWidth = 800
 labelHeight = buttonHeight = indicatorHeight = ledHeight = inputHeight = 20
 labelWidth = 75
-buttonWidth = ledWidth = 75#50
-inputWidth = indicatorWidth = 75#68
+buttonWidth = ledWidth = 75
+inputWidth = indicatorWidth = 75
 horizDivLen = 750
 
 
-channelProps = ['Pw','VMon','IMon','Status','V0Set','I0Set','SVMax',\
-    'RUp','RDWn']
+channelProps = ['Pw','VMon','IMon','Status','V0Set','I0Set','SVMax','RUp','RDWn']
 # Creates screens showing each group in table format.
 vMon,iMon,allPVs = [],[],[]
 for grp in groups:
@@ -1536,8 +1580,8 @@ for grp in groups:
     for line in screenTemplate:
         line = line.replace('OPI_NAME',fileName)
         line = line.replace('SCREEN_WIDTH',str(screenWidth))
-        line = line.replace('SCREEN_HEIGHT',\
-            str(2*y0+len(channels)*(labelHeight+ySpacing)+45))
+        line = line.replace('SCREEN_HEIGHT',str(2*y0+len(channels)*(labelHeight+ySpacing)+45))
+        line = line.replace('AUTOSCALE_IT','false')
         screen.append(line)
     #hidden indicator containing display name for all off/on/reset scripts.
     for line in textUpdate:
@@ -1545,8 +1589,7 @@ for grp in groups:
         line = line.replace('INDICATOR_WIDTH',str(indicatorHeight))
         line = line.replace('INDICATOR_Y_POS',str(0))
         line = line.replace('INDICATOR_X_POS',str(0))
-        line = line.replace('PV_NAME','loc://fileName_'+fileName+\
-                '("$(DNAME)")')
+        line = line.replace('PV_NAME','loc://fileName_'+fileName+'("$(DNAME)")')
         line = line.replace('CANBESEEN','false')
         line = line.replace('INDICATOR_NAME','fileName_'+fileName)
         screen.append(line)
@@ -1569,8 +1612,7 @@ for grp in groups:
     #Generates labels for table header.
     #For FONT_STYLE, 1 is bold, 0 regular
     #for BORDER, 0 is no border, 1 is line border
-    headerContents = ['Ch ID','On/Off','Status','Vmon','Imon','Vset',\
-        'Itrip','Vmax','RmpUp','RmpDwn']
+    headerContents = ['Ch ID','On/Off','Status','Vmon','Imon','Vset','Itrip','Vmax','RmpUp','RmpDwn']
     for part in headerContents:
         for line in label:
             line = line.replace('LABEL_HEIGHT',str(labelHeight))
@@ -1595,8 +1637,12 @@ for grp in groups:
         pvBase = 'hchv'+ch[1]+':'+ch[2].zfill(2)+':'+ch[3].zfill(3)+':'
         for prop in channelProps:
             allPVsHold.append(pvBase+prop)
-        vMonHold.append(pvBase+'VMon')
-        iMonHold.append(pvBase+'IMon')
+        if not dev:
+            vMonHold.append(pvBase+'VMon')
+            iMonHold.append(pvBase+'IMon')
+        else:
+            vMonHold.append('devIOC:counter')
+            iMonHold.append('devIOC:counter')
         #Channel ID label
         for line in label:
             line = line.replace('LABEL_HEIGHT',str(labelHeight))
@@ -1615,8 +1661,7 @@ for grp in groups:
             line = line.replace('BUTTON_HEIGHT',str(buttonHeight))
             line = line.replace('BUTTON_WIDTH',str(buttonWidth))
             line = line.replace('BUTTON_Y_POS',str(y))
-            line = line.replace('BUTTON_X_POS',str(x+(labelWidth-\
-                buttonWidth)/2))
+            line = line.replace('BUTTON_X_POS',str(x+(labelWidth-buttonWidth)/2))
             line = line.replace('PV_NAME',pvBase+'Pw')
             line = line.replace('CANBESEEN','true')
             screen.append(line)
@@ -1627,8 +1672,7 @@ for grp in groups:
             line = line.replace('INDICATOR_HEIGHT',str(indicatorHeight))
             line = line.replace('INDICATOR_WIDTH',str(indicatorWidth))
             line = line.replace('INDICATOR_Y_POS',str(y))
-            line = line.replace('INDICATOR_X_POS',\
-                    str(x+(labelWidth-indicatorWidth)/2))
+            line = line.replace('INDICATOR_X_POS',str(x+(labelWidth-indicatorWidth)/2))
             line = line.replace('PV_NAME',pvBase+'Status')
             line = line.replace('INDICATOR_NAME',pvBase+'Status')
             screen.append(line)
@@ -1638,8 +1682,7 @@ for grp in groups:
             line = line.replace('INDICATOR_HEIGHT',str(indicatorHeight))
             line = line.replace('INDICATOR_WIDTH',str(indicatorWidth))
             line = line.replace('INDICATOR_Y_POS',str(y))
-            line = line.replace('INDICATOR_X_POS',\
-                    str(x+(labelWidth-indicatorWidth)/2))
+            line = line.replace('INDICATOR_X_POS',str(x+(labelWidth-indicatorWidth)/2))
             line = line.replace('PV_NAME',pvBase+'VMon')
             line = line.replace('INDICATOR_NAME',pvBase+'VMon')
             line = line.replace('CANBESEEN','true')
@@ -1650,8 +1693,7 @@ for grp in groups:
             line = line.replace('INDICATOR_HEIGHT',str(indicatorHeight))
             line = line.replace('INDICATOR_WIDTH',str(indicatorWidth))
             line = line.replace('INDICATOR_Y_POS',str(y))
-            line = line.replace('INDICATOR_X_POS',\
-                    str(x+(labelWidth-indicatorWidth)/2))
+            line = line.replace('INDICATOR_X_POS',str(x+(labelWidth-indicatorWidth)/2))
             line = line.replace('PV_NAME',pvBase+'IMon')
             line = line.replace('INDICATOR_NAME',pvBase+'IMon')
             line = line.replace('CANBESEEN','true')
@@ -1662,8 +1704,7 @@ for grp in groups:
             line = line.replace('INPUT_HEIGHT',str(inputHeight))
             line = line.replace('INPUT_WIDTH',str(inputWidth))
             line = line.replace('INPUT_Y_POS',str(y))
-            line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
-                inputWidth)/2))
+            line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
             line = line.replace('PV_NAME',pvBase+'V0Set')
             screen.append(line)
         x += labelWidth
@@ -1672,8 +1713,7 @@ for grp in groups:
             line = line.replace('INPUT_HEIGHT',str(inputHeight))
             line = line.replace('INPUT_WIDTH',str(inputWidth))
             line = line.replace('INPUT_Y_POS',str(y))
-            line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
-                inputWidth)/2))
+            line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
             line = line.replace('PV_NAME',pvBase+'I0Set')
             screen.append(line)
         x += labelWidth
@@ -1682,8 +1722,7 @@ for grp in groups:
             line = line.replace('INPUT_HEIGHT',str(inputHeight))
             line = line.replace('INPUT_WIDTH',str(inputWidth))
             line = line.replace('INPUT_Y_POS',str(y))
-            line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
-                inputWidth)/2))
+            line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
             line = line.replace('PV_NAME',pvBase+'SVMax')
             screen.append(line)
         x += labelWidth
@@ -1692,8 +1731,7 @@ for grp in groups:
             line = line.replace('INPUT_HEIGHT',str(inputHeight))
             line = line.replace('INPUT_WIDTH',str(inputWidth))
             line = line.replace('INPUT_Y_POS',str(y))
-            line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
-                inputWidth)/2))
+            line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
             line = line.replace('PV_NAME',pvBase+'RUp')
             screen.append(line)
         allRUpXLoc = str(x+(labelWidth-inputWidth)/2)
@@ -1703,22 +1741,10 @@ for grp in groups:
             line = line.replace('INPUT_HEIGHT',str(inputHeight))
             line = line.replace('INPUT_WIDTH',str(inputWidth))
             line = line.replace('INPUT_Y_POS',str(y))
-            line = line.replace('INPUT_X_POS',str(x+(labelWidth-\
-                inputWidth)/2))
+            line = line.replace('INPUT_X_POS',str(x+(labelWidth-inputWidth)/2))
             line = line.replace('PV_NAME',pvBase+'RDWn')
             screen.append(line)
         allRDWnXLoc = str(x+(labelWidth-inputWidth)/2)
-        #horizontal divider line between channels.
-        for line in lineFmt:
-            line = line.replace('LINE_HEIGHT',str(1))
-            line = line.replace('LINE_WIDTH',str(horizDivLen))
-            line = line.replace('LINE_Y_POS',str(y-(ySpacing/2)))
-            line = line.replace('LINE_X_POS',str(x0))
-            line = line.replace('PT1_X',str(x0))
-            line = line.replace('PT1_Y',str(y-(ySpacing/2)))
-            line = line.replace('PT2_X',str(x0+horizDivLen))
-            line = line.replace('PT2_Y',str(y-(ySpacing/2)))
-            #screen.append(line)
         y += labelHeight+ySpacing
 
     ## Group controls at bottom of list
@@ -1859,11 +1885,30 @@ for grp in groups:
 #makes Histogram plots for individual detectors
 # makeHistoPlot function on line ~ 1031
 for i,item in enumerate(menuOptions):
+    voltages = ['loc://zero(0)'] + vMon[i]
+    voltages.append('loc://zero(0)')
     screen = makeHistoPlot(item[0],vMon[i],iMon[i],menuOptions)
     writeFile(outPath,item[1][:-9]+'-plot.opi',screen)
 
+vGr1,vGr2 = [],[]
+iGr1,iGr2 = [],[]
+for i,item in enumerate(vMon):
+    if i%2 == 0:
+        vGr1 += item
+        vGr2 += ['loc://zero(0)']*len(item)
+        iGr1 += iMon[i]
+        iGr2 += ['loc://one(1)']*len(iMon[i])
+    else:
+        vGr1 += ['loc://zero(0)']*len(item)
+        vGr2 += item
+        iGr1 += ['loc://one(1)']*len(iMon[i])
+        iGr2 += iMon[i]
+
 # makes histogram plots for overall spectrometer
-screen = makeHistoPlot(spectrometer,flatten(vMon),flatten(iMon),menuOptions)
+#screen = makeHistoPlot(spectrometer,flatten(vMon),flatten(iMon),menuOptions)
+screen = makeHistoPlot(spectrometer,vGr1,iGr1,menuOptions,vGr2,iGr2)
+
+
 writeFile(outPath,spectrometer+'-plot.opi',screen)
 print(' ')
 
