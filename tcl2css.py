@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 ###
 ### split out ability to generate alhConfig separately.
@@ -12,7 +12,7 @@
 # Program also allows for user to generate group_map, channel_map and alhConfig
 # files.
 
-import sys,os,errno,array,socket,argparse
+import sys,os,errno,array,socket,argparse,subprocess,tarfile,gzip
 from math import ceil
 from datetime import datetime
 
@@ -1293,16 +1293,21 @@ alhOnly = False
 ## Parses input arguments.
 parser = argparse.ArgumentParser()
 parser.add_argument('input',help='Directory containing HV.group and HV.hvc files.')
-parser.add_argument('-o','--output',help='Path of where to write resulting file to.')
 parser.add_argument('-m','--map',help='Output channel map documentation.',action='store_true')
 parser.add_argument('-a','--alarm_only',help='Only generate alarm configuration file.',action='store_true')
 parser.add_argument('-d','--dev',help='Use PVs from development IOC instead of real PVs.',action='store_true')
+parser.add_argument('-z','--zip',help='Create compressed directory containing all screens created')
+parser.add_argument('-o','--output',help='Path of where to write resulting file to.')
 args = parser.parse_args()
 
 inputArg = args.input
 outPath = args.output
 mapOut = args.map
 dev = args.dev
+tar = args.zip != None
+tarTarget = args.zip
+toTar = []
+
 
 if outPath == None:
     dirr = checkForInput(inputArg)
@@ -1881,6 +1886,7 @@ for grp in groups:
     # with the name of the group.
     screen.append(lastLine)
     writeFile(outPath,fileName+'-list.opi',screen)
+    toTar.append(fileName+'-list.opi')
 
 #makes Histogram plots for individual detectors
 # makeHistoPlot function on line ~ 1031
@@ -1889,6 +1895,7 @@ for i,item in enumerate(menuOptions):
     voltages.append('loc://zero(0)')
     screen = makeHistoPlot(item[0],vMon[i],iMon[i],menuOptions)
     writeFile(outPath,item[1][:-9]+'-plot.opi',screen)
+    toTar.append(item[1][:-9]+'-plot.opi')
 
 vGr1,vGr2 = [],[]
 iGr1,iGr2 = [],[]
@@ -1910,5 +1917,16 @@ screen = makeHistoPlot(spectrometer,vGr1,iGr1,menuOptions,vGr2,iGr2)
 
 
 writeFile(outPath,spectrometer+'-plot.opi',screen)
+toTar.append(spectrometer+'-plot.opi')
 print(' ')
 
+if tar:
+    if tarTarget[-7:] != '.tar.gz': tarTarget += '.tar.gz'
+    if os.path.exists(tarTarget):
+        with tarfile.open(outPath+tarTarget) as f:
+            toTar = list(set(toTar + f.getnames()))
+    tf = tarfile.open(outPath+tarTarget,'w:gz')
+    for item in toTar:
+        tf.addfile(tarfile.TarInfo(item),open(outPath+item))
+    tf.close()
+    print('Results compressed into "'+tarTarget+'".\n')
