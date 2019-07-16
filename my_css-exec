@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# @author: Tyler Lemon
+# Date:    July 15, 2019
+
+# This shell script opens Hall C HV CSS controls system in a temporary
+# workspace, allowing several versions of it to be opened at once.
+# Each instance is its own unique set of screens, where any changes made to
+# the files in the workspace do not affect any other screens opened on that
+# are opened in the future (unless the modified files are saved to $workspace.)
+
+
+# Declares temporary path that all workspaces will be generated in.
+tmp_path=/tmp/CSS-Workspaces
+
+# gets directory containing this executable.
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# THIS VARIABLE SHOULD BE CHANGED TO MATCH YOUR SYSTEM.
+# In the same directory containing this executable, there should the directory
+# below with all CSS files to include in the controls system.
+# NOTE: for some reason the CSS files have to be at least 2 levels deeper than
+# the executable.
+workspace=$DIR/common/CSS
+
+
+# Creates tmp_path if it does not exist.
+if [[ ! -e $tmp_path ]]; then
+	mkdir -p $tmp_path -m 777
+fi
+
+# Makes a temporary workspace at tmp_path/tmp.<random_string>/CSS
+wsp=`mktemp -d -p $tmp_path/`
+mkdir $wsp/CSS
+
+# Copies all files to temporary workspace.
+# The .metadata directory is needed to get it to start up in the runtime mode.
+cp -rf $workspace/* $wsp/CSS >& /dev/null
+cp -rf $workspace/.* $wsp/CSS >& /dev/null
+cp -rf $workspace/../.metadata $wsp >& /dev/null
+
+
+# actual comand to open CSS to the main menu of the Hall C CSS HV controls.
+css -data $wsp -nosplash --launcher.suppressErrors --launcher.openFile $wsp/CSS/main-menu.opi
