@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
+'''
+2018-12-18
+@author: Tyler Lemon
 
-###
-### split out ability to generate alhConfig separately.
-###
+Program uses HV.hvc and HV.group files to convert Hall C HV controls TCL/TK
+screens to CS-Studio screens.
+Program also allows for user to generate group_map, channel_map and alhConfig
+files.
 
-# 2018-12-18
-# @author: Tyler Lemon
-#
-# Program uses HV.hvc and HV.group files to convert Hall C HV controls TCL/TK
-# screens to CS-Studio screens.
-# Program also allows for user to generate group_map, channel_map and alhConfig
-# files.
+
+'''
+
+
 
 import sys,os,errno,array,socket,argparse,subprocess,tarfile,gzip
 from math import ceil
@@ -54,69 +55,7 @@ screenTemplate = [\
 '  <width>SCREEN_WIDTH</width>',\
 '  <wuid>54b97197:16750d3dd5b:-7755</wuid>',\
 '  <x>-1</x>',\
-'  <y>-1</y>',\
-'  <widget typeId="org.csstudio.opibuilder.widgets.MenuButton" version="1.0.0">',\
-'    <actions hook="false" hook_all="false">',\
-'      <action type="OPEN_DISPLAY">',\
-'        <path>backup-gui.opi</path>',\
-'        <macros>',\
-'          <include_parent_macros>true</include_parent_macros>',\
-'        </macros>',\
-'        <mode>6</mode>',\
-'        <description>Backup</description>',\
-'      </action>',\
-'      <action type="OPEN_DISPLAY">',\
-'        <path>restore-gui.opi</path>',\
-'        <macros>',\
-'          <include_parent_macros>true</include_parent_macros>',\
-'        </macros>',\
-'        <mode>6</mode>',\
-'        <description>Restore</description>',\
-'      </action>',\
-'    </actions>',\
-'    <actions_from_pv>false</actions_from_pv>',\
-'    <alarm_pulsing>false</alarm_pulsing>',\
-'    <backcolor_alarm_sensitive>false</backcolor_alarm_sensitive>',\
-'    <background_color>',\
-'      <color red="240" green="240" blue="240" />',\
-'    </background_color>',\
-'    <border_alarm_sensitive>false</border_alarm_sensitive>',\
-'    <border_color>',\
-'      <color red="0" green="0" blue="0" />',\
-'    </border_color>',\
-'    <border_style>1</border_style>',\
-'    <border_width>1</border_width>',\
-'    <enabled>true</enabled>',\
-'    <font>',\
-'      <opifont.name fontName="Cantarell" height="11" style="0" pixels="false">Default</opifont.name>',\
-'    </font>',\
-'    <forecolor_alarm_sensitive>false</forecolor_alarm_sensitive>',\
-'    <foreground_color>',\
-'      <color red="0" green="0" blue="0" />',\
-'    </foreground_color>',\
-'    <height>25</height>',\
-'    <label>File</label>',\
-'    <name>Menu Button_1</name>',\
-'    <pv_name></pv_name>',\
-'    <pv_value />',\
-'    <rules />',\
-'    <scale_options>',\
-'      <width_scalable>true</width_scalable>',\
-'      <height_scalable>true</height_scalable>',\
-'      <keep_wh_ratio>false</keep_wh_ratio>',\
-'    </scale_options>',\
-'    <scripts />',\
-'    <show_down_arrow>true</show_down_arrow>',\
-'    <tooltip>$(pv_name)',\
-'$(pv_value)</tooltip>',\
-'    <transparent>false</transparent>',\
-'    <visible>true</visible>',\
-'    <widget_type>Menu Button</widget_type>',\
-'    <width>75</width>',\
-'    <wuid>22564f20:16a30a2eecf:-7b8d</wuid>',\
-'    <x>25</x>',\
-'    <y>10</y>',\
-'  </widget>']
+'  <y>-1</y>']
 
 #The last line of the text OPI needs to be this.
 lastLine = '</display>'
@@ -531,8 +470,8 @@ xyPlotStart = [\
 '    <axis_1_grid_color>',\
 '      <color red="200" green="200" blue="200" />',\
 '    </axis_1_grid_color>',\
-'    <axis_1_log_scale>false</axis_1_log_scale>',\
-'    <axis_1_maximum>2500.0</axis_1_maximum>',\
+'    <axis_1_log_scale>LOGSCALE</axis_1_log_scale>',\
+'    <axis_1_maximum>3000.0</axis_1_maximum>',\
 '    <axis_1_minimum>0.0</axis_1_minimum>',\
 '    <axis_1_scale_font>',\
 '      <opifont.name fontName="Cantarell" height="11" style="0" pixels="false">Default</opifont.name>',\
@@ -1189,6 +1128,7 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions,vMon2='',iMon2=''):
         line = line.replace('DIFFERENTIATE','-VMon-'+spectrometer.replace(' ','-'))
         line = line.replace('CH_DIFF',spectrometer.replace(' ','-'))
         line = line.replace('X_AXIS_MAX',str(len(vMon)))
+        line = line.replace('LOG_SCALE','false')
         screen.append(line)
     for pv in vMon:
         screen.append(xyPlotChannelFmt.replace('INSERT_PV_HERE',pv))
@@ -1212,6 +1152,7 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions,vMon2='',iMon2=''):
             line = line.replace('DIFFERENTIATE','-VMon2-'+spectrometer.replace(' ','-'))
             line = line.replace('CH_DIFF',spectrometer.replace(' ','-'))
             line = line.replace('X_AXIS_MAX',str(len(vMon2)))
+            line = line.replace('LOG_SCALE','false')
             screen.append(line)
         for pv in vMon2:
             screen.append(xyPlotChannelFmt.replace('INSERT_PV_HERE',pv))
@@ -1234,6 +1175,7 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions,vMon2='',iMon2=''):
         line = line.replace('DIFFERENTIATE','-IMon-'+spectrometer.replace(' ','-'))
         line = line.replace('CH_DIFF',spectrometer.replace(' ','-'))
         line = line.replace('X_AXIS_MAX',str(len(iMon)))
+        line = line.replace('LOG_SCALE','true')
         screen.append(line)
     for pv in iMon:
         screen.append(xyPlotChannelFmt.replace('INSERT_PV_HERE',pv))
@@ -1254,6 +1196,7 @@ def makeHistoPlot(spectrometer,vMon,iMon,menuOptions,vMon2='',iMon2=''):
             line = line.replace('DIFFERENTIATE','-IMon2-'+spectrometer.replace(' ','-'))
             line = line.replace('CH_DIFF',spectrometer.replace(' ','-'))
             line = line.replace('X_AXIS_MAX',str(len(iMon)))
+            line = line.replace('LOG_SCALE','true')
             screen.append(line)
         for pv in iMon2:
             screen.append(xyPlotChannelFmt.replace('INSERT_PV_HERE',pv))
@@ -1296,7 +1239,6 @@ parser.add_argument('input',help='Directory containing HV.group and HV.hvc files
 parser.add_argument('-m','--map',help='Output channel map documentation.',action='store_true')
 parser.add_argument('-a','--alarm_only',help='Only generate alarm configuration file.',action='store_true')
 parser.add_argument('-d','--dev',help='Use PVs from development IOC instead of real PVs.',action='store_true')
-parser.add_argument('-z','--zip',help='Create compressed directory containing all screens created')
 parser.add_argument('-o','--output',help='Path of where to write resulting file to.')
 args = parser.parse_args()
 
@@ -1304,10 +1246,6 @@ inputArg = args.input
 outPath = args.output
 mapOut = args.map
 dev = args.dev
-tar = args.zip != None
-tarTarget = args.zip
-toTar = []
-
 
 if outPath == None:
     dirr = checkForInput(inputArg)
@@ -1555,9 +1493,11 @@ for i,grp in enumerate(groups):
     menuOptions.append([grp[1],grp[1].replace(' ','-')+'-list.opi'])
     for line in configLines:
         if line[0] != '#' and line[0] != '\n':
+            line = ' '.join(line.split()) ## This one line lets it correctly parse arbitrary whitespace. - 2019-07-12
             group = line.strip().split(' ')[4]
             if group == grp[0]:
                 groups[int(i)].append(line.strip().split(' ')[:4])
+
 
 
 # Constants for widget placement on CSS screens.
@@ -1617,6 +1557,7 @@ for grp in groups:
     #Generates labels for table header.
     #For FONT_STYLE, 1 is bold, 0 regular
     #for BORDER, 0 is no border, 1 is line border
+
     headerContents = ['Ch ID','On/Off','Status','Vmon','Imon','Vset','Itrip','Vmax','RmpUp','RmpDwn']
     for part in headerContents:
         for line in label:
@@ -1636,7 +1577,9 @@ for grp in groups:
         x += labelWidth
     y += labelHeight+ySpacing
     #Places all widgets on the screens.
+    chStr = ''
     for ch in channels:
+        chStr += ' '.join(ch)+'\n'
         x = x0
         chID = ch[0]
         pvBase = 'hchv'+ch[1]+':'+ch[2].zfill(2)+':'+ch[3].zfill(3)+':'
@@ -1750,6 +1693,7 @@ for grp in groups:
             line = line.replace('PV_NAME',pvBase+'RDWn')
             screen.append(line)
         allRDWnXLoc = str(x+(labelWidth-inputWidth)/2)
+
         y += labelHeight+ySpacing
 
     ## Group controls at bottom of list
@@ -1878,6 +1822,20 @@ for grp in groups:
         line = line.replace('PV_NAME','loc://allRDWn_'+fileName)
         screen.append(line)
 
+
+    #makes hidden channel list for item
+    for line in label:
+        line = line.replace('LABEL_HEIGHT',str(100))
+        line = line.replace('LABEL_WIDTH',str(100))
+        line = line.replace('LABEL_TEXT',chStr)
+        line = line.replace('LABEL_NAME',grpName.replace(' ','-')+'-Channel-Reference-Str')
+        line = line.replace('LABEL_Y_POS',str(200))
+        line = line.replace('LABEL_X_POS',str(400))
+        line = line.replace('FONT_STYLE',str(0))
+        line = line.replace('FONT_SIZE',str(10))
+        line = line.replace('BORDER',str(0))
+        screen.append(line)
+
     #appends group vMon and iMon PVs to overall list.
     vMon.append(vMonHold)
     iMon.append(iMonHold)
@@ -1886,7 +1844,8 @@ for grp in groups:
     # with the name of the group.
     screen.append(lastLine)
     writeFile(outPath,fileName+'-list.opi',screen)
-    toTar.append(fileName+'-list.opi')
+
+
 
 #makes Histogram plots for individual detectors
 # makeHistoPlot function on line ~ 1031
@@ -1895,7 +1854,6 @@ for i,item in enumerate(menuOptions):
     voltages.append('loc://zero(0)')
     screen = makeHistoPlot(item[0],vMon[i],iMon[i],menuOptions)
     writeFile(outPath,item[1][:-9]+'-plot.opi',screen)
-    toTar.append(item[1][:-9]+'-plot.opi')
 
 vGr1,vGr2 = [],[]
 iGr1,iGr2 = [],[]
@@ -1917,16 +1875,4 @@ screen = makeHistoPlot(spectrometer,vGr1,iGr1,menuOptions,vGr2,iGr2)
 
 
 writeFile(outPath,spectrometer+'-plot.opi',screen)
-toTar.append(spectrometer+'-plot.opi')
 print(' ')
-
-if tar:
-    if tarTarget[-7:] != '.tar.gz': tarTarget += '.tar.gz'
-    if os.path.exists(tarTarget):
-        with tarfile.open(outPath+tarTarget) as f:
-            toTar = list(set(toTar + f.getnames()))
-    tf = tarfile.open(outPath+tarTarget,'w:gz')
-    for item in toTar:
-        tf.addfile(tarfile.TarInfo(item),open(outPath+item))
-    tf.close()
-    print('Results compressed into "'+tarTarget+'".\n')
