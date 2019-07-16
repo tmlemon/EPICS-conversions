@@ -21,6 +21,10 @@ Programs are designed to run from Linux command line.
   - Program reads in .hvc config file and outputs channel map, group map, and ALH config file.
   - Code hv_map.py has been integrated into tcl2css.py
 
+- my_css-exec
+  - bash script for opening Hall C CSS screens in a unique temporary workspace.
+  - Not technically a conversion but included to create a complete repo of items used.
+
 - opi2edl.py
   - Converts CSS .opi files to EDM .edl files.
 
