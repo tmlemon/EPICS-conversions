@@ -1,46 +1,29 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-from org.csstudio.opibuilder.scriptUtil import PVUtil
-from org.csstudio.opibuilder.scriptUtil import ConsoleUtil
-import os
-
-#looks at host name to see if it development PC
-import socket
-devList = ['dsg-c-linux1.jlab.org']
-dev = socket.gethostname() in devList
-
+import org.csstudio.opibuilder.scriptUtil as scriptUtil
 
 prop = str(pvs[1])[6:-3].split('_')[0][3:]
 
-now = PVUtil.getDouble(pvs[1])
+now = scriptUtil.PVUtil.getDouble(pvs[1])
 
 try:
     chg =  now != last
 except:
     chg = False
 
-#screen = 'HMS-Hodo-1-X-list.opi'
-screen = str(PVUtil.getString(pvs[0]))
+screen = str(scriptUtil.PVUtil.getString(pvs[0]))
 
 if chg:
-    #path = '/home/tlemon/CSS-Workspaces/dev/CSS/'
-    path = os.getcwd()
+    path =  scriptUtil.FileUtil.workspacePathToSysPath('CSS')
     if path[-1] != '/':	path += '/'
     inFile = path+screen+'-list.opi'
-
     with open(inFile,'r') as f:
         data = f.readlines()
-
     count = 0
     for line in data:
         line = line.strip()
         if '<pv_name>' in line and '</pv_name>' in line:
             pv = line.split('<pv_name>')[1].split('</pv_name>')[0]
             if prop in pv:
-                count += 1
-                if dev:
-                    PVUtil.writePV('devIOC:ai'+str(count),now)
-                else:
-                    PVUtil.writePV(pv,now)
-
+                scriptUtil.PVUtil.writePV(pv,now)
 last = now
